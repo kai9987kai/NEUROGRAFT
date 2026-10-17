@@ -19,16 +19,21 @@ class NavigationWorld:
     MAX_EPISODE_STEPS = 256
     MAX_TRAIL = 64
     COLORS = ("blue", "amber", "rose")
+    PRESETS = ("labyrinth", "chambers", "corridors", "pillars")
     ACTIONS = ((0, -1), (1, 0), (0, 1), (-1, 0))
+    RAYS_8 = ((0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1))
     _SAVE_KEYS = {
         "version", "seed", "size", "agent", "goal", "beacons", "obstacles",
         "trail", "steps", "episode", "goals_reached", "total_reward",
         "last_reward", "episode_steps", "max_episode_steps", "rng_state",
     }
 
-    def __init__(self, seed: int = 0, size: int = 11):
+    def __init__(self, seed: int = 0, size: int = 15, preset: str = "labyrinth"):
         self.seed = self._integer(seed, "seed", -(2**63), 2**63 - 1)
         self.size = self._integer(size, "size", 5, 31)
+        if type(preset) is not str or preset not in self.PRESETS:
+            raise ValueError(f"preset must be one of {self.PRESETS}")
+        self.preset = preset
         self._rng = random.Random(self.seed)
         self.steps = self.episode = self.goals_reached = self.episode_steps = 0
         self.total_reward = self.last_reward = 0.0
@@ -46,7 +51,10 @@ class NavigationWorld:
             if (x, z) not in protected
         ]
         self._rng.shuffle(candidates)
-        target = max(1, int((self.size - 2) ** 2 * 0.15))
+        if self.size >= 11:
+            candidates.sort(key=lambda cell: not self._is_motif_cell(cell, self.preset))
+        density = 0.22 if self.size >= 11 else 0.15
+        target = max(1, int((self.size - 2) ** 2 * density))
         added = 0
         for cell in candidates:
             self._obstacles.add(cell)
@@ -61,6 +69,25 @@ class NavigationWorld:
         self._goal = self._agent
         self._goal_color = "custom"
         self.set_goal()
+
+    def _is_motif_cell(self, cell: tuple[int, int], preset: str) -> bool:
+        x, z = cell
+        mid = self.size // 2
+        q1 = max(2, self.size // 4)
+        q3 = min(self.size - 3, self.size - 1 - q1)
+        if preset == "chambers":
+            on_cross = (x == mid and z not in (q1, mid, q3)) or (z == mid and x not in (q1, mid, q3))
+            on_ring = (x in (q1, q3) and z in (q1, q3))
+            return on_cross or on_ring
+        if preset == "corridors":
+            return (x % 3 == 0 and 2 <= z <= self.size - 3 and (z + x) % 4 != 0)
+        if preset == "pillars":
+            return (x % 2 == 0 and z % 2 == 0) or (abs(x - mid) == abs(z - mid) and x not in (1, mid, self.size - 2))
+        # Default "labyrinth": multi-chamber partitions + inner canyon baffles
+        on_partition = (x == mid and z not in (q1, mid, q3)) or (z == mid and x not in (q1, mid, q3))
+        on_baffle = ((x in (q1, q3) and abs(z - mid) <= max(1, self.size // 6) and z != mid)
+                     or (z in (q1, q3) and abs(x - mid) <= max(1, self.size // 6) and x != mid))
+        return on_partition or on_baffle
 
     @staticmethod
     def _integer(value: Any, name: str, minimum: int, maximum: int) -> int:
@@ -153,6 +180,69 @@ class NavigationWorld:
                 visited.add(cell)
                 pending.append((cell, next_path))
         return [self._position(self._agent)]
+
+    def environment_telemetry(self) -> dict[str, Any]:
+        """Compute spatial complexity, 8-ray optic/LiDAR clearances, choke points, and plume gradient."""
+        path = self.shortest_path()
+        geodesic = max(0, len(path) - 1)
+        ax, az = self._agent
+        gx, gz = self._goal
+        manhattan = abs(ax - gx) + abs(az - gz)
+        detour = float(geodesic) / max(1, manhattan) if geodesic > 0 else 1.0
+        interior = (self.size - 2) ** 2
+        boundary_count = 4 * self.size - 4
+        obstacle_cells = max(0, len(self._obstacles) - boundary_count)
+        free_cells = interior - obstacle_cells
+        corridors = junctions = dead_ends = 0
+        for z in range(1, self.size - 1):
+            for x in range(1, self.size - 1):
+                if (x, z) in self._obstacles:
+                    continue
+                deg = sum(1 for dx, dz in self.ACTIONS if self._free((x + dx, z + dz)))
+                if deg <= 1:
+                    dead_ends += 1
+                elif deg == 2:
+                    corridors += 1
+                else:
+                    junctions += 1
+        choke_points = []
+        for step in path[1:-1]:
+            sx, sz = step["x"], step["z"]
+            deg = sum(1 for dx, dz in self.ACTIONS if self._free((sx + dx, sz + dz)))
+            if deg <= 2:
+                choke_points.append({"x": sx, "z": sz})
+        horizon = max(1, self.size - 2)
+        lidar_8 = []
+        lidar_rays = []
+        for dx, dz in self.RAYS_8:
+            steps = 0
+            cx, cz = ax, az
+            while self._free((cx + dx, cz + dz)) and steps < horizon:
+                cx += dx
+                cz += dz
+                steps += 1
+            norm_d = float(steps) / float(horizon)
+            lidar_8.append(norm_d)
+            lidar_rays.append({"x": cx + dx, "z": cz + dz, "free_x": cx, "free_z": cz, "clearance": norm_d})
+        chemoattractant = float(math.exp(-geodesic / max(2.0, 0.55 * self.size)))
+        return {
+            "preset": getattr(self, "preset", "labyrinth"),
+            "size": self.size,
+            "interior_cells": interior,
+            "free_cells": free_cells,
+            "obstacle_cells": obstacle_cells,
+            "obstacle_density": float(obstacle_cells) / max(1, interior),
+            "corridor_cells": corridors,
+            "branch_junctions": junctions,
+            "dead_ends": dead_ends,
+            "geodesic_distance": geodesic,
+            "manhattan_distance": manhattan,
+            "detour_index": detour,
+            "choke_points": choke_points,
+            "chemoattractant": chemoattractant,
+            "lidar_8": lidar_8,
+            "lidar_rays": lidar_rays,
+        }
 
     def set_goal(self, color: str | None = None, x: int | None = None, z: int | None = None) -> dict:
         """Choose a beacon or a free interior cell; validate before mutation."""
@@ -331,6 +421,7 @@ class NavigationWorld:
 
         candidate = cls.__new__(cls)
         candidate.seed, candidate.size = seed, size
+        candidate.preset = "labyrinth"
         candidate._obstacles = obstacles
         candidate._agent, candidate.direction = agent, direction
         candidate._goal, candidate._goal_color = goal, goal_color

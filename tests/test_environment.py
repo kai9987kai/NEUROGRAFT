@@ -217,7 +217,25 @@ def test_saved_reward_and_episode_counters_must_be_consistent(changes):
         world_class().from_dict(saved)
 
 
-@pytest.mark.parametrize("kwargs", [{"seed": True}, {"seed": "0"}, {"size": True}, {"size": 4}, {"size": 32}, {"size": 7.5}])
+@pytest.mark.parametrize("kwargs", [{"seed": True}, {"seed": "0"}, {"size": True}, {"size": 4}, {"size": 32}, {"size": 7.5}, {"preset": "unknown"}])
 def test_constructor_rejects_unsafe_or_nonintegral_configuration(kwargs):
     with pytest.raises(ValueError):
         world_class()(**kwargs)
+
+
+@pytest.mark.parametrize("preset", ["labyrinth", "chambers", "corridors", "pillars"])
+def test_architectural_presets_and_environment_telemetry(preset):
+    cls = world_class()
+    world = cls(seed=17, size=17, preset=preset)
+    snap = world.snapshot()
+    env = world.environment_telemetry()
+    assert snap["size"] == 17
+    assert env["preset"] == preset
+    assert len(env["lidar_8"]) == 8 and all(0.0 <= v <= 1.0 for v in env["lidar_8"])
+    assert len(env["lidar_rays"]) == 8
+    assert env["detour_index"] >= 1.0
+    assert 0.0 <= env["chemoattractant"] <= 1.0
+    assert isinstance(env["choke_points"], list)
+    start = (snap["agent"]["x"], snap["agent"]["z"])
+    for beacon in snap["beacons"]:
+        assert distance(snap, start, (beacon["x"], beacon["z"])) is not None

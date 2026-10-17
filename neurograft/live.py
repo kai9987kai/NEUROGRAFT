@@ -171,6 +171,50 @@ class LiveSession:
             name: param.detach().clone()
             for name, param in self.model.named_parameters()
         }
+        self._connectome_motifs = self._compute_connectome_motifs(bundle)
+
+    @staticmethod
+    def _compute_connectome_motifs(bundle: GraphBundle) -> dict[str, dict[str, Any]]:
+        motifs: dict[str, dict[str, Any]] = {}
+        for graph in bundle.graphs:
+            src_id = graph.manifest.source_id
+            deg = {node.id: 0 for node in graph.nodes}
+            chem_pairs: set[tuple[str, str]] = set()
+            chem_count = elec_count = macro_count = 0
+            pos_w = neg_w = 0.0
+            for edge in graph.edges:
+                deg[edge.src] = deg.get(edge.src, 0) + 1
+                if edge.dst != edge.src:
+                    deg[edge.dst] = deg.get(edge.dst, 0) + 1
+                if edge.relation == "chemical":
+                    chem_count += 1
+                    if edge.src != edge.dst:
+                        chem_pairs.add((edge.src, edge.dst))
+                elif edge.relation == "electrical":
+                    elec_count += 1
+                else:
+                    macro_count += 1
+                if edge.weight >= 0:
+                    pos_w += abs(edge.weight)
+                else:
+                    neg_w += abs(edge.weight)
+            reciprocal = sum(1 for u, v in chem_pairs if u < v and (v, u) in chem_pairs)
+            ranked = sorted(
+                enumerate(graph.nodes),
+                key=lambda item: (-deg.get(item[1].id, 0), item[1].original_id),
+            )[:4]
+            motifs[src_id] = {
+                "chemical_edges": chem_count,
+                "electrical_edges": elec_count,
+                "macro_edges": macro_count,
+                "reciprocal_dyads": reciprocal,
+                "excitatory_fraction": pos_w / max(1e-9, pos_w + neg_w),
+                "rich_club_hubs": [
+                    {"index": idx, "id": node.original_id, "degree": deg.get(node.id, 0)}
+                    for idx, node in ranked
+                ],
+            }
+        return motifs
 
     @property
     def running(self):
@@ -203,6 +247,19 @@ class LiveSession:
     def set_goal(self, color=None, x=None, z=None):
         with self.lock:
             self.world.set_goal(color=color, x=x, z=z)
+            self._reset_inference()
+            return self.snapshot()
+
+    def resize_world(self, size: int = 15, preset: str = "labyrinth"):
+        with self.lock:
+            new_world = NavigationWorld(seed=self.world.seed, size=size, preset=preset)
+            new_world.steps = self.world.steps
+            new_world.goals_reached = self.world.goals_reached
+            new_world.total_reward = self.world.total_reward
+            new_world.episode = max(self.world.episode, self.world.goals_reached, 1 if self.world.steps > 0 else 0)
+            new_world.episode_steps = 0
+            new_world.last_reward = 0.0
+            self.world = new_world
             self._reset_inference()
             return self.snapshot()
 
@@ -261,53 +318,105 @@ class LiveSession:
             return self.snapshot()
 
     def telemetry(self) -> dict[str, Any]:
-        """Compute live circuit introspection, top firing nodes, and evolution metrics."""
+        """Compute live circuit introspection, virtual lesions, LTC tau, neuromodulators, and environment telemetry."""
         with self.lock:
             probs = torch.softmax(self.last_logits[0].detach(), dim=-1).tolist()
             expert = self.world.expert_action()
             path = self.world.shortest_path()
+            env_info = self.world.environment_telemetry()
             gates = [float(g.detach().sigmoid().mean()) for g in self.model.graft_gates]
             routes = self.routes.detach().clamp(min=1e-12)
-            entropy = float(-(routes * routes.log()).sum(dim=-1).mean() / math.log(5.0))
+            entropy = max(0.0, min(1.0, float(-(routes * routes.log()).sum(dim=-1).mean() / math.log(5.0))))
             delta_sq = sum(
                 float((param.detach() - self._initial_weights[name]).pow(2).sum())
                 for name, param in self.model.named_parameters()
             )
             weight_delta = math.sqrt(max(0.0, delta_sq))
             graft_impact = 0.0
+            source_keys = ("worm", "fly_f", "fly_m", "human")
+            source_ablation = {k: 0.0 for k in source_keys}
             if self.observation_history:
                 window = list(self.observation_history)
                 padded = [[[0.0] * 4 for _ in range(4)] for _ in range(self.config.unroll - len(window))] + window
                 seq = torch.tensor([padded], dtype=torch.float32)
                 with torch.no_grad():
                     ungrafted = self.model(seq, graft_enabled=False).logits
-                graft_impact = float((self.last_logits.detach() - ungrafted.detach()).norm())
+                    graft_impact = float((self.last_logits.detach() - ungrafted.detach()).norm())
+                    for idx, skey in enumerate(source_keys):
+                        ablated = self.model(seq, ablate_source=idx).logits
+                        source_ablation[skey] = float((self.last_logits.detach() - ablated.detach()).norm())
             top_nodes = {}
+            liquid_tau = []
+            connectome_motifs = {}
             graph_map = {graph.manifest.source_id: graph for graph in self.bundle.graphs}
-            for source_id, state in zip(("worm", "fly_f", "fly_m", "human"), self.recurrent_state):
+            for idx, (source_id, state) in enumerate(zip(source_keys, self.recurrent_state)):
                 graph = graph_map[source_id]
                 mags = state[0].detach().abs().mean(dim=-1)
+                mean_act = float(mags.mean())
+                tau_s = 1.0 / (0.35 + 0.65 * mean_act + 0.30 * gates[idx])
+                liquid_tau.append(round(float(tau_s), 4))
                 k = min(4, len(graph.nodes))
                 vals, indices = torch.topk(mags, k=k)
                 top_nodes[source_id] = [
                     {
-                        "id": graph.nodes[int(idx)].original_id,
-                        "full_id": graph.nodes[int(idx)].id,
-                        "kind": graph.nodes[int(idx)].kind,
+                        "id": graph.nodes[int(n_idx)].original_id,
+                        "full_id": graph.nodes[int(n_idx)].id,
+                        "kind": graph.nodes[int(n_idx)].kind,
                         "activity": float(val),
                     }
-                    for val, idx in zip(vals, indices)
+                    for val, n_idx in zip(vals, indices)
                 ]
+                base_motif = self._connectome_motifs[source_id]
+                connectome_motifs[source_id] = {
+                    **base_motif,
+                    "rich_club_hubs": [
+                        {
+                            "id": h["id"],
+                            "degree": h["degree"],
+                            "activity": float(mags[h["index"]]),
+                        }
+                        for h in base_motif["rich_club_hubs"]
+                    ],
+                }
+            recent_r = (
+                sum(list(self.reward_history)[-8:]) / max(1, len(list(self.reward_history)[-8:]))
+                if self.reward_history else 0.0
+            )
+            acc = sum(self.policy_matches) / len(self.policy_matches) if self.policy_matches else 0.5
+            dopamine = max(0.0, min(1.0, 0.45 * env_info["chemoattractant"] + 0.35 * max(0.0, recent_r + 0.1) + 0.20 * float(max(probs))))
+            serotonin = max(0.0, min(1.0, 0.60 * acc + 0.40 * (self.world.goals_reached / (self.world.goals_reached + 2.0))))
+            wall_prox = 1.0 - (sum(env_info["lidar_8"]) / 8.0)
+            octopamine = max(0.0, min(1.0, 0.45 * wall_prox + 0.30 * min(1.0, env_info["detour_index"] - 1.0) + 0.25 * entropy))
+            plasticity_gain = round(0.5 + 0.75 * dopamine + 0.35 * octopamine - 0.20 * serotonin, 3)
+            if env_info["choke_points"] and wall_prox > 0.55:
+                regime = "choke-point-maneuver"
+            elif dopamine >= 0.62 and acc >= 0.75:
+                regime = "goal-exploitation"
+            elif octopamine >= 0.55:
+                regime = "arousal-exploration"
+            else:
+                regime = "foraging-chemotaxis"
             return {
                 "action_probs": [float(p) for p in probs],
                 "policy_confidence": float(max(probs)),
                 "expert_action": int(expert),
                 "expert_path": path,
                 "graft_gates": gates,
-                "route_entropy": max(0.0, min(1.0, entropy)),
+                "route_entropy": entropy,
                 "weight_delta_norm": weight_delta,
                 "graft_impact": graft_impact,
                 "top_nodes": top_nodes,
+                "source_ablation": source_ablation,
+                "liquid_tau": liquid_tau,
+                "neuromodulators": {
+                    "dopamine": round(dopamine, 4),
+                    "serotonin": round(serotonin, 4),
+                    "octopamine": round(octopamine, 4),
+                    "plasticity_gain": plasticity_gain,
+                    "regime": regime,
+                },
+                "environment": env_info,
+                "connectome_motifs": connectome_motifs,
             }
 
     def snapshot(self):
@@ -364,6 +473,20 @@ class LiveSession:
                 reply = (f"Executed {count}-step evolution burst: step {self.steps}, {self.updates} updates, "
                          f"loss {loss_str}, ||Δθ||₂ = {info['weight_delta_norm']:.3f}, "
                          f"graft impact Δlogits = {info['graft_impact']:.3f}.")
+            elif match := re.fullmatch(r"(?:world|resize|arena)\s+(\d+)(?:\s+(labyrinth|chambers|corridors|pillars))?", lower):
+                new_size = max(5, min(31, int(match[1])))
+                preset = match[2] or getattr(self.world, "preset", "labyrinth")
+                self.resize_world(size=new_size, preset=preset)
+                env_info = self.world.environment_telemetry()
+                reply = (f"Resized 3D arena to {new_size}×{new_size} ({preset} topology, "
+                         f"{env_info['free_cells']} free cells, {env_info['obstacle_cells']} interior obstacles, "
+                         f"{env_info['corridor_cells']} corridors).")
+            elif match := re.fullmatch(r"(?:preset|topology)\s+(labyrinth|chambers|corridors|pillars)", lower):
+                preset = match[1]
+                self.resize_world(size=self.world.size, preset=preset)
+                env_info = self.world.environment_telemetry()
+                reply = (f"Switched {self.world.size}×{self.world.size} arena to {preset} topology "
+                         f"(detour index {env_info['detour_index']:.2f}×, {len(env_info['choke_points'])} path choke points).")
             elif lower in ("neurons", "top neurons", "what neurons are firing", "firing"):
                 info = self.telemetry()
                 parts = []
@@ -371,6 +494,31 @@ class LiveSession:
                     top_str = ", ".join(f"{item['id']} ({item['activity']:.3f})" for item in items[:3])
                     parts.append(f"{src}: {top_str}")
                 reply = "Top firing nodes by source — " + " | ".join(parts) + "."
+            elif lower in ("lesion", "ablation", "silencing", "virtual lesion"):
+                info = self.telemetry()
+                abl = info["source_ablation"]
+                parts = ", ".join(f"{k}: Δlogits={v:.3f}" for k, v in abl.items())
+                dominant = max(abl, key=abl.get)
+                reply = f"Virtual connectome lesion attribution — {parts} (dominant driver: {dominant})."
+            elif lower in ("neuromodulators", "modulators", "liquid", "tau"):
+                info = self.telemetry()
+                nm = info["neuromodulators"]
+                taus = ", ".join(f"{s}={t:.2f}s" for s, t in zip(("worm", "fly_f", "fly_m", "human"), info["liquid_tau"]))
+                reply = (f"Endogenous neuromodulation [{nm['regime']}]: Dopamine={nm['dopamine']:.2f}, "
+                         f"Serotonin={nm['serotonin']:.2f}, Octopamine={nm['octopamine']:.2f}, "
+                         f"plasticity gain={nm['plasticity_gain']:.2f}× | Liquid τ [{taus}].")
+            elif lower in ("motifs", "hubs", "rich club"):
+                info = self.telemetry()
+                worm_m = info["connectome_motifs"]["worm"]
+                hubs = ", ".join(f"{h['id']} (deg={h['degree']}, act={h['activity']:.2f})" for h in worm_m["rich_club_hubs"][:4])
+                reply = (f"Worm connectome motifs: {worm_m['reciprocal_dyads']} reciprocal chemical dyads, "
+                         f"{worm_m['electrical_edges']} gap junctions, Rich-Club hubs [{hubs}].")
+            elif lower in ("maze", "environment", "lidar"):
+                env_info = self.world.environment_telemetry()
+                reply = (f"Arena {env_info['size']}×{env_info['size']} ({env_info['preset']}): "
+                         f"geodesic={env_info['geodesic_distance']} steps, detour={env_info['detour_index']:.2f}×, "
+                         f"choke points={len(env_info['choke_points'])}, plume={env_info['chemoattractant']:.2f}, "
+                         f"junctions={env_info['branch_junctions']}, corridors={env_info['corridor_cells']}.")
             elif lower in ("routes", "bridges", "graft", "routing"):
                 info = self.telemetry()
                 gates = ", ".join(f"{s}={g:.2f}" for s, g in zip(("worm", "fly_f", "fly_m", "human"), info["graft_gates"]))
@@ -400,7 +548,8 @@ class LiveSession:
                 reply = (f"Local command/memory backend. Step {self.steps}; {self.updates} supervised updates; "
                          f"{self.world.goals_reached} goals reached; recent policy match {acc:.0%}; "
                          f"||Δθ||₂ = {info['weight_delta_norm']:.3f}; {'running' if self._running else 'paused'}. "
-                         "Commands: pause, resume, learn on/off, evolve [1-64], neurons, routes, why, "
+                         "Commands: pause, resume, learn on/off, evolve [1-64], world [5-31] [preset], preset [labyrinth|chambers|corridors|pillars], "
+                         "neurons, lesion, neuromodulators, motifs, maze, routes, why, "
                          "step [1-32], move north/east/south/west, status, save, go to blue/amber/rose or go to x,z, "
                          "remember key = value, recall key, forget key, facts, reset world.")
             elif match := re.fullmatch(r"remember\s+(.+?)\s*(?:=|\bis\b)\s*(.+)", message, re.IGNORECASE):
@@ -422,7 +571,7 @@ class LiveSession:
                 reply = f"Goal set to {match[1]}, {match[2]}; recurrent navigation memory reset."
             else:
                 reply = ("I use a local command and explicit fact-memory backend, without a pretrained language model. "
-                         "Try help, status, evolve 16, neurons, routes, why, pause, resume, go to blue, remember key = value, or recall key.")
+                         "Try help, status, evolve 16, world 19 chambers, lesion, neuromodulators, motifs, neurons, routes, why, or go to blue.")
             self.chat_history.append({"role": "user", "content": message})
             self.chat_history.append({"role": "assistant", "content": reply})
             return {"reply": reply, "backend": _BACKEND, **({"action": action} if action else {})}

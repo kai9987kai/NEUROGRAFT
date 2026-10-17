@@ -139,6 +139,9 @@ def test_static_assets_and_manual_goal_controls(tmp_path):
         before_steps = state['steps']
         status, boosted = request(url + '/api/control', {'action': 'boost', 'steps': 5})
         assert status == 200 and boosted['steps'] == before_steps + 5
+        status, resized = request(url + '/api/control', {'action': 'world', 'size': 17, 'preset': 'chambers'})
+        assert status == 200 and resized['world']['size'] == 17
+        assert resized['telemetry']['environment']['preset'] == 'chambers'
         status, checkpoints = request(url + '/api/checkpoints')
         assert status == 200 and isinstance(checkpoints, list)
 

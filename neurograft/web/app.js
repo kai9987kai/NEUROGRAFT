@@ -270,6 +270,49 @@ function renderSession() {
       if ($(`prob-cell-${dir}`)) $(`prob-cell-${dir}`).classList.toggle('teacher', telemetry.expert_action === dir);
     }
   }
+  const env = telemetry.environment || {};
+  const activePreset = env.preset || 'labyrinth';
+  if ($('world-preset-badge')) $('world-preset-badge').textContent = activePreset;
+  if ($('env-hud-summary') && Number.isFinite(env.geodesic_distance)) {
+    $('env-hud-summary').textContent = `Geo ${env.geodesic_distance} · Detour ${finite(env.detour_index, 1).toFixed(2)}× · Choke ${(env.choke_points || []).length}`;
+  }
+  document.querySelectorAll('.world-size-btn').forEach((btn) => {
+    btn.classList.toggle('active', Number(btn.dataset.worldSize) === world.size);
+  });
+  document.querySelectorAll('.world-preset-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.worldPreset === activePreset);
+  });
+  const nm = telemetry.neuromodulators || {};
+  if ($('mod-regime') && nm.regime) {
+    $('mod-regime').textContent = nm.regime;
+    $('mod-gain').textContent = `Gain ${finite(nm.plasticity_gain, 1).toFixed(2)}×`;
+    const da = clip(finite(nm.dopamine, 0.5), 0, 1);
+    const ht = clip(finite(nm.serotonin, 0.5), 0, 1);
+    const oa = clip(finite(nm.octopamine, 0.5), 0, 1);
+    $('mod-da').textContent = da.toFixed(2);
+    $('mod-bar-da').style.width = `${da * 100}%`;
+    $('mod-5ht').textContent = ht.toFixed(2);
+    $('mod-bar-5ht').style.width = `${ht * 100}%`;
+    $('mod-oa').textContent = oa.toFixed(2);
+    $('mod-bar-oa').style.width = `${oa * 100}%`;
+  }
+  if ($('env-complexity-foot') && Number.isFinite(env.free_cells)) {
+    $('env-complexity-foot').textContent = `Free ${env.free_cells}/${env.interior_cells} (${(finite(env.obstacle_density) * 100).toFixed(0)}% walls) · Corridors ${env.corridor_cells} · Junctions ${env.branch_junctions} · Plume ${(finite(env.chemoattractant) * 100).toFixed(0)}%`;
+  }
+  SOURCE_KEYS.forEach((key, idx) => {
+    const ablEl = $(`ablation-${key}`);
+    const tauEl = $(`tau-${key}`);
+    if (ablEl) {
+      const val = telemetry.source_ablation?.[key];
+      ablEl.textContent = Number.isFinite(val) ? `Δ ${val.toFixed(3)}` : '—';
+    }
+    if (tauEl) {
+      const tau = telemetry.liquid_tau?.[idx];
+      const hubs = telemetry.connectome_motifs?.[key]?.rich_club_hubs || [];
+      const hubStr = hubs.slice(0, 2).map((h) => `${h.id}(d=${h.degree})`).join(' ');
+      tauEl.textContent = `τ=${Number.isFinite(tau) ? tau.toFixed(2) : '—'}s · ${hubStr || '—'}`;
+    }
+  });
   for (let row = 0; row < 4; row += 1) for (let col = 0; col < 5; col += 1) {
     const value = clip(finite(session.routes?.[row]?.[col]), 0, 1);
     const cell = $(`route-${row}-${col}`);
@@ -404,6 +447,18 @@ function bindControls() {
   });
   $('learning-toggle').addEventListener('change', (event) => control({ action: 'learning', enabled: event.target.checked }));
   ['blue', 'amber', 'rose'].forEach((color) => $(`goal-${color}`).addEventListener('click', () => control({ action: 'goal', color })));
+  document.querySelectorAll('.world-size-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const size = Number(btn.dataset.worldSize);
+    const preset = session?.telemetry?.environment?.preset || 'labyrinth';
+    const res = await control({ action: 'world', size, preset });
+    if (res) showToast(`Scaled 3D arena to ${size}×${size} (${preset} topology).`);
+  }));
+  document.querySelectorAll('.world-preset-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const preset = btn.dataset.worldPreset;
+    const size = session?.world?.size || 15;
+    const res = await control({ action: 'world', size, preset });
+    if (res) showToast(`Switched ${size}×${size} arena to ${preset} topology.`);
+  }));
   $('dismiss-error').addEventListener('click', () => { $('error-banner').hidden = true; });
   $('chat-form').addEventListener('submit', sendChat);
   $('chat-input').addEventListener('input', updateControls);
@@ -441,7 +496,7 @@ async function toggleFullscreen() {
 }
 
 function resetCamera() {
-  orbit.theta = 0.67; orbit.phi = 0.75; orbit.radius = worldSize * 1.87; orbit.targetX = 0; orbit.targetZ = 0;
+  orbit.theta = 0.67; orbit.phi = 0.72; orbit.radius = worldSize * 1.65; orbit.targetX = 0; orbit.targetZ = 0;
   updateCamera();
 }
 
@@ -476,6 +531,8 @@ function disposeGroup(group) {
 
 let pathLine = null;
 let haloGroup = null;
+let chokeGroup = null;
+let lidarGroup = null;
 const haloNodes = [];
 const haloBridges = [];
 
@@ -485,6 +542,14 @@ function buildWorld(world) {
   haloNodes.length = 0;
   haloBridges.length = 0;
   worldSize = world.size;
+  if (scene?.fog) {
+    scene.fog.near = Math.max(22, worldSize * 1.4);
+    scene.fog.far = Math.max(58, worldSize * 3.8);
+  }
+  if (camera) {
+    camera.far = Math.max(120, worldSize * 5.0);
+    camera.updateProjectionMatrix();
+  }
   const offset = (worldSize - 1) / 2;
   const material = (color, options = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.25, ...options });
   const floor = new THREE.Mesh(new THREE.BoxGeometry(worldSize + 0.25, 0.28, worldSize + 0.25), material('#152b3b'));
@@ -498,9 +563,12 @@ function buildWorld(world) {
   outline.position.copy(floor.position); worldGroup.add(outline);
   wallGroup = new THREE.Group(); worldGroup.add(wallGroup);
   for (const obstacle of world.obstacles || []) {
-    const wall = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.68, 0.94), material('#294358', { roughness: 0.5, metalness: 0.3 }));
-    wall.position.set(obstacle.x - offset, 0.29, obstacle.z - offset); wall.castShadow = true; wall.receiveShadow = true; wallGroup.add(wall);
-    const cap = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(0.94, 0.68, 0.94)), new THREE.LineBasicMaterial({ color: '#52748a', transparent: true, opacity: 0.53 }));
+    const isBorder = obstacle.x === 0 || obstacle.z === 0 || obstacle.x === worldSize - 1 || obstacle.z === worldSize - 1;
+    const h = isBorder ? 0.58 : 0.78;
+    const wallColor = isBorder ? '#22384a' : '#2e4d66';
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(0.94, h, 0.94), material(wallColor, { roughness: 0.45, metalness: 0.32 }));
+    wall.position.set(obstacle.x - offset, h / 2 - 0.05, obstacle.z - offset); wall.castShadow = true; wall.receiveShadow = true; wallGroup.add(wall);
+    const cap = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(0.94, h, 0.94)), new THREE.LineBasicMaterial({ color: isBorder ? '#456478' : '#6393b0', transparent: true, opacity: 0.56 }));
     cap.position.copy(wall.position); wallGroup.add(cap);
   }
   beaconGroup = new THREE.Group(); worldGroup.add(beaconGroup);
@@ -515,6 +583,8 @@ function buildWorld(world) {
     crystal.position.y = 0.65; group.add(crystal);
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.36, 40), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.6, side: THREE.DoubleSide }));
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.015; group.add(ring);
+    const plume = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.95, 40), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12, side: THREE.DoubleSide }));
+    plume.rotation.x = -Math.PI / 2; plume.position.y = 0.01; group.add(plume);
     group.traverse((object) => { if (object.isMesh) { object.userData.beacon = beacon; beaconPickables.push(object); } });
     beaconGroup.add(group);
   }
@@ -532,16 +602,18 @@ function buildWorld(world) {
   outerTarget.rotation.x = -Math.PI / 2; outerTarget.position.y = 0.026; goalGroup.add(outerTarget);
   trailLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: '#5ee9ce', transparent: true, opacity: 0.35 }));
   worldGroup.add(trailLine);
-  pathLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: '#f5be66', transparent: true, opacity: 0.6 }));
+  pathLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: '#f5be66', transparent: true, opacity: 0.68 }));
   worldGroup.add(pathLine);
-  haloGroup = new THREE.Group(); haloGroup.position.y = 2.35; worldGroup.add(haloGroup);
-  const haloRadius = 2.15;
+  chokeGroup = new THREE.Group(); worldGroup.add(chokeGroup);
+  lidarGroup = new THREE.Group(); worldGroup.add(lidarGroup);
+  haloGroup = new THREE.Group(); haloGroup.position.y = Math.max(2.4, worldSize * 0.17); worldGroup.add(haloGroup);
+  const haloRadius = Math.max(2.15, worldSize * 0.18);
   const positions = SOURCE_COLORS.map((_, idx) => {
     const angle = idx * Math.PI / 2 + Math.PI / 4;
     return new THREE.Vector3(Math.cos(angle) * haloRadius, 0, Math.sin(angle) * haloRadius);
   });
   SOURCE_COLORS.forEach((color, idx) => {
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12), material(color, { emissive: color, emissiveIntensity: 0.55 }));
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), material(color, { emissive: color, emissiveIntensity: 0.58 }));
     sphere.position.copy(positions[idx]);
     haloGroup.add(sphere);
     haloNodes.push(sphere);
@@ -550,7 +622,7 @@ function buildWorld(world) {
     for (let src = 0; src < 4; src += 1) {
       if (src === dst) continue;
       const mid = positions[src].clone().add(positions[dst]).multiplyScalar(0.5);
-      mid.y += 0.28;
+      mid.y += 0.32;
       const curve = new THREE.QuadraticBezierCurve3(positions[src], mid, positions[dst]);
       const line = new THREE.Line(
         new THREE.BufferGeometry().setFromPoints(curve.getPoints(16)),
@@ -560,7 +632,7 @@ function buildWorld(world) {
       haloBridges.push({ dst, src, line });
     }
   }
-  const shadowGround = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), material('#0b1521', { roughness: 1, metalness: 0 }));
+  const shadowGround = new THREE.Mesh(new THREE.PlaneGeometry(140, 140), material('#0b1521', { roughness: 1, metalness: 0 }));
   shadowGround.rotation.x = -Math.PI / 2; shadowGround.position.y = -0.36; shadowGround.receiveShadow = true; worldGroup.add(shadowGround);
   agentGroup.position.set(world.agent.x - offset, 0, world.agent.z - offset);
   agentGroup.rotation.y = -finite(world.agent.direction) * Math.PI / 2;
@@ -578,15 +650,42 @@ function updateWorld(world) {
   const goalColor = BEACON_COLORS[world.goal.color] || '#b9dded';
   goalGroup.children.forEach((object) => object.material.color.set(goalColor));
   const expertPath = session.telemetry?.expert_path || [];
-  const visualKey = JSON.stringify([world.trail, expertPath, session.routes, session.activity]);
+  const env = session.telemetry?.environment || {};
+  const chokePoints = env.choke_points || [];
+  const lidarRays = env.lidar_rays || [];
+  const visualKey = JSON.stringify([world.trail, expertPath, chokePoints, lidarRays, session.routes, session.activity]);
   if (visualKey !== lastWorldVisualKey) {
     lastWorldVisualKey = visualKey;
     const points = (world.trail || []).slice(-64).map((point) => new THREE.Vector3(point.x - offset, 0.035, point.z - offset));
     trailLine.geometry.dispose(); trailLine.geometry = new THREE.BufferGeometry().setFromPoints(points);
     if (pathLine) {
-      const routePts = expertPath.map((point) => new THREE.Vector3(point.x - offset, 0.06, point.z - offset));
+      const routePts = expertPath.map((point) => new THREE.Vector3(point.x - offset, 0.065, point.z - offset));
       pathLine.geometry.dispose(); pathLine.geometry = new THREE.BufferGeometry().setFromPoints(routePts);
       pathLine.material.color.set(goalColor);
+    }
+    if (chokeGroup) {
+      disposeGroup(chokeGroup);
+      for (const cp of chokePoints.slice(0, 12)) {
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.18, 0.25, 24),
+          new THREE.MeshBasicMaterial({ color: '#ad9af6', transparent: true, opacity: 0.55, side: THREE.DoubleSide })
+        );
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.set(cp.x - offset, 0.045, cp.z - offset);
+        chokeGroup.add(ring);
+      }
+    }
+    if (lidarGroup) {
+      disposeGroup(lidarGroup);
+      const ax = world.agent.x - offset, az = world.agent.z - offset;
+      for (const ray of lidarRays) {
+        const rx = ray.free_x - offset, rz = ray.free_z - offset;
+        const beam = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(ax, 0.18, az), new THREE.Vector3(rx, 0.12, rz)]),
+          new THREE.LineBasicMaterial({ color: '#5ee9ce', transparent: true, opacity: 0.22 })
+        );
+        lidarGroup.add(beam);
+      }
     }
     haloNodes.forEach((node, idx) => {
       const act = clip(finite(session.activity?.[idx]), 0, 2);

@@ -17,4 +17,24 @@
 .compass-cell b{float:right;color:#d6e5f3;font-size:9px}
 .prob-track{height:3px;background:#223246;border-radius:3px;margin-top:5px;overflow:hidden;clear:both}
 .prob-fill{height:100%;width:25%;background:var(--cyan);transition:width .25s}
-@media(max-width:930px){.telemetry-panel{grid-template-columns:1fr}.telemetry-stats{border-right:0;border-bottom:1px solid var(--line);padding:0 0 12px}}
+.prob-fill.da{background:var(--cyan)}.prob-fill.ht{background:var(--blue)}.prob-fill.oa{background:var(--amber)}
+.research-trigger{background:#122334;cursor:pointer;color:#b8d7e8;border-color:#2e4a63}.research-trigger:hover{border-color:var(--cyan);color:var(--cyan)}
+.research-popover{max-width:520px;background:#0e1928;color:var(--text);border:1px solid #355670;border-radius:12px;padding:18px 20px;box-shadow:0 18px 48px #000b;line-height:1.6}
+.research-popover::backdrop{background:#050b1288;backdrop-filter:blur(2px)}
+.research-popover h3{margin:0 0 10px;font-size:14px;color:var(--cyan)}
+.research-popover ul{margin:0;padding-left:18px;font-size:11px;color:#b9cadb;display:flex;flex-direction:column;gap:7px}
+.world-size-btn.active,.world-preset-btn.active{border-color:var(--cyan);color:var(--cyan);background:#152e33}
+.research-panel{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;padding:16px 20px;align-items:start}
+.research-col{min-width:0}
+.research-col:first-child{border-right:1px solid var(--line);padding-right:18px}
+.research-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.research-header h3{margin:0;font-size:13px;font-weight:600;color:#d6e5f3}
+.mod-bars{display:flex;flex-direction:column;gap:8px}
+.mod-row{font-size:9px;color:#9ab0c5}.mod-row b{float:right;color:#d6e5f3}
+.research-foot{margin-top:10px;font-size:8px;color:#738ba3;font-family:Consolas,monospace}
+.ablation-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ablation-card{background:#132132;border:1px solid #24364b;border-radius:6px;padding:7px 9px}
+.ablation-card strong{display:block;font-size:14px;color:var(--amber);margin:2px 0}
+.ablation-card small{font-size:8px;color:#7c97b0;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Consolas,monospace}
+@media(max-width:930px){.telemetry-panel,.research-panel{grid-template-columns:1fr}.telemetry-stats,.research-col:first-child{border-right:0;border-bottom:1px solid var(--line);padding:0 0 12px}}
+

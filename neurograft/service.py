@@ -151,6 +151,11 @@ class LiveApp:
                 direction = _bounded_int(values.get('direction'), 'direction', 0, 3)
         elif action == 'boost':
             count = _bounded_int(values.get('steps', 16), 'steps', 1, 64)
+        elif action == 'world':
+            wsize = _bounded_int(values.get('size', 15), 'size', 5, 31)
+            wpreset = values.get('preset', 'labyrinth')
+            if not isinstance(wpreset, str) or wpreset not in ('labyrinth', 'chambers', 'corridors', 'pillars'):
+                raise ValueError('invalid world preset')
         elif action == 'learning':
             if not isinstance(values.get('enabled'), bool):
                 raise ValueError('enabled must be boolean')
@@ -166,6 +171,8 @@ class LiveApp:
                 self.session.learning = values['enabled']
             elif action == 'boost':
                 self.session.tick(steps=count)
+            elif action == 'world':
+                self.session.resize_world(size=wsize, preset=wpreset)
             elif action in ('step', 'move'):
                 if self.session.running:
                     raise ConflictError('pause the session before stepping or moving manually')

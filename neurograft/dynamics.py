@@ -215,10 +215,14 @@ optional adapters. Flags switch computation; they never remove parameters.
             if not torch.isfinite(tensor).all():
                 raise ValueError("state must be finite")
 
-    def _route(self, pooled: Tensor) -> tuple[Tensor, Tensor]:
+    def _route(self, pooled: Tensor, ablate_source: int | None = None) -> tuple[Tensor, Tensor]:
         queries = torch.stack([projection(pooled[:, index]) for index, projection in enumerate(self.queries)], dim=1)
         keys = torch.stack([projection(pooled[:, index]) for index, projection in enumerate(self.keys)], dim=1)
         values = torch.stack([projection(pooled[:, index]) for index, projection in enumerate(self.values)], dim=1)
+        if ablate_source is not None and 0 <= ablate_source < 4:
+            mask = torch.ones_like(values)
+            mask[:, ablate_source, :] = 0.0
+            values = values * mask
         scores = torch.matmul(queries, keys.transpose(1, 2)) / math.sqrt(self.config.hidden_dim) + self.route_bias
         scores = scores.masked_fill(self.self_route_mask, float("-inf"))
         selected = torch.zeros_like(scores, dtype=torch.bool)
@@ -237,15 +241,26 @@ optional adapters. Flags switch computation; they never remove parameters.
         state: Sequence[Tensor] | None = None,
         graft_enabled: bool = True,
         recurrence: bool = True,
+        liquid_alpha: Sequence[float] | None = None,
+        ablate_source: int | None = None,
     ) -> CircuitOutput:
         self._validate_observations(observations)
         if state is not None:
             self._validate_state(state, observations.shape[0])
         previous = self.initial_state(observations.shape[0]) if state is None or not recurrence else state
         local = tuple(encoder(observations[:, index], previous[index]) for index, encoder in enumerate(self.encoders))
+        if liquid_alpha is not None:
+            if len(liquid_alpha) != 4:
+                raise ValueError("liquid_alpha must provide 4 source retention coefficients in (0, 1]")
+            local = tuple(
+                (1.0 - float(alpha)) * prev + float(alpha) * cur
+                for alpha, prev, cur in zip(liquid_alpha, previous, local)
+            )
+        if ablate_source == 3:
+            local = (*local[:3], torch.zeros_like(local[3]))
         pooled = torch.stack([states.mean(dim=1) for states in local], dim=1)
         if graft_enabled:
-            bridge, routes = self._route(pooled)
+            bridge, routes = self._route(pooled, ablate_source=ablate_source)
             state_out = tuple(
                 states + self.graft_gates[index].sigmoid()[None, None, :]
                 * torch.tanh(self.bridge_projections[index](bridge[:, index]))[:, None, :]
@@ -268,11 +283,20 @@ optional adapters. Flags switch computation; they never remove parameters.
         sequence: Tensor,
         graft_enabled: bool = True,
         recurrence: bool = True,
+        liquid_alpha: Sequence[float] | None = None,
+        ablate_source: int | None = None,
     ) -> CircuitOutput:
         if not isinstance(sequence, Tensor) or sequence.ndim != 4 or sequence.shape[1] <= 0:
             raise ValueError("sequence must have shape [batch,positive time,4,input_dim]")
         state = None
         for time in range(sequence.shape[1]):
-            output = self.step(sequence[:, time], state, graft_enabled=graft_enabled, recurrence=recurrence)
+            output = self.step(
+                sequence[:, time],
+                state,
+                graft_enabled=graft_enabled,
+                recurrence=recurrence,
+                liquid_alpha=liquid_alpha,
+                ablate_source=ablate_source,
+            )
             state = output.state
         return output

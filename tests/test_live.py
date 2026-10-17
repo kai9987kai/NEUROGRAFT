@@ -258,6 +258,7 @@ def test_telemetry_shortest_path_and_introspective_chat():
     assert set(telemetry) == {
         "action_probs", "policy_confidence", "expert_action", "expert_path",
         "graft_gates", "route_entropy", "weight_delta_norm", "graft_impact", "top_nodes",
+        "source_ablation", "liquid_tau", "neuromodulators", "environment", "connectome_motifs",
     }
     assert len(telemetry["action_probs"]) == 4
     assert abs(sum(telemetry["action_probs"]) - 1.0) < 1e-4
@@ -265,10 +266,22 @@ def test_telemetry_shortest_path_and_introspective_chat():
     assert telemetry["graft_impact"] >= 0.0
     assert len(telemetry["top_nodes"]) == len(session.bundle.graphs)
     assert all(len(group) >= 1 for group in telemetry["top_nodes"].values())
+    assert len(telemetry["source_ablation"]) == len(session.bundle.graphs)
+    assert all(isinstance(val, float) and val >= 0.0 for val in telemetry["source_ablation"].values())
+    assert len(telemetry["liquid_tau"]) == len(session.bundle.graphs)
+    assert set(telemetry["neuromodulators"]) == {"dopamine", "serotonin", "octopamine", "plasticity_gain", "regime"}
+    assert len(telemetry["environment"]["lidar_8"]) == 8
+    assert "worm" in telemetry["connectome_motifs"]
+    assert "rich_club_hubs" in telemetry["connectome_motifs"]["worm"]
     before_steps = session.steps
     session.chat("evolve 6")
     assert session.steps == before_steps + 6
     assert "Top firing" in session.chat("top neurons")["reply"]
     assert "Synthetic routing telemetry" in session.chat("routes")["reply"]
     assert "Decision probe" in session.chat("why")["reply"]
+    assert "Virtual connectome lesion" in session.chat("lesion")["reply"]
+    assert "Endogenous neuromodulation" in session.chat("neuromodulators")["reply"]
+    assert "Worm connectome motifs" in session.chat("motifs")["reply"]
+    assert "Resized 3D arena to 17×17" in session.chat("world 17 chambers")["reply"]
+    assert session.world.size == 17 and session.world.preset == "chambers"
 

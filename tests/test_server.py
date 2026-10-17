@@ -135,5 +135,10 @@ def test_static_assets_and_manual_goal_controls(tmp_path):
         assert status == 200 and state['world']['goal']['color'] == 'rose'
         status, state = request(url + '/api/control', {'action': 'move', 'direction': 1})
         assert status == 200 and state['last_action'] == 1 and state['last_action_source'] == 'manual'
+        assert 'telemetry' in state and len(state['telemetry']['action_probs']) == 4
+        before_steps = state['steps']
+        status, boosted = request(url + '/api/control', {'action': 'boost', 'steps': 5})
+        assert status == 200 and boosted['steps'] == before_steps + 5
         status, checkpoints = request(url + '/api/checkpoints')
         assert status == 200 and isinstance(checkpoints, list)
+

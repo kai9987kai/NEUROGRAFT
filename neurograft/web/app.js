@@ -178,7 +178,11 @@ function makeSourceRows() {
     detail.id = `source-${key}-detail`;
     detail.className = 'source-detail';
     detail.textContent = 'Awaiting graph';
-    copy.append(title, detail);
+    const nodes = document.createElement('div');
+    nodes.id = `source-${key}-nodes`;
+    nodes.className = 'source-nodes';
+    nodes.textContent = 'Top firing: —';
+    copy.append(title, detail, nodes);
     const activity = document.createElement('div');
     activity.className = 'activity-value';
     const value = document.createElement('span');
@@ -215,6 +219,7 @@ function makeSourceRows() {
 
 function renderSession() {
   const world = session.world;
+  const telemetry = session.telemetry || {};
   $('world-size').textContent = `${world.size} × ${world.size}`;
   $('agent-position').textContent = `${world.agent.x}, ${world.agent.z}`;
   $('scene-goal').textContent = `${world.goal.color ? `${world.goal.color[0].toUpperCase()}${world.goal.color.slice(1)} target` : 'Custom target'} · ${world.goal.x}, ${world.goal.z}`;
@@ -242,10 +247,29 @@ function renderSession() {
     badge.textContent = source ? source.degree_rewired_control ? 'control' : source.status || 'unknown' : 'missing';
     badge.classList.toggle('imported', Boolean(source?.authentic_ready));
     $(`source-${key}-detail`).textContent = source ? `${formatNumber(source.node_count)} ${source.scale === 'brain_region' ? 'regions' : 'nodes'} · ${formatNumber(source.edge_count)} observations` : 'No graph in bundle';
+    const topNodes = telemetry.top_nodes?.[key];
+    const gate = telemetry.graft_gates?.[index];
+    const gateStr = Number.isFinite(gate) ? `Gate ${(gate * 100).toFixed(0)}%` : '';
+    const nodeStr = Array.isArray(topNodes) && topNodes.length
+      ? `Top: ${topNodes.slice(0, 3).map((n) => `${n.id}(${finite(n.activity).toFixed(2)})`).join(' ')}`
+      : '';
+    $(`source-${key}-nodes`).textContent = [gateStr, nodeStr].filter(Boolean).join(' · ') || 'Top firing: —';
     const activity = finite(session.activity?.[index]);
     $(`source-${key}-activity`).textContent = activity.toFixed(3);
     $(`source-${key}-bar`).style.width = `${clip(activity / (1 + Math.abs(activity)), 0, 1) * 100}%`;
   });
+  if ($('telemetry-delta')) {
+    $('telemetry-delta').textContent = Number.isFinite(telemetry.weight_delta_norm) ? telemetry.weight_delta_norm.toFixed(3) : '—';
+    $('telemetry-graft').textContent = Number.isFinite(telemetry.graft_impact) ? telemetry.graft_impact.toFixed(3) : '—';
+    $('telemetry-entropy').textContent = Number.isFinite(telemetry.route_entropy) ? `${(telemetry.route_entropy * 100).toFixed(0)}%` : '—';
+    const probs = Array.isArray(telemetry.action_probs) ? telemetry.action_probs : [0.25, 0.25, 0.25, 0.25];
+    for (let dir = 0; dir < 4; dir += 1) {
+      const p = clip(finite(probs[dir], 0.25), 0, 1);
+      if ($(`prob-${dir}`)) $(`prob-${dir}`).textContent = `${(p * 100).toFixed(0)}%`;
+      if ($(`prob-bar-${dir}`)) $(`prob-bar-${dir}`).style.width = `${p * 100}%`;
+      if ($(`prob-cell-${dir}`)) $(`prob-cell-${dir}`).classList.toggle('teacher', telemetry.expert_action === dir);
+    }
+  }
   for (let row = 0; row < 4; row += 1) for (let col = 0; col < 5; col += 1) {
     const value = clip(finite(session.routes?.[row]?.[col]), 0, 1);
     const cell = $(`route-${row}-${col}`);
@@ -374,6 +398,10 @@ function bindControls() {
   $('pause-btn').addEventListener('click', () => control({ action: 'pause' }));
   $('resume-btn').addEventListener('click', () => control({ action: 'resume' }));
   $('step-btn').addEventListener('click', () => control({ action: 'step', steps: 1 }));
+  if ($('boost-btn')) $('boost-btn').addEventListener('click', async () => {
+    const res = await control({ action: 'boost', steps: 16 });
+    if (res) showToast(`Executed 16-step evolution burst (step ${res.steps}, ${res.updates} updates).`);
+  });
   $('learning-toggle').addEventListener('change', (event) => control({ action: 'learning', enabled: event.target.checked }));
   ['blue', 'amber', 'rose'].forEach((color) => $(`goal-${color}`).addEventListener('click', () => control({ action: 'goal', color })));
   $('dismiss-error').addEventListener('click', () => { $('error-banner').hidden = true; });
@@ -446,9 +474,16 @@ function disposeGroup(group) {
   }
 }
 
+let pathLine = null;
+let haloGroup = null;
+const haloNodes = [];
+const haloBridges = [];
+
 function buildWorld(world) {
   disposeGroup(worldGroup);
   beaconPickables.length = 0;
+  haloNodes.length = 0;
+  haloBridges.length = 0;
   worldSize = world.size;
   const offset = (worldSize - 1) / 2;
   const material = (color, options = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.25, ...options });
@@ -497,6 +532,34 @@ function buildWorld(world) {
   outerTarget.rotation.x = -Math.PI / 2; outerTarget.position.y = 0.026; goalGroup.add(outerTarget);
   trailLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: '#5ee9ce', transparent: true, opacity: 0.35 }));
   worldGroup.add(trailLine);
+  pathLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: '#f5be66', transparent: true, opacity: 0.6 }));
+  worldGroup.add(pathLine);
+  haloGroup = new THREE.Group(); haloGroup.position.y = 2.35; worldGroup.add(haloGroup);
+  const haloRadius = 2.15;
+  const positions = SOURCE_COLORS.map((_, idx) => {
+    const angle = idx * Math.PI / 2 + Math.PI / 4;
+    return new THREE.Vector3(Math.cos(angle) * haloRadius, 0, Math.sin(angle) * haloRadius);
+  });
+  SOURCE_COLORS.forEach((color, idx) => {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12), material(color, { emissive: color, emissiveIntensity: 0.55 }));
+    sphere.position.copy(positions[idx]);
+    haloGroup.add(sphere);
+    haloNodes.push(sphere);
+  });
+  for (let dst = 0; dst < 4; dst += 1) {
+    for (let src = 0; src < 4; src += 1) {
+      if (src === dst) continue;
+      const mid = positions[src].clone().add(positions[dst]).multiplyScalar(0.5);
+      mid.y += 0.28;
+      const curve = new THREE.QuadraticBezierCurve3(positions[src], mid, positions[dst]);
+      const line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(curve.getPoints(16)),
+        new THREE.LineBasicMaterial({ color: SOURCE_COLORS[src], transparent: true, opacity: 0.15 })
+      );
+      haloGroup.add(line);
+      haloBridges.push({ dst, src, line });
+    }
+  }
   const shadowGround = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), material('#0b1521', { roughness: 1, metalness: 0 }));
   shadowGround.rotation.x = -Math.PI / 2; shadowGround.position.y = -0.36; shadowGround.receiveShadow = true; worldGroup.add(shadowGround);
   agentGroup.position.set(world.agent.x - offset, 0, world.agent.z - offset);
@@ -512,12 +575,28 @@ function updateWorld(world) {
   agentTarget.z = world.agent.z - offset;
   agentTarget.angle = -finite(world.agent.direction) * Math.PI / 2;
   goalGroup.position.set(world.goal.x - offset, 0, world.goal.z - offset);
-  goalGroup.children.forEach((object) => object.material.color.set(BEACON_COLORS[world.goal.color] || '#b9dded'));
-  const visualKey = JSON.stringify(world.trail);
+  const goalColor = BEACON_COLORS[world.goal.color] || '#b9dded';
+  goalGroup.children.forEach((object) => object.material.color.set(goalColor));
+  const expertPath = session.telemetry?.expert_path || [];
+  const visualKey = JSON.stringify([world.trail, expertPath, session.routes, session.activity]);
   if (visualKey !== lastWorldVisualKey) {
     lastWorldVisualKey = visualKey;
     const points = (world.trail || []).slice(-64).map((point) => new THREE.Vector3(point.x - offset, 0.035, point.z - offset));
     trailLine.geometry.dispose(); trailLine.geometry = new THREE.BufferGeometry().setFromPoints(points);
+    if (pathLine) {
+      const routePts = expertPath.map((point) => new THREE.Vector3(point.x - offset, 0.06, point.z - offset));
+      pathLine.geometry.dispose(); pathLine.geometry = new THREE.BufferGeometry().setFromPoints(routePts);
+      pathLine.material.color.set(goalColor);
+    }
+    haloNodes.forEach((node, idx) => {
+      const act = clip(finite(session.activity?.[idx]), 0, 2);
+      const s = 0.85 + act * 0.65;
+      node.scale.set(s, s, s);
+    });
+    haloBridges.forEach(({ dst, src, line }) => {
+      const w = clip(finite(session.routes?.[dst]?.[src]), 0, 1);
+      line.material.opacity = 0.06 + w * 0.78;
+    });
   }
   sceneDirty = true;
   $('scene-loading').hidden = true;

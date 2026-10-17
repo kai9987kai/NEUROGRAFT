@@ -135,6 +135,25 @@ class NavigationWorld:
                 pending.append((cell, selected))
         raise RuntimeError("world invariant broken: goal is not reachable")
 
+    def shortest_path(self) -> list[dict[str, int]]:
+        """Return ordered interior cells along the shortest path from agent to goal."""
+        if self._agent == self._goal:
+            return [self._position(self._goal)]
+        pending = deque([(self._agent, [self._agent])])
+        visited = {self._agent}
+        while pending:
+            (x, z), path = pending.popleft()
+            for dx, dz in self.ACTIONS:
+                cell = (x + dx, z + dz)
+                if cell in visited or not self._free(cell):
+                    continue
+                next_path = [*path, cell]
+                if cell == self._goal:
+                    return [self._position(step) for step in next_path]
+                visited.add(cell)
+                pending.append((cell, next_path))
+        return [self._position(self._agent)]
+
     def set_goal(self, color: str | None = None, x: int | None = None, z: int | None = None) -> dict:
         """Choose a beacon or a free interior cell; validate before mutation."""
         if color is not None:

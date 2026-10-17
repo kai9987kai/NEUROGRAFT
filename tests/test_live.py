@@ -243,3 +243,32 @@ def test_save_and_ticks_share_lock_and_produce_loadable_consistent_checkpoints(t
         moving.result(timeout=30)
         saving.result(timeout=30)
     assert session.steps == 8
+
+
+def test_telemetry_shortest_path_and_introspective_chat():
+    session = _session()
+    path = session.world.shortest_path()
+    assert isinstance(path, list)
+    obstacles = {(w["x"], w["z"]) for w in session.world.snapshot()["obstacles"]}
+    for cell in path:
+        assert 0 <= cell["x"] < session.world.size and 0 <= cell["z"] < session.world.size
+        assert (cell["x"], cell["z"]) not in obstacles
+    session.tick(4)
+    telemetry = session.telemetry()
+    assert set(telemetry) == {
+        "action_probs", "policy_confidence", "expert_action", "expert_path",
+        "graft_gates", "route_entropy", "weight_delta_norm", "graft_impact", "top_nodes",
+    }
+    assert len(telemetry["action_probs"]) == 4
+    assert abs(sum(telemetry["action_probs"]) - 1.0) < 1e-4
+    assert telemetry["weight_delta_norm"] > 0.0
+    assert telemetry["graft_impact"] >= 0.0
+    assert len(telemetry["top_nodes"]) == len(session.bundle.graphs)
+    assert all(len(group) >= 1 for group in telemetry["top_nodes"].values())
+    before_steps = session.steps
+    session.chat("evolve 6")
+    assert session.steps == before_steps + 6
+    assert "Top firing" in session.chat("top neurons")["reply"]
+    assert "Synthetic routing telemetry" in session.chat("routes")["reply"]
+    assert "Decision probe" in session.chat("why")["reply"]
+

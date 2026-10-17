@@ -114,7 +114,8 @@ class LiveApp:
 
     def state(self):
         with self.guard:
-            return {**self.session.snapshot(), 'checkpoints': self.checkpoints(),
+            return {**self.session.snapshot(), 'telemetry': self.session.telemetry(),
+                    'checkpoints': self.checkpoints(),
                     'runtime': {'autosave_seconds': self.autosave, 'interval_seconds': self.interval,
                                 'last_error': self.last_error}}
 
@@ -148,6 +149,8 @@ class LiveApp:
             count = _bounded_int(values.get('steps', 1), 'steps', 1, 32)
             if action == 'move':
                 direction = _bounded_int(values.get('direction'), 'direction', 0, 3)
+        elif action == 'boost':
+            count = _bounded_int(values.get('steps', 16), 'steps', 1, 64)
         elif action == 'learning':
             if not isinstance(values.get('enabled'), bool):
                 raise ValueError('enabled must be boolean')
@@ -161,6 +164,8 @@ class LiveApp:
                 self.session.running = True
             elif action == 'learning':
                 self.session.learning = values['enabled']
+            elif action == 'boost':
+                self.session.tick(steps=count)
             elif action in ('step', 'move'):
                 if self.session.running:
                     raise ConflictError('pause the session before stepping or moving manually')

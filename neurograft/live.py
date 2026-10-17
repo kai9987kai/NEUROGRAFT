@@ -167,6 +167,10 @@ class LiveSession:
         self._learning = True
         self._model_hash = None
         self._sources = bundle.stats()["sources"]
+        self._initial_weights = {
+            name: param.detach().clone()
+            for name, param in self.model.named_parameters()
+        }
 
     @property
     def running(self):
@@ -256,6 +260,56 @@ class LiveSession:
                     self._train()
             return self.snapshot()
 
+    def telemetry(self) -> dict[str, Any]:
+        """Compute live circuit introspection, top firing nodes, and evolution metrics."""
+        with self.lock:
+            probs = torch.softmax(self.last_logits[0].detach(), dim=-1).tolist()
+            expert = self.world.expert_action()
+            path = self.world.shortest_path()
+            gates = [float(g.detach().sigmoid().mean()) for g in self.model.graft_gates]
+            routes = self.routes.detach().clamp(min=1e-12)
+            entropy = float(-(routes * routes.log()).sum(dim=-1).mean() / math.log(5.0))
+            delta_sq = sum(
+                float((param.detach() - self._initial_weights[name]).pow(2).sum())
+                for name, param in self.model.named_parameters()
+            )
+            weight_delta = math.sqrt(max(0.0, delta_sq))
+            graft_impact = 0.0
+            if self.observation_history:
+                window = list(self.observation_history)
+                padded = [[[0.0] * 4 for _ in range(4)] for _ in range(self.config.unroll - len(window))] + window
+                seq = torch.tensor([padded], dtype=torch.float32)
+                with torch.no_grad():
+                    ungrafted = self.model(seq, graft_enabled=False).logits
+                graft_impact = float((self.last_logits.detach() - ungrafted.detach()).norm())
+            top_nodes = {}
+            graph_map = {graph.manifest.source_id: graph for graph in self.bundle.graphs}
+            for source_id, state in zip(("worm", "fly_f", "fly_m", "human"), self.recurrent_state):
+                graph = graph_map[source_id]
+                mags = state[0].detach().abs().mean(dim=-1)
+                k = min(4, len(graph.nodes))
+                vals, indices = torch.topk(mags, k=k)
+                top_nodes[source_id] = [
+                    {
+                        "id": graph.nodes[int(idx)].original_id,
+                        "full_id": graph.nodes[int(idx)].id,
+                        "kind": graph.nodes[int(idx)].kind,
+                        "activity": float(val),
+                    }
+                    for val, idx in zip(vals, indices)
+                ]
+            return {
+                "action_probs": [float(p) for p in probs],
+                "policy_confidence": float(max(probs)),
+                "expert_action": int(expert),
+                "expert_path": path,
+                "graft_gates": gates,
+                "route_entropy": max(0.0, min(1.0, entropy)),
+                "weight_delta_norm": weight_delta,
+                "graft_impact": graft_impact,
+                "top_nodes": top_nodes,
+            }
+
     def snapshot(self):
         with self.lock:
             # New primitive containers prevent callers from mutating live memory.
@@ -302,6 +356,36 @@ class LiveSession:
                 count = max(1, min(32, int(match[1] or 1)))
                 self.tick(steps=count)
                 reply = f"Advanced {count} step{'s' if count != 1 else ''} (now at step {self.steps}, {self.updates} updates)."
+            elif match := re.fullmatch(r"(?:evolve|boost|train)(?:\s+(\d+))?", lower):
+                count = max(1, min(64, int(match[1] or 16)))
+                self.tick(steps=count)
+                info = self.telemetry()
+                loss_str = f"{self.last_loss:.4f}" if self.last_loss is not None else "n/a"
+                reply = (f"Executed {count}-step evolution burst: step {self.steps}, {self.updates} updates, "
+                         f"loss {loss_str}, ||Δθ||₂ = {info['weight_delta_norm']:.3f}, "
+                         f"graft impact Δlogits = {info['graft_impact']:.3f}.")
+            elif lower in ("neurons", "top neurons", "what neurons are firing", "firing"):
+                info = self.telemetry()
+                parts = []
+                for src, items in info["top_nodes"].items():
+                    top_str = ", ".join(f"{item['id']} ({item['activity']:.3f})" for item in items[:3])
+                    parts.append(f"{src}: {top_str}")
+                reply = "Top firing nodes by source — " + " | ".join(parts) + "."
+            elif lower in ("routes", "bridges", "graft", "routing"):
+                info = self.telemetry()
+                gates = ", ".join(f"{s}={g:.2f}" for s, g in zip(("worm", "fly_f", "fly_m", "human"), info["graft_gates"]))
+                reply = (f"Synthetic routing telemetry: route entropy {info['route_entropy']:.2f}, "
+                         f"counterfactual graft impact Δlogits = {info['graft_impact']:.3f}, "
+                         f"graft gate openness [{gates}], weight evolution ||Δθ||₂ = {info['weight_delta_norm']:.3f}.")
+            elif lower in ("why", "explain", "decision", "probe"):
+                info = self.telemetry()
+                names = ("north", "east", "south", "west")
+                dist = ", ".join(f"{n}: {p:.0%}" for n, p in zip(names, info["action_probs"]))
+                teacher = names[info["expert_action"]]
+                goal = self.world.snapshot()["goal"]
+                reply = (f"Decision probe at ({self.world._agent[0]}, {self.world._agent[1]}) toward {goal['color']} "
+                         f"({goal['x']}, {goal['z']}): policy [{dist}], shortest-path teacher recommends {teacher} "
+                         f"(remaining path {max(0, len(info['expert_path']) - 1)} cells, graft Δlogits = {info['graft_impact']:.3f}).")
             elif match := re.fullmatch(r"move\s+(north|east|south|west)", lower):
                 direction = {"north": 0, "east": 1, "south": 2, "west": 3}[match[1]]
                 self.tick(steps=1, manual_action=direction)
@@ -312,9 +396,11 @@ class LiveSession:
                 reply = "Arena episode reset; circuit weights and learned memory retained."
             elif lower in ("status", "help", "commands"):
                 acc = sum(self.policy_matches) / len(self.policy_matches) if self.policy_matches else 0.0
+                info = self.telemetry()
                 reply = (f"Local command/memory backend. Step {self.steps}; {self.updates} supervised updates; "
                          f"{self.world.goals_reached} goals reached; recent policy match {acc:.0%}; "
-                         f"{'running' if self._running else 'paused'}. Commands: pause, resume, learn on/off, "
+                         f"||Δθ||₂ = {info['weight_delta_norm']:.3f}; {'running' if self._running else 'paused'}. "
+                         "Commands: pause, resume, learn on/off, evolve [1-64], neurons, routes, why, "
                          "step [1-32], move north/east/south/west, status, save, go to blue/amber/rose or go to x,z, "
                          "remember key = value, recall key, forget key, facts, reset world.")
             elif match := re.fullmatch(r"remember\s+(.+?)\s*(?:=|\bis\b)\s*(.+)", message, re.IGNORECASE):
@@ -336,7 +422,7 @@ class LiveSession:
                 reply = f"Goal set to {match[1]}, {match[2]}; recurrent navigation memory reset."
             else:
                 reply = ("I use a local command and explicit fact-memory backend, without a pretrained language model. "
-                         "Try help, pause, resume, status, go to blue, remember key = value, or recall key.")
+                         "Try help, status, evolve 16, neurons, routes, why, pause, resume, go to blue, remember key = value, or recall key.")
             self.chat_history.append({"role": "user", "content": message})
             self.chat_history.append({"role": "assistant", "content": reply})
             return {"reply": reply, "backend": _BACKEND, **({"action": action} if action else {})}

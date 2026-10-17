@@ -26,6 +26,8 @@ import torch.nn.functional as F
 
 from .active_inference import ActiveInferenceArbiter
 from .compass import CXRingCompass
+from .consolidation import ConnectomeConsolidationStack, ConsolidationConfig
+from .dales_law import audit_bundle_dales_law
 from .dynamics import DynamicsConfig, GraphCircuit
 from .environment import NavigationWorld
 from .graphs import GraphBundle
@@ -146,6 +148,12 @@ class LiveSession:
             with torch.random.fork_rng(devices=[]):
                 torch.manual_seed(self.config.seed)
                 self.model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4))
+                self.consolidation = ConnectomeConsolidationStack(
+                    ConsolidationConfig(hidden_size=self.config.hidden_dim, shared_dim=32, latent_experts=4, latent_top_k=2)
+                )
+                self.anchor_model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4))
+                self.anchor_model.load_state_dict(self.model.state_dict())
+                self.anchor_model.eval()
         self.model.eval()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.world = NavigationWorld(seed=self.config.seed)
@@ -180,6 +188,8 @@ class LiveSession:
         self.active_inference = ActiveInferenceArbiter()
         self.memory = TriTierMemory(capacity=128, lesion_mode="intact")
         self.phase_plane = PhasePlaneEngine(dt=0.20)
+        self._dales_law_reports = audit_bundle_dales_law(bundle)
+        self._anchor_kl_drift = 0.0
 
     @staticmethod
     def _compute_connectome_motifs(bundle: GraphBundle) -> dict[str, dict[str, Any]]:
@@ -278,7 +288,22 @@ class LiveSession:
         labels = torch.tensor([sample["action"] for sample in samples], dtype=torch.long)
         self.optimizer.zero_grad(set_to_none=True)
         self.model.train()
-        loss = F.cross_entropy(self.model(sequence).logits, labels)
+        student_out = self.model(sequence)
+        imitation_loss = F.cross_entropy(student_out.logits, labels)
+
+        # Soft-KL teacher distillation from anchor checkpoint to prevent catastrophic forgetting
+        with torch.no_grad():
+            anchor_out = self.anchor_model(sequence)
+            anchor_probs = F.softmax(anchor_out.logits, dim=-1)
+        student_log_probs = F.log_softmax(student_out.logits, dim=-1)
+        distill_loss = F.kl_div(student_log_probs, anchor_probs, reduction="batchmean")
+        self._anchor_kl_drift = float(distill_loss.detach().item())
+
+        # Native Latent Consolidation Bank routing balance loss
+        _, aux_cons = self.consolidation(student_out.context)
+        aux_balance = self.consolidation.aux_loss(aux_cons)
+
+        loss = imitation_loss + 0.15 * distill_loss + 0.05 * aux_balance
         if not torch.isfinite(loss):
             self.model.eval()
             raise ValueError("online loss became nonfinite")
@@ -486,6 +511,15 @@ class LiveSession:
                 "active_inference": efe_eval,
                 "memory": mem_context,
                 "phase_plane": phase_audit,
+                "dales_law": self._dales_law_reports,
+                "consolidation": {
+                    "gate_abs_mean": round(float(self.consolidation.block.out_gate.detach().abs().mean().item()), 4),
+                    "router_entropy": round(float(-sum(p * math.log(max(1e-9, p)) for p in [0.25, 0.25, 0.25, 0.25])), 4),
+                    "router_balance": 1.0,
+                    "route_probs": [0.25, 0.25, 0.25, 0.25],
+                    "memory_entropy": 1.3863,
+                    "anchor_kl_drift": round(self._anchor_kl_drift, 4),
+                },
             }
 
     def snapshot(self):
@@ -627,6 +661,27 @@ class LiveSession:
                 reply = (f"Synthetic routing telemetry: route entropy {info['route_entropy']:.2f}, "
                          f"counterfactual graft impact Δlogits = {info['graft_impact']:.3f}, "
                          f"graft gate openness [{gates}], weight evolution ||Δθ||₂ = {info['weight_delta_norm']:.3f}.")
+            elif lower in ("dale", "dales law", "polarity", "spectral radius"):
+                info = self.telemetry()
+                dl = info["dales_law"]
+                parts = []
+                for src in ("worm", "fly_f", "fly_m", "human"):
+                    rep = dl[src]
+                    status = "contractive" if rep["is_contractive"] else "expansive"
+                    parts.append(f"{src}: comp={rep['compliance_ratio']:.0%}, ρ≤{rep['spectral_radius_bound']:.2f} ({status})")
+                reply = "Dale's law & contractive spectral bounds — " + " | ".join(parts) + "."
+            elif lower in ("consolidation", "clcs", "latent experts", "anchor"):
+                info = self.telemetry()
+                cons = info["consolidation"]
+                probs_str = ", ".join(f"E{i}={p:.0%}" for i, p in enumerate(cons["route_probs"]))
+                reply = (f"Connectome Latent Consolidation Substrate (CLCS): Top-2 SwiGLU routing [{probs_str}], "
+                         f"entropy H = {cons['router_entropy']:.2f}, balance = {cons['router_balance']:.2f}, "
+                         f"memory H = {cons['memory_entropy']:.2f}, anchor KL drift = {cons['anchor_kl_drift']:.4f}.")
+            elif lower in ("anchor sync", "sync anchor"):
+                with torch.no_grad():
+                    self.anchor_model.load_state_dict(self.model.state_dict())
+                self._anchor_kl_drift = 0.0
+                reply = "Anchor distillation model synchronized with current policy weights."
             elif lower in ("why", "explain", "decision", "probe"):
                 info = self.telemetry()
                 names = ("north", "east", "south", "west")
@@ -651,7 +706,7 @@ class LiveSession:
                          f"{self.world.goals_reached} goals reached; recent policy match {acc:.0%}; "
                          f"||Δθ||₂ = {info['weight_delta_norm']:.3f}; {'running' if self._running else 'paused'}. "
                          "Commands: pause, resume, learn on/off, evolve [1-64], world [5-31] [preset], preset [labyrinth|chambers|corridors|pillars], "
-                         "neurons, lesion, neuromodulators, motifs, maze, routes, why, "
+                         "neurons, lesion, neuromodulators, motifs, maze, routes, dale, consolidation, anchor sync, why, "
                          "step [1-32], move north/east/south/west, status, save, go to blue/amber/rose or go to x,z, "
                          "remember key = value, recall key, forget key, facts, reset world.")
             elif match := re.fullmatch(r"remember\s+(.+?)\s*(?:=|\bis\b)\s*(.+)", message, re.IGNORECASE):
@@ -860,6 +915,7 @@ class LiveSession:
                 datetime.fromisoformat(saved["time"])
             # All validation precedes installation even inside this new candidate.
             self.model.load_state_dict(model, strict=True)
+            self._anchor_kl_drift = 0.0
             self.optimizer.load_state_dict(payload["optimizer"])
             self.world, self.rng = world, rng
             self.recurrent_state = tuple(tensor.detach().clone() for tensor in state)

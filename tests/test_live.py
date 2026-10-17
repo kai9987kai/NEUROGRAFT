@@ -259,7 +259,7 @@ def test_telemetry_shortest_path_and_introspective_chat():
         "action_probs", "policy_confidence", "expert_action", "expert_path",
         "graft_gates", "route_entropy", "weight_delta_norm", "graft_impact", "top_nodes",
         "source_ablation", "liquid_tau", "neuromodulators", "environment", "connectome_motifs",
-        "compass", "active_inference", "memory", "phase_plane",
+        "compass", "active_inference", "memory", "phase_plane", "dales_law", "consolidation",
     }
     assert len(telemetry["action_probs"]) == 4
     assert abs(sum(telemetry["action_probs"]) - 1.0) < 1e-4

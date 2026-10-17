@@ -54,3 +54,10 @@
 .lesion-btn{background:#132132;border:1px solid #24364b;color:#8fa7bf;border-radius:4px;padding:3px 7px;font-size:8px;font-weight:600}
 .lesion-btn.active{background:#1e4347;border-color:var(--cyan);color:var(--cyan)}
 .lesion-btn:hover:not(.active){border-color:#48637f;color:#d0e2f2}
+.consolidation-grid{border-top:1px solid var(--line);padding:16px 20px}
+.consolidation-summary{display:flex;flex-direction:column;gap:8px}
+.expert-bars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:4px}
+.expert-bars .compass-cell small{display:block;font-size:7.5px;color:#7893ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dales-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dales-grid .ablation-card strong{color:var(--cyan)}
+@media(max-width:930px){.consolidation-grid{grid-template-columns:1fr}.expert-bars{grid-template-columns:repeat(2,1fr)}}

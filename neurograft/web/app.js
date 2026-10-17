@@ -321,8 +321,8 @@ function renderSession() {
     cell.style.background = `rgba(71, 182, 161, ${0.06 + value * 0.54})`;
     cell.style.borderColor = `rgba(94, 233, 206, ${0.08 + value * 0.36})`;
     cell.style.color = value > 0.35 ? '#c3fff0' : '#8ca8b6';
-  }
   renderCognitiveTelemetry(telemetry);
+  renderConsolidationAndDalesTelemetry(telemetry);
   renderLoss(); renderChat(); renderFacts(); renderPersistence();
   $('evidence-scope').textContent = session.evidence_scope || 'Experimental synthetic navigation. Online supervised adaptation; policy match is recent teacher agreement.';
   $('graph-id').textContent = [
@@ -405,6 +405,49 @@ function renderCognitiveTelemetry(telemetry) {
   document.querySelectorAll('.lesion-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.memoryMode === activeMode);
   });
+}
+
+function renderConsolidationAndDalesTelemetry(telemetry) {
+  const cons = telemetry.consolidation || {};
+  if ($('anchor-kl-pill') && Number.isFinite(cons.anchor_kl_drift)) {
+    $('anchor-kl-pill').textContent = `KL drift: ${cons.anchor_kl_drift.toFixed(3)}`;
+  }
+  if (Array.isArray(cons.route_probs)) {
+    cons.route_probs.forEach((p, i) => {
+      const probEl = $(`expert-prob-${i}`);
+      const barEl = $(`expert-bar-${i}`);
+      if (probEl) probEl.textContent = `${(clip(p, 0, 1) * 100).toFixed(0)}%`;
+      if (barEl) barEl.style.width = `${(clip(p, 0, 1) * 100).toFixed(0)}%`;
+    });
+  }
+  if ($('clcs-diagnostics')) {
+    const h = finite(cons.router_entropy, 1.38).toFixed(2);
+    const bal = finite(cons.router_balance, 1.0).toFixed(2);
+    const gate = finite(cons.gate_abs_mean, 0.0).toFixed(3);
+    const mem = finite(cons.memory_entropy, 1.39).toFixed(2);
+    $('clcs-diagnostics').textContent = `H=${h} · Bal=${bal} · Gate=${gate} · Mem=${mem}`;
+  }
+
+  const dl = telemetry.dales_law || {};
+  const sources = ['worm', 'fly_f', 'fly_m', 'human'];
+  let allContractive = true;
+  sources.forEach((src) => {
+    const rep = dl[src] || {};
+    const daleEl = $(`dale-${src}`);
+    const specEl = $(`spectral-${src}`);
+    if (daleEl && Number.isFinite(rep.compliance_ratio)) {
+      daleEl.textContent = `${(rep.compliance_ratio * 100).toFixed(0)}%`;
+    }
+    if (specEl && Number.isFinite(rep.spectral_radius_bound)) {
+      const stat = rep.is_contractive ? 'contractive' : 'expansive';
+      specEl.textContent = `ρ≤${rep.spectral_radius_bound.toFixed(2)} · ${stat}`;
+      if (!rep.is_contractive) allContractive = false;
+    }
+  });
+  if ($('dales-contractive-pill')) {
+    $('dales-contractive-pill').textContent = allContractive ? 'Contractive ρ≤0.90' : 'Expansive spectral bound';
+    $('dales-contractive-pill').classList.toggle('imported', allContractive);
+  }
 }
 
 function renderLoss() {

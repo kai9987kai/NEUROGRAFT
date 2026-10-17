@@ -19,7 +19,7 @@ class NavigationWorld:
     MAX_EPISODE_STEPS = 256
     MAX_TRAIL = 64
     COLORS = ("blue", "amber", "rose")
-    PRESETS = ("labyrinth", "chambers", "corridors", "pillars")
+    PRESETS = ("labyrinth", "chambers", "corridors", "pillars", "concentric", "hierarchical")
     ACTIONS = ((0, -1), (1, 0), (0, 1), (-1, 0))
     RAYS_8 = ((0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1))
     _SAVE_KEYS = {
@@ -83,6 +83,15 @@ class NavigationWorld:
             return (x % 3 == 0 and 2 <= z <= self.size - 3 and (z + x) % 4 != 0)
         if preset == "pillars":
             return (x % 2 == 0 and z % 2 == 0) or (abs(x - mid) == abs(z - mid) and x not in (1, mid, self.size - 2))
+        if preset == "concentric":
+            r = max(abs(x - mid), abs(z - mid))
+            is_door = (x == mid or z == mid)
+            return (r % 2 == 0 and r >= 2 and not is_door)
+        if preset == "hierarchical":
+            is_cross = (x == mid or z == mid)
+            is_subcross = (x in (q1, q3) or z in (q1, q3))
+            is_doorway = (x in (q1, mid, q3) and z in (1, mid, self.size - 2)) or (z in (q1, mid, q3) and x in (1, mid, self.size - 2))
+            return (is_cross or is_subcross) and not is_doorway
         # Default "labyrinth": multi-chamber partitions + inner canyon baffles
         on_partition = (x == mid and z not in (q1, mid, q3)) or (z == mid and x not in (q1, mid, q3))
         on_baffle = ((x in (q1, q3) and abs(z - mid) <= max(1, self.size // 6) and z != mid)
@@ -225,6 +234,21 @@ class NavigationWorld:
             lidar_8.append(norm_d)
             lidar_rays.append({"x": cx + dx, "z": cz + dz, "free_x": cx, "free_z": cz, "clearance": norm_d})
         chemoattractant = float(math.exp(-geodesic / max(2.0, 0.55 * self.size)))
+        dx = float(gx - ax)
+        dz = float(gz - az)
+        dist = math.hypot(dx, dz)
+        grad_x = float(dx / max(1e-4, dist)) if dist > 0 else 0.0
+        grad_z = float(dz / max(1e-4, dist)) if dist > 0 else 0.0
+        plume_width = round(1.5 + 0.1 * math.sqrt(float(self.steps % 100)), 3)
+        plume_intensity = round(float(math.exp(-(dist * dist) / (2.0 * plume_width * plume_width))), 4)
+        gate_open = (self.steps % 16) < 12
+        branch_entropy = round(float(
+            -sum(
+                (c / max(1, free_cells)) * math.log(max(1e-9, c / max(1, free_cells)))
+                for c in (dead_ends, corridors, junctions)
+                if c > 0
+            )
+        ), 4)
         return {
             "preset": getattr(self, "preset", "labyrinth"),
             "size": self.size,
@@ -240,6 +264,11 @@ class NavigationWorld:
             "detour_index": detour,
             "choke_points": choke_points,
             "chemoattractant": chemoattractant,
+            "plume_gradient": [round(grad_x, 4), round(grad_z, 4)],
+            "plume_width": plume_width,
+            "plume_intensity": plume_intensity,
+            "gate_open": gate_open,
+            "topological_entropy": branch_entropy,
             "lidar_8": lidar_8,
             "lidar_rays": lidar_rays,
         }

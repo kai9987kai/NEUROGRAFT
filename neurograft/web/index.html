@@ -13,7 +13,7 @@
   <header class="app-header">
     <a class="brand" href="/" aria-label="Neurograft live laboratory">
       <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M10 29V11l20 18V11"/><circle cx="10" cy="11" r="3"/><circle cx="30" cy="29" r="3"/></svg>
-      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.2</span></span></span>
+      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.3</span></span></span>
     </a>
     <div class="header-note">Four source graphs. One evolving circuit.</div>
     <button type="button" class="pill research-trigger" popovertarget="research-popover">📚 2024–2026 Research Basis</button>
@@ -54,7 +54,7 @@
         <div class="arena-controls">
           <div class="goal-controls"><span class="control-caption">TARGET</span><button type="button" id="goal-blue" class="goal-button blue" data-write disabled><i></i> Blue</button><button type="button" id="goal-amber" class="goal-button amber" data-write disabled><i></i> Amber</button><button type="button" id="goal-rose" class="goal-button rose" data-write disabled><i></i> Rose</button></div>
           <div class="goal-controls"><span class="control-caption">SCALE</span><button type="button" class="goal-button world-size-btn" data-world-size="11" data-write disabled>11²</button><button type="button" class="goal-button world-size-btn" data-world-size="15" data-write disabled>15²</button><button type="button" class="goal-button world-size-btn" data-world-size="19" data-write disabled>19²</button><button type="button" class="goal-button world-size-btn" data-world-size="25" data-write disabled>25²</button></div>
-          <div class="goal-controls"><span class="control-caption">TOPOLOGY</span><button type="button" class="goal-button world-preset-btn" data-world-preset="labyrinth" data-write disabled>Labyrinth</button><button type="button" class="goal-button world-preset-btn" data-world-preset="chambers" data-write disabled>Chambers</button><button type="button" class="goal-button world-preset-btn" data-world-preset="corridors" data-write disabled>Corridors</button><button type="button" class="goal-button world-preset-btn" data-world-preset="pillars" data-write disabled>Pillars</button></div>
+          <div class="goal-controls"><span class="control-caption">TOPOLOGY</span><button type="button" class="goal-button world-preset-btn" data-world-preset="labyrinth" data-write disabled>Labyrinth</button><button type="button" class="goal-button world-preset-btn" data-world-preset="chambers" data-write disabled>Chambers</button><button type="button" class="goal-button world-preset-btn" data-world-preset="corridors" data-write disabled>Corridors</button><button type="button" class="goal-button world-preset-btn" data-world-preset="pillars" data-write disabled>Pillars</button><button type="button" class="goal-button world-preset-btn" data-world-preset="concentric" data-write disabled>Concentric</button><button type="button" class="goal-button world-preset-btn" data-world-preset="hierarchical" data-write disabled>Hierarchical</button></div>
           <p class="arena-help">Drag to orbit <span>·</span> Scroll to zoom <span>·</span> Click floor/beacon <span>·</span> <kbd>WASD</kbd> when paused</p>
         </div>
       </section>
@@ -195,6 +195,39 @@
             <div class="ablation-card"><span class="eyebrow">HUMAN CORTICAL</span><strong id="dale-human" class="mono">100%</strong><small id="spectral-human">ρ≤0.85 · contractive</small></div>
           </div>
           <div class="research-foot" id="dales-foot">Shifted power iteration &amp; Collatz-Wielandt bound: contractive dynamics on rate manifolds.</div>
+      <!-- Tsodyks-Markram Short-Term Plasticity (STP) & Chebyshev Spectral Wavelet Diffusion & Byte Bridge -->
+      <section class="research-grid stp-spectral-grid" aria-labelledby="stp-heading">
+        <div class="research-col">
+          <div class="research-header">
+            <div><span class="eyebrow">TSODYKS-MARKRAM SYNAPTIC DYNAMICS (STP)</span><h3 id="stp-heading">Activity-Dependent Synaptic Efficacy</h3></div>
+            <span class="pill" id="stp-efficacy-pill">Efficacy: 1.00×</span>
+          </div>
+          <div class="stp-summary">
+            <div class="mod-bars">
+              <div class="mod-row"><span>Release Prob (<i>u</i> · Calcium)</span><b id="stp-u-val" class="mono">0.35</b><div class="prob-track"><div id="stp-u-bar" class="prob-fill da" style="width:35%"></div></div></div>
+              <div class="mod-row"><span>Vesicle Pool (<i>R</i> · Depletion)</span><b id="stp-r-val" class="mono">1.00</b><div class="prob-track"><div id="stp-r-bar" class="prob-fill ht" style="width:100%"></div></div></div>
+              <div class="mod-row"><span>Synaptic Gain (<i>E</i> · Net Transmission)</span><b id="stp-e-val" class="mono">1.00×</b><div class="prob-track"><div id="stp-e-bar" class="prob-fill oa" style="width:50%"></div></div></div>
+            </div>
+            <div class="efe-row" style="margin-top:6px;"><span>Synaptic Filtering:</span><small id="stp-filtering-note" class="mono">Depression: 0% · Facilitation: 0% · Idle Fixpoint</small></div>
+            <div class="research-foot" id="stp-foot">Biological rate-dependent filtering: burst detection vs tonic desensitization.</div>
+          </div>
+        </div>
+
+        <div class="research-col">
+          <div class="research-header">
+            <div><span class="eyebrow">CHEBYSHEV SPECTRAL GRAPH DIFFUSION &amp; BYTE BRIDGE</span><h3>Multi-Scale Wavelets &amp; Semantic Attractors</h3></div>
+            <span class="pill imported" id="byte-intent-pill">foraging-chemotaxis</span>
+          </div>
+          <div class="spectral-byte-summary">
+            <span class="eyebrow">SPECTRAL HEAT DIFFUSION RATIOS (K=3 POLYNOMIAL EXPANSION)</span>
+            <div class="spectral-energy-bars">
+              <div class="compass-cell"><small>Local (s=0.5)</small><b id="spectral-local-val" class="mono">0.95</b><div class="prob-track"><div id="spectral-local-bar" class="prob-fill da" style="width:95%"></div></div></div>
+              <div class="compass-cell"><small>Meso (s=2.0)</small><b id="spectral-meso-val" class="mono">0.65</b><div class="prob-track"><div id="spectral-meso-bar" class="prob-fill ht" style="width:65%"></div></div></div>
+              <div class="compass-cell"><small>Macro (s=6.0)</small><b id="spectral-macro-val" class="mono">0.30</b><div class="prob-track"><div id="spectral-macro-bar" class="prob-fill oa" style="width:30%"></div></div></div>
+            </div>
+            <div class="efe-row" style="margin-top:6px;"><span>Connectome Byte-Bridge:</span><small id="byte-bridge-note" class="mono">Entropy 4.12 · Conf 0.88 · Tokens: ['f','o','r','a','g','e']</small></div>
+            <div class="research-foot" id="spectral-foot">Multi-scale graph wavelets via O(K·|E|) Chebyshev recurrence without matrix inversion.</div>
+          </div>
         </div>
       </section>
 
@@ -203,7 +236,7 @@
     </div>
 
     <aside class="side-column">
-      <section class="panel chat-panel" aria-labelledby="chat-heading"><div class="panel-heading"><div><span class="eyebrow">SESSION COMPANION</span><h2 id="chat-heading">Talk to the circuit <span class="chat-spark" aria-hidden="true">✳</span></h2></div></div><div class="backend-label"><span class="tiny-dot"></span><b>Local commands + memory</b><span>No language model</span></div><div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Session conversation"><div class="chat-welcome"><span class="assistant-symbol">N</span><p>Scale the 3D labyrinth.<br>Probe virtual lesions &amp; neurons.</p><small>I understand world scaling, virtual lesion attribution, neuromodulator queries, and explicit facts.</small></div></div><div class="chat-examples"><button type="button" class="example-chip" data-example="evolve 16">⚡ Evolve ×16</button><button type="button" class="example-chip" data-example="dale">🧬 Dale's Law</button><button type="button" class="example-chip" data-example="consolidation">🔀 Latent MoE</button><button type="button" class="example-chip" data-example="anchor sync">⚓ Anchor Sync</button><button type="button" class="example-chip" data-example="world 19 chambers">🏛️ 19×19 Chambers</button><button type="button" class="example-chip" data-example="world 25 labyrinth">🌐 25×25 Labyrinth</button><button type="button" class="example-chip" data-example="compass">🧭 CX Compass</button><button type="button" class="example-chip" data-example="efe">⚡ Active Inference</button><button type="button" class="example-chip" data-example="memory">🧠 Tri-tier Memory</button><button type="button" class="example-chip" data-example="phase">🌊 Lyapunov Phase</button><button type="button" class="example-chip" data-example="lesion">🔬 Virtual lesion</button><button type="button" class="example-chip" data-example="neuromodulators">🧪 Neuromodulators</button><button type="button" class="example-chip" data-example="motifs">🕸️ Rich-Club hubs</button><button type="button" class="example-chip" data-example="why">🧭 Decision probe</button></div><form id="chat-form" class="chat-composer"><label class="sr-only" for="chat-input">Message to local command and memory backend</label><textarea id="chat-input" rows="2" maxlength="4000" placeholder="Try “world 19 chambers”, “compass”, “efe”, “memory”, “phase”, “lesion”…" disabled></textarea><div class="composer-bottom"><span>Enter to send · Shift + Enter for a new line</span><button id="chat-send" class="send-button" type="submit" data-write disabled aria-label="Send message">↑</button></div></form></section>
+      <section class="panel chat-panel" aria-labelledby="chat-heading"><div class="panel-heading"><div><span class="eyebrow">SESSION COMPANION</span><h2 id="chat-heading">Talk to the circuit <span class="chat-spark" aria-hidden="true">✳</span></h2></div></div><div class="backend-label"><span class="tiny-dot"></span><b>Local commands + memory</b><span>No language model</span></div><div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Session conversation"><div class="chat-welcome"><span class="assistant-symbol">N</span><p>Scale the 3D labyrinth.<br>Probe virtual lesions &amp; neurons.</p><small>I understand world scaling, virtual lesion attribution, neuromodulator queries, and explicit facts.</small></div></div><div class="chat-examples"><button type="button" class="example-chip" data-example="evolve 16">⚡ Evolve ×16</button><button type="button" class="example-chip" data-example="dale">🧬 Dale's Law</button><button type="button" class="example-chip" data-example="consolidation">🔀 Latent MoE</button><button type="button" class="example-chip" data-example="anchor sync">⚓ Anchor Sync</button><button type="button" class="example-chip" data-example="stp">⚡ Synaptic STP</button><button type="button" class="example-chip" data-example="spectral">🌊 Spectral Wavelets</button><button type="button" class="example-chip" data-example="byte">🔤 Byte Bridge</button><button type="button" class="example-chip" data-example="plume">💨 Odor Plume</button><button type="button" class="example-chip" data-example="world 19 chambers">🏛️ 19×19 Chambers</button><button type="button" class="example-chip" data-example="world 19 concentric">🎯 Concentric</button><button type="button" class="example-chip" data-example="world 21 hierarchical">🌲 Hierarchical</button><button type="button" class="example-chip" data-example="compass">🧭 CX Compass</button><button type="button" class="example-chip" data-example="efe">⚡ Active Inference</button><button type="button" class="example-chip" data-example="memory">🧠 Tri-tier Memory</button><button type="button" class="example-chip" data-example="phase">🌊 Lyapunov Phase</button><button type="button" class="example-chip" data-example="lesion">🔬 Virtual lesion</button><button type="button" class="example-chip" data-example="neuromodulators">🧪 Neuromodulators</button><button type="button" class="example-chip" data-example="motifs">🕸️ Rich-Club hubs</button><button type="button" class="example-chip" data-example="why">🧭 Decision probe</button></div><form id="chat-form" class="chat-composer"><label class="sr-only" for="chat-input">Message to local command and memory backend</label><textarea id="chat-input" rows="2" maxlength="4000" placeholder="Try “world 19 chambers”, “compass”, “efe”, “memory”, “phase”, “lesion”…" disabled></textarea><div class="composer-bottom"><span>Enter to send · Shift + Enter for a new line</span><button id="chat-send" class="send-button" type="submit" data-write disabled aria-label="Send message">↑</button></div></form></section>
 
       <section class="panel memory-panel" aria-labelledby="memory-heading"><div class="panel-heading compact"><div><span class="eyebrow">EXPLICIT FACT MEMORY</span><h2 id="memory-heading">Remembered facts <span id="fact-count" class="count-badge">0</span></h2></div></div><div id="facts-list" class="facts-list"><p class="empty-note">No facts yet. Use <code>remember key = value</code> in chat.</p></div><div class="panel-foot">Saved with the circuit. Retrieved by key in chat.</div></section>
 

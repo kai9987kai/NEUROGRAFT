@@ -25,6 +25,7 @@ from torch import Tensor
 import torch.nn.functional as F
 
 from .active_inference import ActiveInferenceArbiter
+from .byte_bridge import ByteBridgeConfig, ConnectomeByteBridge
 from .compass import CXRingCompass
 from .consolidation import ConnectomeConsolidationStack, ConsolidationConfig
 from .dales_law import audit_bundle_dales_law
@@ -33,6 +34,8 @@ from .environment import NavigationWorld
 from .graphs import GraphBundle
 from .memory import TriTierMemory
 from .phase_plane import PhasePlaneEngine
+from .spectral_diffusion import ChebyshevSpectralDiffusion
+from .stp import STPConfig, TsodyksMarkramSubstrate
 
 
 MAX_CHECKPOINT_BYTES = 128 * 1024 * 1024
@@ -154,7 +157,18 @@ class LiveSession:
                 self.anchor_model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4))
                 self.anchor_model.load_state_dict(self.model.state_dict())
                 self.anchor_model.eval()
+                self.stp = TsodyksMarkramSubstrate([len(g.nodes) for g in bundle.graphs], STPConfig(dt=0.20))
+                self.stp_state = self.stp.initial_state(1)
+                self.spectral_diffusers = {g.manifest.source_id: ChebyshevSpectralDiffusion(g) for g in bundle.graphs}
+                self.byte_bridge = ConnectomeByteBridge(ByteBridgeConfig(context_dim=4 * self.config.hidden_dim))
         self.model.eval()
+        self._stp_summary = {
+            "mean_release_prob": 0.35,
+            "mean_vesicle_pool": 1.0,
+            "mean_synaptic_efficacy": 1.0,
+            "depression_fraction": 0.0,
+            "facilitation_fraction": 0.0,
+        }
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.world = NavigationWorld(seed=self.config.seed)
         self.rng = random.Random(self.config.seed ^ 0x4E47524F)
@@ -260,6 +274,7 @@ class LiveSession:
 
     def _reset_inference(self):
         self.recurrent_state = self.model.initial_state(1)
+        self.stp_state = self.stp.initial_state(1)
         self.observation_history.clear()
         self.compass.reset(float(self.world.direction) * (math.pi / 2.0))
 
@@ -330,6 +345,7 @@ class LiveSession:
                 with torch.no_grad():
                     output = self.model(torch.tensor([padded], dtype=torch.float32))
                 self.recurrent_state = tuple(state.detach() for state in output.state)
+                _, self.stp_state, self._stp_summary = self.stp.step(self.recurrent_state, self.stp_state)
                 self.last_logits = output.logits.detach().clone()
                 self.routes = output.routes[0].detach().clone()
                 self.replay.append({"observations": padded, "action": expert})
@@ -486,6 +502,14 @@ class LiveSession:
                 clearance_margin=min(env_info["lidar_8"]) if env_info["lidar_8"] else 0.5,
                 heading_alignment=1.0 if self.last_action == expert else 0.2,
             )
+            spectral_summary = {}
+            for src_key, state in zip(source_keys, self.recurrent_state):
+                if src_key in self.spectral_diffusers:
+                    spectral_summary[src_key] = self.spectral_diffusers[src_key].multi_scale_energies(state)
+
+            flat_context = torch.cat([st.mean(dim=1) for st in self.recurrent_state], dim=-1)
+            byte_summary = self.byte_bridge.decode_semantic_intent(flat_context)
+
             return {
                 "action_probs": [float(p) for p in probs],
                 "policy_confidence": float(max(probs)),
@@ -520,6 +544,15 @@ class LiveSession:
                     "memory_entropy": 1.3863,
                     "anchor_kl_drift": round(self._anchor_kl_drift, 4),
                 },
+                "stp": getattr(self, "_stp_summary", {
+                    "mean_release_prob": 0.35,
+                    "mean_vesicle_pool": 1.0,
+                    "mean_synaptic_efficacy": 1.0,
+                    "depression_fraction": 0.0,
+                    "facilitation_fraction": 0.0,
+                }),
+                "spectral_diffusion": spectral_summary,
+                "byte_bridge": byte_summary,
             }
 
     def snapshot(self):
@@ -682,6 +715,35 @@ class LiveSession:
                     self.anchor_model.load_state_dict(self.model.state_dict())
                 self._anchor_kl_drift = 0.0
                 reply = "Anchor distillation model synchronized with current policy weights."
+            elif lower in ("stp", "synapses", "synaptic plasticity", "plasticity"):
+                info = self.telemetry()
+                s = info["stp"]
+                reply = (f"Tsodyks-Markram Short-Term Plasticity: release prob u={s['mean_release_prob']:.2f}, "
+                         f"vesicle pool R={s['mean_vesicle_pool']:.2f}, synaptic efficacy E={s['mean_synaptic_efficacy']:.2f}× "
+                         f"(depression={s['depression_fraction']:.0%}, facilitation={s['facilitation_fraction']:.0%}).")
+            elif lower in ("spectral", "spectral diffusion", "wavelets", "diffusion"):
+                info = self.telemetry()
+                sd = info["spectral_diffusion"]
+                parts = []
+                for src in ("worm", "fly_f", "fly_m", "human"):
+                    if src in sd:
+                        energies = ", ".join(f"{k.split('_')[1]}={v:.2f}" for k, v in sd[src].items())
+                        parts.append(f"{src}: [{energies}]")
+                reply = "Chebyshev Spectral Graph Diffusion multi-scale energy — " + " | ".join(parts) + "."
+            elif lower in ("byte", "bytes", "byte bridge", "introspect", "semantic"):
+                info = self.telemetry()
+                bb = info["byte_bridge"]
+                chars = ", ".join(f"'{c}'" for c in bb["top_byte_chars"])
+                reply = (f"Connectome Byte-Bridge Attractor [{bb['semantic_intent']}]: confidence={bb['confidence']:.2f}, "
+                         f"byte entropy={bb['byte_entropy']:.2f} bits, top byte tokens [{chars}], "
+                         f"active vocab spread={bb['vocab_spread']:.1%}.")
+            elif lower in ("plume", "odor", "chemoattractant"):
+                env_info = self.world.environment_telemetry()
+                grad = env_info["plume_gradient"]
+                gate_str = "OPEN" if env_info["gate_open"] else "CLOSED"
+                reply = (f"Advection-Diffusion Odor Plume: intensity={env_info['plume_intensity']:.3f}, "
+                         f"width={env_info['plume_width']:.2f}, gradient ∇=[{grad[0]:.2f}, {grad[1]:.2f}], "
+                         f"dynamic gate={gate_str}, topological entropy={env_info['topological_entropy']:.2f}.")
             elif lower in ("why", "explain", "decision", "probe"):
                 info = self.telemetry()
                 names = ("north", "east", "south", "west")
@@ -705,8 +767,8 @@ class LiveSession:
                 reply = (f"Local command/memory backend. Step {self.steps}; {self.updates} supervised updates; "
                          f"{self.world.goals_reached} goals reached; recent policy match {acc:.0%}; "
                          f"||Δθ||₂ = {info['weight_delta_norm']:.3f}; {'running' if self._running else 'paused'}. "
-                         "Commands: pause, resume, learn on/off, evolve [1-64], world [5-31] [preset], preset [labyrinth|chambers|corridors|pillars], "
-                         "neurons, lesion, neuromodulators, motifs, maze, routes, dale, consolidation, anchor sync, why, "
+                         "Commands: pause, resume, learn on/off, evolve [1-64], world [5-31] [preset], preset [labyrinth|chambers|corridors|pillars|concentric|hierarchical], "
+                         "neurons, lesion, neuromodulators, motifs, maze, routes, dale, consolidation, anchor sync, stp, spectral, byte, plume, why, "
                          "step [1-32], move north/east/south/west, status, save, go to blue/amber/rose or go to x,z, "
                          "remember key = value, recall key, forget key, facts, reset world.")
             elif match := re.fullmatch(r"remember\s+(.+?)\s*(?:=|\bis\b)\s*(.+)", message, re.IGNORECASE):

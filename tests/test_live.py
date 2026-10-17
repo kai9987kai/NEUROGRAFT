@@ -260,6 +260,7 @@ def test_telemetry_shortest_path_and_introspective_chat():
         "graft_gates", "route_entropy", "weight_delta_norm", "graft_impact", "top_nodes",
         "source_ablation", "liquid_tau", "neuromodulators", "environment", "connectome_motifs",
         "compass", "active_inference", "memory", "phase_plane", "dales_law", "consolidation",
+        "stp", "spectral_diffusion", "byte_bridge",
     }
     assert len(telemetry["action_probs"]) == 4
     assert abs(sum(telemetry["action_probs"]) - 1.0) < 1e-4
@@ -278,6 +279,9 @@ def test_telemetry_shortest_path_and_introspective_chat():
     assert len(telemetry["active_inference"]["efe_probs"]) == 4
     assert telemetry["memory"]["mode"] in ("intact", "erased", "shifted", "random_retrieval", "memory_free")
     assert "lyapunov_energy" in telemetry["phase_plane"]
+    assert set(telemetry["stp"]) == {"mean_release_prob", "mean_vesicle_pool", "mean_synaptic_efficacy", "depression_fraction", "facilitation_fraction"}
+    assert "worm" in telemetry["spectral_diffusion"]
+    assert "semantic_intent" in telemetry["byte_bridge"]
     before_steps = session.steps
     session.chat("evolve 6")
     assert session.steps == before_steps + 6
@@ -293,4 +297,8 @@ def test_telemetry_shortest_path_and_introspective_chat():
     assert "Active Inference" in session.chat("efe")["reply"]
     assert "Tri-Tier Cognitive Memory" in session.chat("memory")["reply"]
     assert "Lyapunov Separatrix Phase Plane" in session.chat("phase")["reply"]
+    assert "Tsodyks-Markram" in session.chat("stp")["reply"]
+    assert "Chebyshev Spectral Graph Diffusion" in session.chat("spectral")["reply"]
+    assert "Connectome Byte-Bridge Attractor" in session.chat("byte")["reply"]
+    assert "Advection-Diffusion Odor Plume" in session.chat("plume")["reply"]
 

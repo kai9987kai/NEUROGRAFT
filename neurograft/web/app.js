@@ -323,6 +323,7 @@ function renderSession() {
     cell.style.color = value > 0.35 ? '#c3fff0' : '#8ca8b6';
   renderCognitiveTelemetry(telemetry);
   renderConsolidationAndDalesTelemetry(telemetry);
+  renderSTPAndSpectralTelemetry(telemetry);
   renderLoss(); renderChat(); renderFacts(); renderPersistence();
   $('evidence-scope').textContent = session.evidence_scope || 'Experimental synthetic navigation. Online supervised adaptation; policy match is recent teacher agreement.';
   $('graph-id').textContent = [
@@ -447,6 +448,56 @@ function renderConsolidationAndDalesTelemetry(telemetry) {
   if ($('dales-contractive-pill')) {
     $('dales-contractive-pill').textContent = allContractive ? 'Contractive ρ≤0.90' : 'Expansive spectral bound';
     $('dales-contractive-pill').classList.toggle('imported', allContractive);
+  }
+}
+
+function renderSTPAndSpectralTelemetry(telemetry) {
+  const stp = telemetry.stp || {};
+  const u = finite(stp.mean_release_prob, 0.35);
+  const r = finite(stp.mean_vesicle_pool, 1.0);
+  const eff = finite(stp.mean_synaptic_efficacy, 1.0);
+
+  if ($('stp-efficacy-pill')) {
+    $('stp-efficacy-pill').textContent = `Efficacy: ${eff.toFixed(2)}×`;
+  }
+  if ($('stp-u-val')) $('stp-u-val').textContent = u.toFixed(2);
+  if ($('stp-r-val')) $('stp-r-val').textContent = r.toFixed(2);
+  if ($('stp-e-val')) $('stp-e-val').textContent = `${eff.toFixed(2)}×`;
+
+  if ($('stp-u-bar')) $('stp-u-bar').style.width = `${(clip(u, 0, 1) * 100).toFixed(0)}%`;
+  if ($('stp-r-bar')) $('stp-r-bar').style.width = `${(clip(r, 0, 1) * 100).toFixed(0)}%`;
+  if ($('stp-e-bar')) $('stp-e-bar').style.width = `${(clip(eff / 2.0, 0, 1) * 100).toFixed(0)}%`;
+
+  if ($('stp-filtering-note')) {
+    const dep = ((stp.depression_fraction || 0) * 100).toFixed(0);
+    const fac = ((stp.facilitation_fraction || 0) * 100).toFixed(0);
+    const status = dep > 0 ? 'Short-Term Depression' : fac > 0 ? 'Short-Term Facilitation' : 'Idle Baseline';
+    $('stp-filtering-note').textContent = `Depression: ${dep}% · Facilitation: ${fac}% · ${status}`;
+  }
+
+  const sd = telemetry.spectral_diffusion || {};
+  const wormSd = sd.worm || {};
+  const s05 = finite(wormSd.scale_0_5 || wormSd['scale_0.5'], 0.95);
+  const s20 = finite(wormSd.scale_2_0 || wormSd['scale_2.0'], 0.65);
+  const s60 = finite(wormSd.scale_6_0 || wormSd['scale_6.0'], 0.30);
+
+  if ($('spectral-local-val')) $('spectral-local-val').textContent = s05.toFixed(2);
+  if ($('spectral-meso-val')) $('spectral-meso-val').textContent = s20.toFixed(2);
+  if ($('spectral-macro-val')) $('spectral-macro-val').textContent = s60.toFixed(2);
+
+  if ($('spectral-local-bar')) $('spectral-local-bar').style.width = `${(clip(s05, 0, 1) * 100).toFixed(0)}%`;
+  if ($('spectral-meso-bar')) $('spectral-meso-bar').style.width = `${(clip(s20, 0, 1) * 100).toFixed(0)}%`;
+  if ($('spectral-macro-bar')) $('spectral-macro-bar').style.width = `${(clip(s60, 0, 1) * 100).toFixed(0)}%`;
+
+  const bb = telemetry.byte_bridge || {};
+  if ($('byte-intent-pill') && bb.semantic_intent) {
+    $('byte-intent-pill').textContent = String(bb.semantic_intent);
+  }
+  if ($('byte-bridge-note')) {
+    const ent = finite(bb.byte_entropy, 4.0).toFixed(2);
+    const conf = finite(bb.confidence, 0.8).toFixed(2);
+    const chars = Array.isArray(bb.top_byte_chars) ? bb.top_byte_chars.map(c => `'${c}'`).join(', ') : 'none';
+    $('byte-bridge-note').textContent = `Entropy ${ent} · Conf ${conf} · Attractor: [${chars}]`;
   }
 }
 

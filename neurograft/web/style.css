@@ -61,3 +61,9 @@
 .dales-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .dales-grid .ablation-card strong{color:var(--cyan)}
 @media(max-width:930px){.consolidation-grid{grid-template-columns:1fr}.expert-bars{grid-template-columns:repeat(2,1fr)}}
+.stp-spectral-grid{border-top:1px solid var(--line);padding:16px 20px;container-type:inline-size}
+.stp-summary,.spectral-byte-summary{display:flex;flex-direction:column;gap:8px}
+.spectral-energy-bars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:4px}
+.spectral-energy-bars .compass-cell small{display:block;font-size:7.5px;color:#7893ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@container (max-width: 500px){.spectral-energy-bars{grid-template-columns:1fr}}
+@media(max-width:930px){.stp-spectral-grid{grid-template-columns:1fr}}

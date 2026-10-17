@@ -223,7 +223,7 @@ def test_constructor_rejects_unsafe_or_nonintegral_configuration(kwargs):
         world_class()(**kwargs)
 
 
-@pytest.mark.parametrize("preset", ["labyrinth", "chambers", "corridors", "pillars"])
+@pytest.mark.parametrize("preset", ["labyrinth", "chambers", "corridors", "pillars", "concentric", "hierarchical"])
 def test_architectural_presets_and_environment_telemetry(preset):
     cls = world_class()
     world = cls(seed=17, size=17, preset=preset)
@@ -236,6 +236,11 @@ def test_architectural_presets_and_environment_telemetry(preset):
     assert env["detour_index"] >= 1.0
     assert 0.0 <= env["chemoattractant"] <= 1.0
     assert isinstance(env["choke_points"], list)
+    assert len(env["plume_gradient"]) == 2
+    assert env["plume_width"] > 0.0
+    assert 0.0 <= env["plume_intensity"] <= 1.0
+    assert isinstance(env["gate_open"], bool)
+    assert env["topological_entropy"] >= 0.0
     start = (snap["agent"]["x"], snap["agent"]["z"])
     for beacon in snap["beacons"]:
         assert distance(snap, start, (beacon["x"], beacon["z"])) is not None

@@ -1,0 +1,28 @@
+{
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "executable": "C:\\Users\\kai99\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "machine": "AMD64",
+  "logical_processors": 8,
+  "free_disk_gb": 21.53,
+  "packages": {
+    "torch": {
+      "installed": true,
+      "version": "2.11.0"
+    },
+    "transformers": {
+      "installed": true,
+      "version": "5.12.1"
+    },
+    "pyarrow": {
+      "installed": true,
+      "version": "23.0.1"
+    },
+    "pytest": {
+      "installed": true,
+      "version": "8.4.2"
+    }
+  },
+  "total_ram_gb": 15.606,
+  "available_ram_gb": 0.785,
+  "note": "Package discovery is not a model or compiled-operator test; no CUDA assumption."
+}

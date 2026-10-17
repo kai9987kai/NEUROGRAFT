@@ -1,0 +1,42 @@
+{
+  "path": "C:\\Users\\kai99\\Desktop\\New folder (5)\\data\\example-worm.bundle.json",
+  "sha256": "5c4b3b68e22758b8df595658e81ad241ca37a3d2d408bd522b6f6967bb042e46",
+  "digest": "5c4b3b68e22758b8df595658e81ad241ca37a3d2d408bd522b6f6967bb042e46",
+  "topology_digest": "957aabf14559a9fde5b01956b8532ec5d5f05bb5d0ddd18bbd074cd1f6320afc",
+  "sources": {
+    "worm": {
+      "source_id": "worm",
+      "status": "fixture",
+      "scale": "single_neuron",
+      "node_count": 3,
+      "edge_count": 3,
+      "computational_edges": 4,
+      "relation_counts": {
+        "chemical": 2,
+        "electrical": 1
+      },
+      "weak_components": 1,
+      "isolated_nodes": 0,
+      "largest_component_nodes": 3,
+      "density": 0.6666666666666666,
+      "self_loops": 0,
+      "authentic_ready": false,
+      "authorized": false,
+      "rights_ready": false,
+      "degree_rewired_control": false,
+      "digest": "866a3415470bfdc42d96dfd684c70dfe2bdf0724bead89cb7edf2263d76ebd1f",
+      "topology_digest": "68331625d9e2e0cee03587c1dc50ed0e5a7cfb0b3eaab8a7c497781865eae32b"
+    }
+  },
+  "total_nodes": 3,
+  "total_edges": 3,
+  "computational_edges": 4,
+  "authentic_four_source_ready": false,
+  "missing_authentic_sources": [
+    "worm",
+    "fly_f",
+    "fly_m",
+    "human"
+  ],
+  "rights_four_source_ready": false
+}

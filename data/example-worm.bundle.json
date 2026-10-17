@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "graphs": [
+    {
+      "manifest": {
+        "source_id": "worm",
+        "species": "synthetic worm-slot fixture",
+        "version": "example-v1",
+        "url": "https://example.invalid/neurograft-fixture",
+        "citation": "NEUROGRAFT synthetic example; no biological data",
+        "license": "synthetic fixture",
+        "scale": "single_neuron",
+        "status": "fixture",
+        "sha256": "09582a92f5caa268a67a1625f0e46e8a2ab65cfc0892a397c922cc0bff8a6378",
+        "retrieved_at": "2026-10-17T00:25:46.164198+00:00",
+        "processing": [
+          "import_edge_csv: nodes_sha256=d4c98958f29b5d877aecd10060ba3fdfe54c1b47551f6d263258bdf2cad8f9c4; edges_sha256=e89b45d26f0aba5cef2d20738e2b2720c5044aca35f1fe506b4c839247c40e00; node_rows=3; edge_rows=3; namespace=worm:; weight_semantics=relation-defined; undirected=one-observation"
+        ],
+        "authorized": false
+      },
+      "nodes": [
+        {
+          "id": "worm:A",
+          "source_id": "worm",
+          "kind": "neuron",
+          "original_id": "A"
+        },
+        {
+          "id": "worm:B",
+          "source_id": "worm",
+          "kind": "neuron",
+          "original_id": "B"
+        },
+        {
+          "id": "worm:C",
+          "source_id": "worm",
+          "kind": "neuron",
+          "original_id": "C"
+        }
+      ],
+      "edges": [
+        {
+          "src": "worm:A",
+          "dst": "worm:B",
+          "relation": "chemical",
+          "weight": 3.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "worm:B",
+          "dst": "worm:C",
+          "relation": "chemical",
+          "weight": 2.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": 0.9
+        },
+        {
+          "src": "worm:A",
+          "dst": "worm:C",
+          "relation": "electrical",
+          "weight": 1.0,
+          "source_id": "worm",
+          "directed": false,
+          "confidence": null
+        }
+      ]
+    }
+  ],
+  "sha256": "5c4b3b68e22758b8df595658e81ad241ca37a3d2d408bd522b6f6967bb042e46"
+}

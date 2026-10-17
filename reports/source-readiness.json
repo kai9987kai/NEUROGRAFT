@@ -1,0 +1,108 @@
+{
+  "digest": "dbf9ad2c38fb6e571a9409b1dbcd845a8bce586e5a423e987325e1b81fcb9c20",
+  "topology_digest": "ce270f6f88f8e7c2de9f984539a279edec2acd7a0eba3e5a39d6e5d5e21ff207",
+  "sources": {
+    "worm": {
+      "source_id": "worm",
+      "status": "imported",
+      "scale": "single_neuron",
+      "node_count": 302,
+      "edge_count": 4719,
+      "computational_edges": 5787,
+      "relation_counts": {
+        "chemical": 3638,
+        "electrical": 1081
+      },
+      "weak_components": 3,
+      "isolated_nodes": 2,
+      "largest_component_nodes": 300,
+      "density": 0.05526831092825241,
+      "self_loops": 47,
+      "authentic_ready": true,
+      "authorized": false,
+      "rights_ready": false,
+      "degree_rewired_control": false,
+      "digest": "cb5735eb06b1a36c7f31169d303310fb7c01f3cf9d468ec829d847ee36dd8317",
+      "topology_digest": "901c1b6ada8667dbd413a843245510bcd9fa0feadc69a5e6d7010343614a357c"
+    },
+    "fly_f": {
+      "source_id": "fly_f",
+      "status": "fixture",
+      "scale": "single_neuron",
+      "node_count": 8,
+      "edge_count": 18,
+      "computational_edges": 25,
+      "relation_counts": {
+        "chemical": 11,
+        "electrical": 7
+      },
+      "weak_components": 1,
+      "isolated_nodes": 0,
+      "largest_component_nodes": 8,
+      "density": 0.35714285714285715,
+      "self_loops": 0,
+      "authentic_ready": false,
+      "authorized": false,
+      "rights_ready": false,
+      "degree_rewired_control": false,
+      "digest": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+      "topology_digest": "b131e86007a9256a8fb75dcaee509d8fee3c14c2ae32c103d264927ca160b3ed"
+    },
+    "fly_m": {
+      "source_id": "fly_m",
+      "status": "fixture",
+      "scale": "single_neuron",
+      "node_count": 8,
+      "edge_count": 23,
+      "computational_edges": 30,
+      "relation_counts": {
+        "chemical": 16,
+        "electrical": 7
+      },
+      "weak_components": 1,
+      "isolated_nodes": 0,
+      "largest_component_nodes": 8,
+      "density": 0.4642857142857143,
+      "self_loops": 0,
+      "authentic_ready": false,
+      "authorized": false,
+      "rights_ready": false,
+      "degree_rewired_control": false,
+      "digest": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+      "topology_digest": "ab060dcfb4d8d95a4bb66908397e02181993735f72d8008a87d838efc8f0ec69"
+    },
+    "human": {
+      "source_id": "human",
+      "status": "fixture",
+      "scale": "brain_region",
+      "node_count": 8,
+      "edge_count": 22,
+      "computational_edges": 44,
+      "relation_counts": {
+        "macro_functional": 7,
+        "macro_structural": 15
+      },
+      "weak_components": 1,
+      "isolated_nodes": 0,
+      "largest_component_nodes": 8,
+      "density": 0.75,
+      "self_loops": 0,
+      "authentic_ready": false,
+      "authorized": false,
+      "rights_ready": false,
+      "degree_rewired_control": false,
+      "digest": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+      "topology_digest": "ca2bd6dd0687ebf7b5d58bdd276baafce26282c4afe16206d6c882cbfa9e0368"
+    }
+  },
+  "total_nodes": 326,
+  "total_edges": 4782,
+  "computational_edges": 5886,
+  "authentic_four_source_ready": false,
+  "missing_authentic_sources": [
+    "fly_f",
+    "fly_m",
+    "human"
+  ],
+  "rights_four_source_ready": false
+}

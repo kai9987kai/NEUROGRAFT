@@ -1,0 +1,218 @@
+{
+  "raw_rows": 7379,
+  "excluded_non_neuron_rows": 1573,
+  "deduplicated_electrical_rows": 1063,
+  "conflicting_electrical_pairs": [
+    {
+      "src": "AVAL",
+      "dst": "VA05",
+      "weights": [
+        4.0,
+        5.0
+      ]
+    },
+    {
+      "src": "AVAL",
+      "dst": "VA09",
+      "weights": [
+        5.0,
+        4.0
+      ]
+    },
+    {
+      "src": "AVAR",
+      "dst": "VA05",
+      "weights": [
+        5.0,
+        4.0
+      ]
+    },
+    {
+      "src": "AVAR",
+      "dst": "VA09",
+      "weights": [
+        4.0,
+        5.0
+      ]
+    },
+    {
+      "src": "AVBL",
+      "dst": "DB06",
+      "weights": [
+        4.0,
+        3.0
+      ]
+    },
+    {
+      "src": "AVBL",
+      "dst": "VB08",
+      "weights": [
+        4.0,
+        3.0
+      ]
+    },
+    {
+      "src": "AVBL",
+      "dst": "VB09",
+      "weights": [
+        3.0,
+        4.0
+      ]
+    },
+    {
+      "src": "AVBL",
+      "dst": "VB10",
+      "weights": [
+        4.0,
+        3.0
+      ]
+    },
+    {
+      "src": "AVBR",
+      "dst": "DB06",
+      "weights": [
+        3.0,
+        4.0
+      ]
+    },
+    {
+      "src": "AVBR",
+      "dst": "VB08",
+      "weights": [
+        3.0,
+        4.0
+      ]
+    },
+    {
+      "src": "AVBR",
+      "dst": "VB09",
+      "weights": [
+        4.0,
+        3.0
+      ]
+    },
+    {
+      "src": "AVBR",
+      "dst": "VB10",
+      "weights": [
+        3.0,
+        4.0
+      ]
+    }
+  ],
+  "excluded_conflicting_electrical_rows": 24,
+  "electrical_conflicts_policy": "exclude",
+  "retained_edges": 4719,
+  "declared_neurons": 302,
+  "neuron_model_aliases": {
+    "AS01": "AS1",
+    "AS02": "AS2",
+    "AS03": "AS3",
+    "AS04": "AS4",
+    "AS05": "AS5",
+    "AS06": "AS6",
+    "AS07": "AS7",
+    "AS08": "AS8",
+    "AS09": "AS9",
+    "DA01": "DA1",
+    "DA02": "DA2",
+    "DA03": "DA3",
+    "DA04": "DA4",
+    "DA05": "DA5",
+    "DA06": "DA6",
+    "DA07": "DA7",
+    "DA08": "DA8",
+    "DA09": "DA9",
+    "DB01": "DB1",
+    "DB02": "DB2",
+    "DB03": "DB3",
+    "DB04": "DB4",
+    "DB05": "DB5",
+    "DB06": "DB6",
+    "DB07": "DB7",
+    "DD01": "DD1",
+    "DD02": "DD2",
+    "DD03": "DD3",
+    "DD04": "DD4",
+    "DD05": "DD5",
+    "DD06": "DD6",
+    "VA01": "VA1",
+    "VA02": "VA2",
+    "VA03": "VA3",
+    "VA04": "VA4",
+    "VA05": "VA5",
+    "VA06": "VA6",
+    "VA07": "VA7",
+    "VA08": "VA8",
+    "VA09": "VA9",
+    "VB01": "VB1",
+    "VB02": "VB2",
+    "VB03": "VB3",
+    "VB04": "VB4",
+    "VB05": "VB5",
+    "VB06": "VB6",
+    "VB07": "VB7",
+    "VB08": "VB8",
+    "VB09": "VB9",
+    "VC01": "VC1",
+    "VC02": "VC2",
+    "VC03": "VC3",
+    "VC04": "VC4",
+    "VC05": "VC5",
+    "VC06": "VC6",
+    "VD01": "VD1",
+    "VD02": "VD2",
+    "VD03": "VD3",
+    "VD04": "VD4",
+    "VD05": "VD5",
+    "VD06": "VD6",
+    "VD07": "VD7",
+    "VD08": "VD8",
+    "VD09": "VD9"
+  },
+  "revision": "1ca08b14f4e795a973ce447565e0c97b897ee4dc",
+  "source_url": "https://raw.githubusercontent.com/openworm/CElegansNeuroML/1ca08b14f4e795a973ce447565e0c97b897ee4dc/herm_full_edgelist.csv",
+  "raw_sha256": "142693f17556148d7f962835b18ac6dd5af18b7467eef61815ebc1dd5474c0ca",
+  "network_sha256": "3f25c94d623c634749e5477e61bb0585568b8ac20388d03862b9b12036492c3d",
+  "bundle_sha256": "7d2b231f235c81d440477c7dbd266433df9b24a749af2f21aaafb0022aaada35",
+  "source_data_license_resolved": false,
+  "stats": {
+    "digest": "7d2b231f235c81d440477c7dbd266433df9b24a749af2f21aaafb0022aaada35",
+    "topology_digest": "a1fe6175e151c7dcd547d92b7bc4c755eac6d19218c537712e82f33d2012e908",
+    "sources": {
+      "worm": {
+        "source_id": "worm",
+        "status": "imported",
+        "scale": "single_neuron",
+        "node_count": 302,
+        "edge_count": 4719,
+        "computational_edges": 5787,
+        "relation_counts": {
+          "chemical": 3638,
+          "electrical": 1081
+        },
+        "weak_components": 3,
+        "isolated_nodes": 2,
+        "largest_component_nodes": 300,
+        "density": 0.05526831092825241,
+        "self_loops": 47,
+        "authentic_ready": true,
+        "authorized": false,
+        "rights_ready": false,
+        "degree_rewired_control": false,
+        "digest": "cb5735eb06b1a36c7f31169d303310fb7c01f3cf9d468ec829d847ee36dd8317",
+        "topology_digest": "e5b50541751bbe0be0b10089b3f1dbbbd3c9c8e3e002eb95ecb4377187abee2f"
+      }
+    },
+    "total_nodes": 302,
+    "total_edges": 4719,
+    "computational_edges": 5787,
+    "authentic_four_source_ready": false,
+    "missing_authentic_sources": [
+      "fly_f",
+      "fly_m",
+      "human"
+    ],
+    "rights_four_source_ready": false
+  }
+}

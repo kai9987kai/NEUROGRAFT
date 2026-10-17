@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neurograft"
+version = "0.2.0"
+description = "Sparse provenance-preserving multi-source neural graft research instrument"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["torch>=2.6"]
+
+[project.optional-dependencies]
+llm = ["transformers>=5.12,<6"]
+test = ["pytest>=8"]
+parquet = ["pyarrow>=15"]
+
+[project.scripts]
+neurograft = "neurograft.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["neurograft*"]
+
+[tool.setuptools.package-data]
+neurograft = ["web/*", "web/vendor/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

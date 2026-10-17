@@ -1,0 +1,16 @@
+{
+  "neurograft\\acquire.py": "ff5143013de1cc09705e8af2d4753de4162c26dd0f67f2a1ed02b932780027b7",
+  "neurograft\\cli.py": "c7aad0b806bd52265db9332e63b97f81914f172bbfe65a958ea1aee720f84355",
+  "neurograft\\dynamics.py": "af443d7005e8336e0d741bb06bb696097cc5755736a02318a6ba26b6aac7210e",
+  "neurograft\\evaluation.py": "32e523fcd61d04ef6979dbb600d2d67940b16e082ac2aeda2aece7c49c614576",
+  "neurograft\\fixtures.py": "5cebf23f5a0d0d99ed299c2d12d902347ae46735dfcc25f6aab906c2706e60ef",
+  "neurograft\\graphs.py": "15768d657c7080d8f1b18f14e914ccf2a90ca039ad60991651a3fe03d1808e08",
+  "neurograft\\ingest.py": "329cdd40e46f8ca434a910c2f570151f962391b73e95f7b4274f98c2cc2ce829",
+  "neurograft\\llm.py": "33f9861783a7fe6832f38de08b1c3ae097edd2917f118770049df46ccdfe54f0",
+  "neurograft\\report.py": "fd8beaf44c8208b700d4a99f21c011519355d0c161c00f92f1ba531174500aef",
+  "neurograft\\runtime.py": "c0765bb16e1f014258fbbc1ae25e065702c6bff6ab60c3c24071a0e0dbba7acd",
+  "neurograft\\__init__.py": "e3c9dacb1de73cf5b9d916e2fb5a999d8b9c4ab9e099a7d5aead2f6d1c6c6553",
+  "neurograft\\__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+  "pyproject.toml": "d1a6601c66f51aab8c6f79732a34d2f264c0d424c34a3efe5414e1d28f79ea05",
+  "README.md": "8eb5c4f01f3cfb21ad786ad2479489c17a4f49384ea4c2c6ce20218f2c2103a3"
+}

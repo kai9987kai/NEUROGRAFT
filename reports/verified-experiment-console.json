@@ -1,0 +1,1196 @@
+{
+  "config": {
+    "batch_size": 32,
+    "data_seed": 1729,
+    "delay": 4,
+    "epochs": 30,
+    "hidden_dim": 12,
+    "learning_rate": 0.01,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "test_size": 256,
+    "threads": 2,
+    "train_size": 128,
+    "val_size": 64
+  },
+  "data_hashes": {
+    "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+    "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+    "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+  },
+  "elapsed_seconds": 384.4754001000001,
+  "estimated_heldout_tensor_bytes": 15728640,
+  "estimated_training_tensor_bytes": 11796480,
+  "evidence_scope": [
+    "Synthetic delayed XOR communication and memory only; no biological validation.",
+    "This source-communication task is designed to require a graft and recurrence. A graft advantage does not establish a topology benefit.",
+    "Fixed disjoint PRNG seeds define splits; the four underlying XOR cue patterns recur across splits.",
+    "All variants allocate identical trainable parameters, weights, data, epoch shuffles and optimizer steps; effective computation and active gradients differ.",
+    "Variants run sequentially; timing includes initialization, optimizer setup, validation and checkpoint writes. RSS includes prior allocator retention.",
+    "Checkpoint replay is CPU/runtime-specific; training resume is not implemented."
+  ],
+  "format_version": 1,
+  "input_graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+  "input_topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+  "paired_comparisons": [
+    {
+      "bootstrap_95_ci": [
+        0.0,
+        0.3
+      ],
+      "bootstrap_resamples": 2000,
+      "caveat": "Small seed samples give unstable descriptive bootstrap intervals, not a powered significance test. All seeds use one fixed set of task splits; intervals reflect run-seed variation in initialization/training and, for rewired controls, topology rewiring. They do not measure data-split uncertainty.",
+      "comparison": "grafted minus no_graft",
+      "control": "no_graft",
+      "mean_accuracy_difference": 0.1,
+      "n_paired_seeds": 5,
+      "seed_accuracy_differences": [
+        0.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "bootstrap_95_ci": [
+        0.0,
+        0.3046875
+      ],
+      "bootstrap_resamples": 2000,
+      "caveat": "Small seed samples give unstable descriptive bootstrap intervals, not a powered significance test. All seeds use one fixed set of task splits; intervals reflect run-seed variation in initialization/training and, for rewired controls, topology rewiring. They do not measure data-split uncertainty.",
+      "comparison": "grafted minus no_recurrence",
+      "control": "no_recurrence",
+      "mean_accuracy_difference": 0.1015625,
+      "n_paired_seeds": 5,
+      "seed_accuracy_differences": [
+        0.5078125,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "bootstrap_95_ci": [
+        -0.12421875,
+        0.3
+      ],
+      "bootstrap_resamples": 2000,
+      "caveat": "Small seed samples give unstable descriptive bootstrap intervals, not a powered significance test. All seeds use one fixed set of task splits; intervals reflect run-seed variation in initialization/training and, for rewired controls, topology rewiring. They do not measure data-split uncertainty.",
+      "comparison": "grafted minus rewired",
+      "control": "rewired",
+      "mean_accuracy_difference": 0.05859375,
+      "n_paired_seeds": 5,
+      "seed_accuracy_differences": [
+        0.5,
+        -0.20703125,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "parameter_counts_equal": true,
+  "runs": [
+    {
+      "batch_order_hash": "4c77bf51b48704a53f219eac2088706a858bc19d4980db2ac1a8c3c3dfa5fd5c",
+      "checkpoint_path": "runs/seed_0/grafted/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 21.176193200000853,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "508386676d5054f1099f98f2024fe0740d3b64750cad21aa8ef79d42161d0812",
+      "memory": {
+        "after_rss_bytes": 341921792,
+        "before_rss_bytes": 325963776,
+        "max_sampled_rss_bytes": 342659072,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/grafted/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 0,
+      "selected_epoch": 28,
+      "selected_state_hash": "7ccd6e3fa9ec9b6e08ba265743e044d8c29279421f3833d9975759195d78bc6e",
+      "selected_validation_accuracy": 1.0,
+      "selected_validation_loss": 0.0003895841946359724,
+      "test_accuracy": 1.0,
+      "test_evaluations": 1,
+      "test_logits_hash": "24a704d3d7d34450e546ea1ebb0524439f4eec633b9aeccbce5c10058f4b86fa",
+      "test_loss": 0.0003990062978118658,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "grafted"
+    },
+    {
+      "batch_order_hash": "4c77bf51b48704a53f219eac2088706a858bc19d4980db2ac1a8c3c3dfa5fd5c",
+      "checkpoint_path": "runs/seed_0/no_graft/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 14.495572299998457,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "508386676d5054f1099f98f2024fe0740d3b64750cad21aa8ef79d42161d0812",
+      "memory": {
+        "after_rss_bytes": 342618112,
+        "before_rss_bytes": 341729280,
+        "max_sampled_rss_bytes": 343494656,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/no_graft/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 0,
+      "selected_epoch": 24,
+      "selected_state_hash": "25a3c18805177589d50f612dbd02e674540a266068cfa09151729d5439377c0e",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931472420692444,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "83502f189c84899bc60b13fa64f6bde0d98e2c73dbd37b5d4d0c5abd82699047",
+      "test_loss": 0.6931472420692444,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_graft"
+    },
+    {
+      "batch_order_hash": "4c77bf51b48704a53f219eac2088706a858bc19d4980db2ac1a8c3c3dfa5fd5c",
+      "checkpoint_path": "runs/seed_0/no_recurrence/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 14.281055800001923,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "508386676d5054f1099f98f2024fe0740d3b64750cad21aa8ef79d42161d0812",
+      "memory": {
+        "after_rss_bytes": 341647360,
+        "before_rss_bytes": 342315008,
+        "max_sampled_rss_bytes": 342671360,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/no_recurrence/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 0,
+      "selected_epoch": 25,
+      "selected_state_hash": "cb2a2dd087aa7ab8881b8e1db37fa811a3a4d1a1919309c247a96ed5ec148645",
+      "selected_validation_accuracy": 0.53125,
+      "selected_validation_loss": 0.693200409412384,
+      "test_accuracy": 0.4921875,
+      "test_evaluations": 1,
+      "test_logits_hash": "c251dc6ff82a160873dc8af2f6af69dae327bf5ae130b5019c75ed2ab8a412a5",
+      "test_loss": 0.6931326985359192,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_recurrence"
+    },
+    {
+      "batch_order_hash": "4c77bf51b48704a53f219eac2088706a858bc19d4980db2ac1a8c3c3dfa5fd5c",
+      "checkpoint_path": "runs/seed_0/rewired/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 20.76077190000069,
+      "graph_hash": "bc9e48be3689e91209e8a2456ab9f3494086abb40cf36f1636fdcf11e5a3df3b",
+      "initial_state_hash": "508386676d5054f1099f98f2024fe0740d3b64750cad21aa8ef79d42161d0812",
+      "memory": {
+        "after_rss_bytes": 342220800,
+        "before_rss_bytes": 341647360,
+        "max_sampled_rss_bytes": 343293952,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/rewired/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [
+        {
+          "control_graph_hash": "3db3aca6cb4a44df6364fad86973313d4299a01bc0657699c1913a6d5f29118b",
+          "original_graph_hash": "6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=0; swaps_per_edge=5; attempted_swaps=105; successful_swaps=43; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=70,successful=35|electrical:attempted=35,successful=8]; parent_digest=6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd"
+          ],
+          "seed": 0,
+          "source_id": "worm"
+        },
+        {
+          "control_graph_hash": "2c5b8bd810f3968654f8d59de3135bd53a0deab2ece55126b07945008321243a",
+          "original_graph_hash": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=1; swaps_per_edge=5; attempted_swaps=90; successful_swaps=39; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=55,successful=34|electrical:attempted=35,successful=5]; parent_digest=9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e"
+          ],
+          "seed": 1,
+          "source_id": "fly_f"
+        },
+        {
+          "control_graph_hash": "94d8980bea90c3949cb01ba9612daedd8a77d524e9c4cce91cbf219736c17b6a",
+          "original_graph_hash": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=2; swaps_per_edge=5; attempted_swaps=115; successful_swaps=33; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=80,successful=28|electrical:attempted=35,successful=5]; parent_digest=bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52"
+          ],
+          "seed": 2,
+          "source_id": "fly_m"
+        },
+        {
+          "control_graph_hash": "236e76dcd7351562371d8ed75d1713d1030383fe3b4a6298658442ee8811ac2f",
+          "original_graph_hash": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=3; swaps_per_edge=5; attempted_swaps=110; successful_swaps=27; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[macro_functional:attempted=35,successful=11|macro_structural:attempted=75,successful=16]; parent_digest=6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc"
+          ],
+          "seed": 3,
+          "source_id": "human"
+        }
+      ],
+      "seed": 0,
+      "selected_epoch": 6,
+      "selected_state_hash": "2451519122b117e0d3fad85164b1f26d3c6ab76ab9502a9517353241d140376a",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931528449058533,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "d77a145f4d58d430fb3e171382435a999e23dea8fc4a5d2c6e8cf2814da9d73c",
+      "test_loss": 0.6931518912315369,
+      "topology_changed": true,
+      "topology_hash": "149c774ed5d3a20eae036f134a02ecc4f8f2bfd608f0085c56c2ceaa1b0adf07",
+      "variant": "rewired"
+    },
+    {
+      "batch_order_hash": "ce88516d742e5920026e3e4ff5d62b764530aad7f297e9a0db852e760186bf15",
+      "checkpoint_path": "runs/seed_1/grafted/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 21.49639699999898,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "fd8d4986e1b1008ed15274e4d568c54f8080969b06acd9d83e3d2eb2fc9fe176",
+      "memory": {
+        "after_rss_bytes": 341516288,
+        "before_rss_bytes": 341938176,
+        "max_sampled_rss_bytes": 343199744,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_1/grafted/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 1,
+      "selected_epoch": 13,
+      "selected_state_hash": "a433d30482b1352704225dacb7e9dda60b3087138f962b02bb6bb80363f42b64",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.693149209022522,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "cd63072732ecacdd704781cf5a55d1eaf6660ff88856534a729214a4d22af432",
+      "test_loss": 0.6931487917900085,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "grafted"
+    },
+    {
+      "batch_order_hash": "ce88516d742e5920026e3e4ff5d62b764530aad7f297e9a0db852e760186bf15",
+      "checkpoint_path": "runs/seed_1/no_graft/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 14.776201499997114,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "fd8d4986e1b1008ed15274e4d568c54f8080969b06acd9d83e3d2eb2fc9fe176",
+      "memory": {
+        "after_rss_bytes": 341745664,
+        "before_rss_bytes": 338845696,
+        "max_sampled_rss_bytes": 342904832,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_1/no_graft/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 1,
+      "selected_epoch": 22,
+      "selected_state_hash": "324bf83342568956ad0daa83fcf2f57de82de3158af7436418950f1783eae165",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931473016738892,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "48def59f7103a9c0df3fb9101f603260012196a7c00617eeec672dd0fe28bacf",
+      "test_loss": 0.6931473612785339,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_graft"
+    },
+    {
+      "batch_order_hash": "ce88516d742e5920026e3e4ff5d62b764530aad7f297e9a0db852e760186bf15",
+      "checkpoint_path": "runs/seed_1/no_recurrence/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 14.892571899999894,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "fd8d4986e1b1008ed15274e4d568c54f8080969b06acd9d83e3d2eb2fc9fe176",
+      "memory": {
+        "after_rss_bytes": 341942272,
+        "before_rss_bytes": 341434368,
+        "max_sampled_rss_bytes": 341946368,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_1/no_recurrence/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 1,
+      "selected_epoch": 4,
+      "selected_state_hash": "b47c83ae708279aabc233971403379461ca6594a9579f2f5adafb2e8256679da",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931746602058411,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "06c5cb4c904dff2f8169be6647f0b72563b445139e60a3c8ed7dbef05aea3bde",
+      "test_loss": 0.6931746006011963,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_recurrence"
+    },
+    {
+      "batch_order_hash": "ce88516d742e5920026e3e4ff5d62b764530aad7f297e9a0db852e760186bf15",
+      "checkpoint_path": "runs/seed_1/rewired/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 21.818652800000564,
+      "graph_hash": "5b6cfb2bd9be19bbb96ea2c59c1d6351b73e304bb98a02f3b62ff3a8e081748e",
+      "initial_state_hash": "fd8d4986e1b1008ed15274e4d568c54f8080969b06acd9d83e3d2eb2fc9fe176",
+      "memory": {
+        "after_rss_bytes": 340475904,
+        "before_rss_bytes": 341630976,
+        "max_sampled_rss_bytes": 342941696,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_1/rewired/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [
+        {
+          "control_graph_hash": "7284e8ed4e69e03ac34de8093d077fdc7d5722a5385bb59548e1a8a7c7e851df",
+          "original_graph_hash": "6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=4; swaps_per_edge=5; attempted_swaps=105; successful_swaps=34; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=70,successful=30|electrical:attempted=35,successful=4]; parent_digest=6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd"
+          ],
+          "seed": 4,
+          "source_id": "worm"
+        },
+        {
+          "control_graph_hash": "148e8f5763e4fe17bf67c57165b3d834a33bf68f2d199fb1b4f3d677baf8643a",
+          "original_graph_hash": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=5; swaps_per_edge=5; attempted_swaps=90; successful_swaps=46; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=55,successful=41|electrical:attempted=35,successful=5]; parent_digest=9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e"
+          ],
+          "seed": 5,
+          "source_id": "fly_f"
+        },
+        {
+          "control_graph_hash": "0ffc0b2d6bbcc95421c14a12a234c95d5362820407f27e34b63e0430a397d7e4",
+          "original_graph_hash": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=6; swaps_per_edge=5; attempted_swaps=115; successful_swaps=43; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=80,successful=32|electrical:attempted=35,successful=11]; parent_digest=bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52"
+          ],
+          "seed": 6,
+          "source_id": "fly_m"
+        },
+        {
+          "control_graph_hash": "92948dc7bb761e2efd2d962ed893352e6e01551c88ba4fa47f687093acb849a3",
+          "original_graph_hash": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=7; swaps_per_edge=5; attempted_swaps=110; successful_swaps=24; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[macro_functional:attempted=35,successful=8|macro_structural:attempted=75,successful=16]; parent_digest=6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc"
+          ],
+          "seed": 7,
+          "source_id": "human"
+        }
+      ],
+      "seed": 1,
+      "selected_epoch": 23,
+      "selected_state_hash": "977693dc75ac1ee49a4c3e0db64a9757772876e7ede37f8792730ddf95ebc6da",
+      "selected_validation_accuracy": 0.671875,
+      "selected_validation_loss": 0.6931723356246948,
+      "test_accuracy": 0.70703125,
+      "test_evaluations": 1,
+      "test_logits_hash": "80b140009e494ef707016bcec026dae6dda2d50639de022a69763c9dcdb9c167",
+      "test_loss": 0.6931386590003967,
+      "topology_changed": true,
+      "topology_hash": "1018e7a52124bca21af52f30b96e6e74165d55465bb34e9ea9d03906bce7184c",
+      "variant": "rewired"
+    },
+    {
+      "batch_order_hash": "c66e4decee4c6f7bd6d08ac6c9629b1c0620fc3c7af26b6fa9fb165e2dd8d809",
+      "checkpoint_path": "runs/seed_2/grafted/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 25.98466919999919,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "a39c6fc6d372132ee5da93c190002eac98b6dea6e6a79e605c87f070187a795f",
+      "memory": {
+        "after_rss_bytes": 341303296,
+        "before_rss_bytes": 340480000,
+        "max_sampled_rss_bytes": 342380544,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_2/grafted/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 2,
+      "selected_epoch": 1,
+      "selected_state_hash": "310adbeef0f1ffe442be6b65c4fda84feee42e9c463b0d4943ec8473a42ad371",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6891759634017944,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "a6d6cd7c5eb8f0406a8fd37fdddb078fc3ba71a22d4c3115127b5c825c9a3ba3",
+      "test_loss": 0.6891078352928162,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "grafted"
+    },
+    {
+      "batch_order_hash": "c66e4decee4c6f7bd6d08ac6c9629b1c0620fc3c7af26b6fa9fb165e2dd8d809",
+      "checkpoint_path": "runs/seed_2/no_graft/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 14.984433599998738,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "a39c6fc6d372132ee5da93c190002eac98b6dea6e6a79e605c87f070187a795f",
+      "memory": {
+        "after_rss_bytes": 341196800,
+        "before_rss_bytes": 340992000,
+        "max_sampled_rss_bytes": 342315008,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_2/no_graft/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 2,
+      "selected_epoch": 22,
+      "selected_state_hash": "f0366b17f500777dc71b94fa9403f3577484f84f05f2f8d6acbb49fa238696a9",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931473016738892,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "bf2a2f41d1df1911f961aef3de06a45c1f9ac04f8935be516d450d52ca24df03",
+      "test_loss": 0.6931473016738892,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_graft"
+    },
+    {
+      "batch_order_hash": "c66e4decee4c6f7bd6d08ac6c9629b1c0620fc3c7af26b6fa9fb165e2dd8d809",
+      "checkpoint_path": "runs/seed_2/no_recurrence/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 14.143165400000726,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "a39c6fc6d372132ee5da93c190002eac98b6dea6e6a79e605c87f070187a795f",
+      "memory": {
+        "after_rss_bytes": 341635072,
+        "before_rss_bytes": 340885504,
+        "max_sampled_rss_bytes": 341635072,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_2/no_recurrence/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 2,
+      "selected_epoch": 6,
+      "selected_state_hash": "32ff4281c4fbd24994e086cfac2af30f46f00c580bec26e1bc406571abd80250",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931544542312622,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "5a04e0a6c80a6f14df16e88d7d9f1cf81b6fb495c9c967671dfe51a56b2fdef7",
+      "test_loss": 0.6931456327438354,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_recurrence"
+    },
+    {
+      "batch_order_hash": "c66e4decee4c6f7bd6d08ac6c9629b1c0620fc3c7af26b6fa9fb165e2dd8d809",
+      "checkpoint_path": "runs/seed_2/rewired/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 22.08350159999827,
+      "graph_hash": "97192a5dda03905746b9cfa6055572bbbe5f31d7f9ed7ca3da87c65102ab6872",
+      "initial_state_hash": "a39c6fc6d372132ee5da93c190002eac98b6dea6e6a79e605c87f070187a795f",
+      "memory": {
+        "after_rss_bytes": 341397504,
+        "before_rss_bytes": 341323776,
+        "max_sampled_rss_bytes": 342601728,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_2/rewired/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [
+        {
+          "control_graph_hash": "2db02eb4efde725e560b1c0476d0afe5bcac39eea2e7c4edd9fd1d3b86c466f6",
+          "original_graph_hash": "6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=8; swaps_per_edge=5; attempted_swaps=105; successful_swaps=40; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=70,successful=35|electrical:attempted=35,successful=5]; parent_digest=6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd"
+          ],
+          "seed": 8,
+          "source_id": "worm"
+        },
+        {
+          "control_graph_hash": "b1510811b68940dc41ff55ede57e8c63bcb38af524c4d867cc8b74e8dad6e5bf",
+          "original_graph_hash": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=9; swaps_per_edge=5; attempted_swaps=90; successful_swaps=41; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=55,successful=34|electrical:attempted=35,successful=7]; parent_digest=9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e"
+          ],
+          "seed": 9,
+          "source_id": "fly_f"
+        },
+        {
+          "control_graph_hash": "cbd6887caf85b4afa97f431249779d7b5c7516f05b8beafa6336e0fd24b86e76",
+          "original_graph_hash": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=10; swaps_per_edge=5; attempted_swaps=115; successful_swaps=41; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=80,successful=32|electrical:attempted=35,successful=9]; parent_digest=bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52"
+          ],
+          "seed": 10,
+          "source_id": "fly_m"
+        },
+        {
+          "control_graph_hash": "978a46f5001e2d1718680544845eaa18ec7f9659a4982eb5e070a45f07753487",
+          "original_graph_hash": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=11; swaps_per_edge=5; attempted_swaps=110; successful_swaps=16; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[macro_functional:attempted=35,successful=8|macro_structural:attempted=75,successful=8]; parent_digest=6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc"
+          ],
+          "seed": 11,
+          "source_id": "human"
+        }
+      ],
+      "seed": 2,
+      "selected_epoch": 13,
+      "selected_state_hash": "41f8578b9ddceb2d46a84f2f7bb6eb9485ba7518ee6f17e99089420630aabed6",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931714415550232,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "cc4b3686b96c8c79c22bfe4c0de9f3895800f983ececf65f7d3676ea172cd5b7",
+      "test_loss": 0.6931475400924683,
+      "topology_changed": true,
+      "topology_hash": "95241f1af76b28f87ec711f09d41c5342e28bc53b1c2c8720c7da8b81fdf7d9e",
+      "variant": "rewired"
+    },
+    {
+      "batch_order_hash": "510179eed7ec5006bb65ab8247837beea3484f46dd198573bfabaf99d71659d2",
+      "checkpoint_path": "runs/seed_3/grafted/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 20.459549400002288,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "c5dc625e5d036dc7e17863568e1870b7d0f181f35aff29f24db753b56ed6cf90",
+      "memory": {
+        "after_rss_bytes": 341327872,
+        "before_rss_bytes": 338059264,
+        "max_sampled_rss_bytes": 342523904,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_3/grafted/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 3,
+      "selected_epoch": 2,
+      "selected_state_hash": "c511a6fc647a7b783726af9c1917348ee05e766f42a37a272feed20e04e6387e",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931738257408142,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "7bd944bb7c0c8bf4e3b272c2c8d6cbc82b82f5f58ba324557372e908a9e19ffa",
+      "test_loss": 0.6931628584861755,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "grafted"
+    },
+    {
+      "batch_order_hash": "510179eed7ec5006bb65ab8247837beea3484f46dd198573bfabaf99d71659d2",
+      "checkpoint_path": "runs/seed_3/no_graft/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 15.594657000001462,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "c5dc625e5d036dc7e17863568e1870b7d0f181f35aff29f24db753b56ed6cf90",
+      "memory": {
+        "after_rss_bytes": 341352448,
+        "before_rss_bytes": 341016576,
+        "max_sampled_rss_bytes": 342286336,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_3/no_graft/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 3,
+      "selected_epoch": 27,
+      "selected_state_hash": "b587a79e0e66cdc0b1aae12b6dbb56d8e3ea42b783195aba85b89cd55e4f36f5",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931482553482056,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "b23301dc0e3fac563e4ae90e7808ad09189d4c0af202498c60580a4c1272c1e4",
+      "test_loss": 0.6931483149528503,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_graft"
+    },
+    {
+      "batch_order_hash": "510179eed7ec5006bb65ab8247837beea3484f46dd198573bfabaf99d71659d2",
+      "checkpoint_path": "runs/seed_3/no_recurrence/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 11.956872499999008,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "c5dc625e5d036dc7e17863568e1870b7d0f181f35aff29f24db753b56ed6cf90",
+      "memory": {
+        "after_rss_bytes": 341757952,
+        "before_rss_bytes": 341041152,
+        "max_sampled_rss_bytes": 341757952,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_3/no_recurrence/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 3,
+      "selected_epoch": 13,
+      "selected_state_hash": "8a1f0d55cdd1b0ac9b16e5a40806f69713108778ea058d108f861738cbf6c0ce",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931556463241577,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "edeaf8588e2e982f93e25ef772fac02b0c96cb63c18ab390a07c0fb01c6a6d08",
+      "test_loss": 0.6931473016738892,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_recurrence"
+    },
+    {
+      "batch_order_hash": "510179eed7ec5006bb65ab8247837beea3484f46dd198573bfabaf99d71659d2",
+      "checkpoint_path": "runs/seed_3/rewired/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 21.120028599998477,
+      "graph_hash": "2b8e2fd2a43b11f30d0dd5736c628fdae88f8ffe1e75110a6ee60cc39af1b401",
+      "initial_state_hash": "c5dc625e5d036dc7e17863568e1870b7d0f181f35aff29f24db753b56ed6cf90",
+      "memory": {
+        "after_rss_bytes": 195985408,
+        "before_rss_bytes": 341446656,
+        "max_sampled_rss_bytes": 342597632,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_3/rewired/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [
+        {
+          "control_graph_hash": "3e65cb0c59cde30335ec655ac72d824fb162c4e328b71f22b2faa609bd5fcd6a",
+          "original_graph_hash": "6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=12; swaps_per_edge=5; attempted_swaps=105; successful_swaps=39; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=70,successful=32|electrical:attempted=35,successful=7]; parent_digest=6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd"
+          ],
+          "seed": 12,
+          "source_id": "worm"
+        },
+        {
+          "control_graph_hash": "c083914cc365014b849dea4472e0133b0fb0c01164a3f6b00aebe1a7977c8a23",
+          "original_graph_hash": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=13; swaps_per_edge=5; attempted_swaps=90; successful_swaps=32; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=55,successful=28|electrical:attempted=35,successful=4]; parent_digest=9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e"
+          ],
+          "seed": 13,
+          "source_id": "fly_f"
+        },
+        {
+          "control_graph_hash": "8d77837512ecbcf9666efc2ae4e57ba632fd3aa97afe6c45541de95e7d89c1ad",
+          "original_graph_hash": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=14; swaps_per_edge=5; attempted_swaps=115; successful_swaps=35; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=80,successful=26|electrical:attempted=35,successful=9]; parent_digest=bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52"
+          ],
+          "seed": 14,
+          "source_id": "fly_m"
+        },
+        {
+          "control_graph_hash": "1c8a59406a272ea9d3897a01c911dfa6bda824a19e6705a25dfa1045d8b31559",
+          "original_graph_hash": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=15; swaps_per_edge=5; attempted_swaps=110; successful_swaps=27; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[macro_functional:attempted=35,successful=12|macro_structural:attempted=75,successful=15]; parent_digest=6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc"
+          ],
+          "seed": 15,
+          "source_id": "human"
+        }
+      ],
+      "seed": 3,
+      "selected_epoch": 2,
+      "selected_state_hash": "5dfa78ce12484190139a1bebc03cbc897f0fda6fa631a280ec00d6912267a505",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931769847869873,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "4225f5accea0750c2300b3a661cac8ee0ad487c98aa74a96f9e2653636f9fe3a",
+      "test_loss": 0.693158745765686,
+      "topology_changed": true,
+      "topology_hash": "b6fd5350a51216cb401eb92d8b4029762f04e508e02440ceac3ecabb1be88797",
+      "variant": "rewired"
+    },
+    {
+      "batch_order_hash": "7ce82c2f6b6acb52f2c65b2d691cd4ede8ef2a38b7594545d0d7824bbe54b2df",
+      "checkpoint_path": "runs/seed_4/grafted/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 38.59313160000238,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "6cbf8e776967fe92d20d50458aa4a70cdf30678cde9c80e681199edcbefa0939",
+      "memory": {
+        "after_rss_bytes": 46297088,
+        "before_rss_bytes": 193052672,
+        "max_sampled_rss_bytes": 197419008,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_4/grafted/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 4,
+      "selected_epoch": 15,
+      "selected_state_hash": "9f0faaf8dee4c4b20de9fa2596931673a15f18f5140bad5ca710ddf6eb72f081",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931582689285278,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "8846dd1b350f4fce95eff2e819164e7310d5b300885872df4de1a3789edc60d0",
+      "test_loss": 0.6931471228599548,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "grafted"
+    },
+    {
+      "batch_order_hash": "7ce82c2f6b6acb52f2c65b2d691cd4ede8ef2a38b7594545d0d7824bbe54b2df",
+      "checkpoint_path": "runs/seed_4/no_graft/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 17.37242680000054,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "6cbf8e776967fe92d20d50458aa4a70cdf30678cde9c80e681199edcbefa0939",
+      "memory": {
+        "after_rss_bytes": 44851200,
+        "before_rss_bytes": 46301184,
+        "max_sampled_rss_bytes": 47427584,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_4/no_graft/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 4,
+      "selected_epoch": 9,
+      "selected_state_hash": "aa3af473843d89ac0ce02995c4abfc97e19e0e72ff359a9157d64347a442f222",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931472420692444,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "730947911e7ca1b8e7d91dd503e50ccdde3d9a0b1e4112e7eca96be442096f73",
+      "test_loss": 0.6931471228599548,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_graft"
+    },
+    {
+      "batch_order_hash": "7ce82c2f6b6acb52f2c65b2d691cd4ede8ef2a38b7594545d0d7824bbe54b2df",
+      "checkpoint_path": "runs/seed_4/no_recurrence/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 14.005404499999713,
+      "graph_hash": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+      "initial_state_hash": "6cbf8e776967fe92d20d50458aa4a70cdf30678cde9c80e681199edcbefa0939",
+      "memory": {
+        "after_rss_bytes": 45449216,
+        "before_rss_bytes": 44548096,
+        "max_sampled_rss_bytes": 45449216,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_4/no_recurrence/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [],
+      "seed": 4,
+      "selected_epoch": 11,
+      "selected_state_hash": "4bdf61a78d2e1eb0a6e532c7aedee42cf9190203fc76a3ffb89c66c6cecacf2a",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6932008862495422,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "621f2b802dcc24190902c848e65f827d349f1f32c7acf58547005ce6bfb29c19",
+      "test_loss": 0.6931546926498413,
+      "topology_changed": false,
+      "topology_hash": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+      "variant": "no_recurrence"
+    },
+    {
+      "batch_order_hash": "7ce82c2f6b6acb52f2c65b2d691cd4ede8ef2a38b7594545d0d7824bbe54b2df",
+      "checkpoint_path": "runs/seed_4/rewired/checkpoint.pt",
+      "data_hashes": {
+        "test": "948c0d6e6f89f6b55786be6ceef4eba44acc059d0c7ac09f2d4a0f64d82fc65c",
+        "train": "f8d5f30708fe4932d5dab4ab1c94820af79c4c7378d959d19030c5c9d57cb2b1",
+        "validation": "9af3318c95bd5cbf811668007ae8231acf37b612253f88df0529de9154254a5e"
+      },
+      "elapsed_seconds": 19.463801999998395,
+      "graph_hash": "1998a73a45511fa29b5bf04ae3495b863861ec92cfec1372db184482ff15d2f0",
+      "initial_state_hash": "6cbf8e776967fe92d20d50458aa4a70cdf30678cde9c80e681199edcbefa0939",
+      "memory": {
+        "after_rss_bytes": 45551616,
+        "before_rss_bytes": 45137920,
+        "max_sampled_rss_bytes": 46956544,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_4/rewired/metrics.jsonl",
+      "optimizer_steps": 120,
+      "parameter_count": 10606,
+      "rewire_receipt": [
+        {
+          "control_graph_hash": "87a052b7f7bdde4745bc2cfd737109c6393a7bf8378b3fff97132a8ce669201b",
+          "original_graph_hash": "6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=16; swaps_per_edge=5; attempted_swaps=105; successful_swaps=37; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=70,successful=33|electrical:attempted=35,successful=4]; parent_digest=6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd"
+          ],
+          "seed": 16,
+          "source_id": "worm"
+        },
+        {
+          "control_graph_hash": "d90d74dbaf83808b020f54da34ee75ef51dcf2851fc761c19f6b67386b9bdbfe",
+          "original_graph_hash": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=17; swaps_per_edge=5; attempted_swaps=90; successful_swaps=32; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=55,successful=30|electrical:attempted=35,successful=2]; parent_digest=9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e"
+          ],
+          "seed": 17,
+          "source_id": "fly_f"
+        },
+        {
+          "control_graph_hash": "08640e99a2d7627355c16d52a4815f6a2cc517808902929d421e7548cf1d8058",
+          "original_graph_hash": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=18; swaps_per_edge=5; attempted_swaps=115; successful_swaps=32; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=80,successful=22|electrical:attempted=35,successful=10]; parent_digest=bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52"
+          ],
+          "seed": 18,
+          "source_id": "fly_m"
+        },
+        {
+          "control_graph_hash": "58b7e46572f5edfe466c116d93d4ea2d175f5174ee79ffcf1cd715536ae577ec",
+          "original_graph_hash": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=19; swaps_per_edge=5; attempted_swaps=110; successful_swaps=17; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[macro_functional:attempted=35,successful=8|macro_structural:attempted=75,successful=9]; parent_digest=6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc"
+          ],
+          "seed": 19,
+          "source_id": "human"
+        }
+      ],
+      "seed": 4,
+      "selected_epoch": 15,
+      "selected_state_hash": "32d205fa341395f595c09ae94b3ee69617658893e8e1fb8357ad4b07ba0e0ef9",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6931597590446472,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "b0847ea7be383386c06806edb2f699dd7973b1c65c6a59edf2c32de6ad9e6b9a",
+      "test_loss": 0.6931476593017578,
+      "topology_changed": true,
+      "topology_hash": "75129386dac7e2c7fe231be446852f80cb55aa0a97d15e19b97977c5a8b3dff7",
+      "variant": "rewired"
+    }
+  ],
+  "runtime": {
+    "deterministic_algorithms": true,
+    "device": "cpu",
+    "threads": 2,
+    "torch": "2.11.0+cpu"
+  },
+  "selection": "highest validation accuracy, then lowest validation CE; test evaluated once after selection",
+  "source_readiness": {
+    "authentic_four_source_ready": false,
+    "computational_edges": 127,
+    "digest": "0e6b5f47e23d1228406cda706c2cd3e163d59dbf6880636e56536f2992cf2bd4",
+    "missing_authentic_sources": [
+      "worm",
+      "fly_f",
+      "fly_m",
+      "human"
+    ],
+    "rights_four_source_ready": false,
+    "sources": {
+      "fly_f": {
+        "authentic_ready": false,
+        "authorized": false,
+        "computational_edges": 25,
+        "degree_rewired_control": false,
+        "density": 0.35714285714285715,
+        "digest": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+        "edge_count": 18,
+        "isolated_nodes": 0,
+        "largest_component_nodes": 8,
+        "node_count": 8,
+        "relation_counts": {
+          "chemical": 11,
+          "electrical": 7
+        },
+        "rights_ready": false,
+        "scale": "single_neuron",
+        "self_loops": 0,
+        "source_id": "fly_f",
+        "status": "fixture",
+        "topology_digest": "b131e86007a9256a8fb75dcaee509d8fee3c14c2ae32c103d264927ca160b3ed",
+        "weak_components": 1
+      },
+      "fly_m": {
+        "authentic_ready": false,
+        "authorized": false,
+        "computational_edges": 30,
+        "degree_rewired_control": false,
+        "density": 0.4642857142857143,
+        "digest": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+        "edge_count": 23,
+        "isolated_nodes": 0,
+        "largest_component_nodes": 8,
+        "node_count": 8,
+        "relation_counts": {
+          "chemical": 16,
+          "electrical": 7
+        },
+        "rights_ready": false,
+        "scale": "single_neuron",
+        "self_loops": 0,
+        "source_id": "fly_m",
+        "status": "fixture",
+        "topology_digest": "ab060dcfb4d8d95a4bb66908397e02181993735f72d8008a87d838efc8f0ec69",
+        "weak_components": 1
+      },
+      "human": {
+        "authentic_ready": false,
+        "authorized": false,
+        "computational_edges": 44,
+        "degree_rewired_control": false,
+        "density": 0.75,
+        "digest": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+        "edge_count": 22,
+        "isolated_nodes": 0,
+        "largest_component_nodes": 8,
+        "node_count": 8,
+        "relation_counts": {
+          "macro_functional": 7,
+          "macro_structural": 15
+        },
+        "rights_ready": false,
+        "scale": "brain_region",
+        "self_loops": 0,
+        "source_id": "human",
+        "status": "fixture",
+        "topology_digest": "ca2bd6dd0687ebf7b5d58bdd276baafce26282c4afe16206d6c882cbfa9e0368",
+        "weak_components": 1
+      },
+      "worm": {
+        "authentic_ready": false,
+        "authorized": false,
+        "computational_edges": 28,
+        "degree_rewired_control": false,
+        "density": 0.375,
+        "digest": "6ad694e5acc3b39591232abef4fdfd46fbe694905aa69fa88da51fc3995311bd",
+        "edge_count": 21,
+        "isolated_nodes": 0,
+        "largest_component_nodes": 8,
+        "node_count": 8,
+        "relation_counts": {
+          "chemical": 14,
+          "electrical": 7
+        },
+        "rights_ready": false,
+        "scale": "single_neuron",
+        "self_loops": 0,
+        "source_id": "worm",
+        "status": "fixture",
+        "topology_digest": "0f836ed83350da90f541550e610a3e4802bafac249e75e75b1415aab2e688119",
+        "weak_components": 1
+      }
+    },
+    "topology_digest": "2f1aaca09fb1b8a733c6b591450b8eec7d891ab168543c7e5826fbe419966016",
+    "total_edges": 84,
+    "total_nodes": 32
+  },
+  "split_label_counts": {
+    "test": [
+      128,
+      128
+    ],
+    "train": [
+      64,
+      64
+    ],
+    "validation": [
+      32,
+      32
+    ]
+  },
+  "split_seeds": {
+    "test": 5189,
+    "train": 5187,
+    "validation": 5188
+  },
+  "summary": {
+    "grafted": {
+      "mean_test_accuracy": 0.6,
+      "n_seeds": 5,
+      "std_ddof": 1,
+      "std_test_accuracy": 0.22360679774997896
+    },
+    "no_graft": {
+      "mean_test_accuracy": 0.5,
+      "n_seeds": 5,
+      "std_ddof": 1,
+      "std_test_accuracy": 0.0
+    },
+    "no_recurrence": {
+      "mean_test_accuracy": 0.4984375,
+      "n_seeds": 5,
+      "std_ddof": 1,
+      "std_test_accuracy": 0.0034938562148434213
+    },
+    "rewired": {
+      "mean_test_accuracy": 0.54140625,
+      "n_seeds": 5,
+      "std_ddof": 1,
+      "std_test_accuracy": 0.09258718969335067
+    }
+  },
+  "task": "delayed_xor_v1",
+  "variants": [
+    "grafted",
+    "no_graft",
+    "no_recurrence",
+    "rewired"
+  ]
+}

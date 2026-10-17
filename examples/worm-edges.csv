@@ -1,0 +1,4 @@
+src,dst,relation,weight,directed,confidence
+A,B,chemical,3,true,
+B,C,chemical,2,true,0.9
+A,C,electrical,1,false,

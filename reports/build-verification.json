@@ -1,0 +1,45 @@
+{
+  "package_version": "0.1.0",
+  "full_suite": {
+    "passed": 122,
+    "seconds": 43.7,
+    "exit_code": 0
+  },
+  "final_targeted_regressions": {
+    "passed": 2,
+    "exit_code": 0
+  },
+  "compilation_exit_code": 0,
+  "checkpoint_replays": {
+    "verified": 24,
+    "all_match": true
+  },
+  "authentic_worm": {
+    "source_id": "worm",
+    "status": "imported",
+    "scale": "single_neuron",
+    "node_count": 302,
+    "edge_count": 4719,
+    "computational_edges": 5787,
+    "relation_counts": {
+      "chemical": 3638,
+      "electrical": 1081
+    },
+    "weak_components": 3,
+    "isolated_nodes": 2,
+    "largest_component_nodes": 300,
+    "density": 0.05526831092825241,
+    "self_loops": 47,
+    "authentic_ready": true,
+    "authorized": false,
+    "rights_ready": false,
+    "degree_rewired_control": false,
+    "digest": "cb5735eb06b1a36c7f31169d303310fb7c01f3cf9d468ec829d847ee36dd8317",
+    "topology_digest": "901c1b6ada8667dbd413a843245510bcd9fa0feadc69a5e6d7010343614a357c"
+  },
+  "authentic_four_source_ready": false,
+  "pretrained_qwen_loaded": false,
+  "qwen_interface_tests": "Actual tiny random Qwen3 and hybrid Qwen3.5 implementations; graph-to-language gradients and frozen-base identity verified.",
+  "independent_review": "All four correctness findings resolved; focused re-review found no new material regression.",
+  "scope": "Runnable graph-only first build plus tested trainable language interface; full authentic four-source pretrained-model research programme is unfinished."
+}

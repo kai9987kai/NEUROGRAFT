@@ -1,0 +1,174 @@
+{
+  "verified_count": 24,
+  "all_match": true,
+  "runs": [
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 0,
+      "variant": "grafted",
+      "matches_checkpoint": true,
+      "test_logits_hash": "24a704d3d7d34450e546ea1ebb0524439f4eec633b9aeccbce5c10058f4b86fa"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 0,
+      "variant": "no_graft",
+      "matches_checkpoint": true,
+      "test_logits_hash": "83502f189c84899bc60b13fa64f6bde0d98e2c73dbd37b5d4d0c5abd82699047"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 0,
+      "variant": "no_recurrence",
+      "matches_checkpoint": true,
+      "test_logits_hash": "c251dc6ff82a160873dc8af2f6af69dae327bf5ae130b5019c75ed2ab8a412a5"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 0,
+      "variant": "rewired",
+      "matches_checkpoint": true,
+      "test_logits_hash": "d77a145f4d58d430fb3e171382435a999e23dea8fc4a5d2c6e8cf2814da9d73c"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 1,
+      "variant": "grafted",
+      "matches_checkpoint": true,
+      "test_logits_hash": "cd63072732ecacdd704781cf5a55d1eaf6660ff88856534a729214a4d22af432"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 1,
+      "variant": "no_graft",
+      "matches_checkpoint": true,
+      "test_logits_hash": "48def59f7103a9c0df3fb9101f603260012196a7c00617eeec672dd0fe28bacf"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 1,
+      "variant": "no_recurrence",
+      "matches_checkpoint": true,
+      "test_logits_hash": "06c5cb4c904dff2f8169be6647f0b72563b445139e60a3c8ed7dbef05aea3bde"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 1,
+      "variant": "rewired",
+      "matches_checkpoint": true,
+      "test_logits_hash": "80b140009e494ef707016bcec026dae6dda2d50639de022a69763c9dcdb9c167"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 2,
+      "variant": "grafted",
+      "matches_checkpoint": true,
+      "test_logits_hash": "a6d6cd7c5eb8f0406a8fd37fdddb078fc3ba71a22d4c3115127b5c825c9a3ba3"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 2,
+      "variant": "no_graft",
+      "matches_checkpoint": true,
+      "test_logits_hash": "bf2a2f41d1df1911f961aef3de06a45c1f9ac04f8935be516d450d52ca24df03"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 2,
+      "variant": "no_recurrence",
+      "matches_checkpoint": true,
+      "test_logits_hash": "5a04e0a6c80a6f14df16e88d7d9f1cf81b6fb495c9c967671dfe51a56b2fdef7"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 2,
+      "variant": "rewired",
+      "matches_checkpoint": true,
+      "test_logits_hash": "cc4b3686b96c8c79c22bfe4c0de9f3895800f983ececf65f7d3676ea172cd5b7"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 3,
+      "variant": "grafted",
+      "matches_checkpoint": true,
+      "test_logits_hash": "7bd944bb7c0c8bf4e3b272c2c8d6cbc82b82f5f58ba324557372e908a9e19ffa"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 3,
+      "variant": "no_graft",
+      "matches_checkpoint": true,
+      "test_logits_hash": "b23301dc0e3fac563e4ae90e7808ad09189d4c0af202498c60580a4c1272c1e4"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 3,
+      "variant": "no_recurrence",
+      "matches_checkpoint": true,
+      "test_logits_hash": "edeaf8588e2e982f93e25ef772fac02b0c96cb63c18ab390a07c0fb01c6a6d08"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 3,
+      "variant": "rewired",
+      "matches_checkpoint": true,
+      "test_logits_hash": "4225f5accea0750c2300b3a661cac8ee0ad487c98aa74a96f9e2653636f9fe3a"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 4,
+      "variant": "grafted",
+      "matches_checkpoint": true,
+      "test_logits_hash": "8846dd1b350f4fce95eff2e819164e7310d5b300885872df4de1a3789edc60d0"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 4,
+      "variant": "no_graft",
+      "matches_checkpoint": true,
+      "test_logits_hash": "730947911e7ca1b8e7d91dd503e50ccdde3d9a0b1e4112e7eca96be442096f73"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 4,
+      "variant": "no_recurrence",
+      "matches_checkpoint": true,
+      "test_logits_hash": "621f2b802dcc24190902c848e65f827d349f1f32c7acf58547005ce6bfb29c19"
+    },
+    {
+      "experiment": "reports/runs/verified-five-seed",
+      "seed": 4,
+      "variant": "rewired",
+      "matches_checkpoint": true,
+      "test_logits_hash": "b0847ea7be383386c06806edb2f699dd7973b1c65c6a59edf2c32de6ad9e6b9a"
+    },
+    {
+      "experiment": "reports/runs/worm-mixed-smoke",
+      "seed": 0,
+      "variant": "grafted",
+      "matches_checkpoint": true,
+      "test_logits_hash": "757a7d28bf91e11652d317aaacd15b6750c3e4bfa16a79f98e9cb5e703facf3a"
+    },
+    {
+      "experiment": "reports/runs/worm-mixed-smoke",
+      "seed": 0,
+      "variant": "no_graft",
+      "matches_checkpoint": true,
+      "test_logits_hash": "0efe4bdf79d8e8a655dcf55ab6323fdafe3fb75bdf5410b21f6026ac5624b030"
+    },
+    {
+      "experiment": "reports/runs/worm-mixed-smoke",
+      "seed": 0,
+      "variant": "no_recurrence",
+      "matches_checkpoint": true,
+      "test_logits_hash": "fea2a3e53dfbe888ec40f1c772e94f7c9ca788f98887d7c8095e6e52aabe7909"
+    },
+    {
+      "experiment": "reports/runs/worm-mixed-smoke",
+      "seed": 0,
+      "variant": "rewired",
+      "matches_checkpoint": true,
+      "test_logits_hash": "82c05e918fa0ddffb202ba73c2a89707ae09e8e4729c994087c36078f0d91a98"
+    }
+  ]
+}

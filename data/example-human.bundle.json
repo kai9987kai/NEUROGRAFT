@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "graphs": [
+    {
+      "manifest": {
+        "source_id": "human",
+        "species": "synthetic human-slot fixture",
+        "version": "example-v1",
+        "url": "https://example.invalid/neurograft-fixture",
+        "citation": "NEUROGRAFT synthetic example; no biological data",
+        "license": "synthetic fixture",
+        "scale": "brain_region",
+        "status": "fixture",
+        "sha256": "848c6f5e2f5c672e74c4a91f6adc69344f88988bb74377196b18b48c8f493a31",
+        "retrieved_at": "2026-10-17T00:25:21.743746+00:00",
+        "processing": [
+          "import_human_matrix: input_sha256=848c6f5e2f5c672e74c4a91f6adc69344f88988bb74377196b18b48c8f493a31; relation=macro_functional; threshold_abs=0; diagonal=validated-excluded; symmetry_rtol=1e-9; symmetry_atol=1e-12; regions=3; retained_upper_triangle=3; zero_entries=not-retained; functional_semantics=signed-association-not-causal-transmission"
+        ],
+        "authorized": false
+      },
+      "nodes": [
+        {
+          "id": "human:R1",
+          "source_id": "human",
+          "kind": "region",
+          "original_id": "R1"
+        },
+        {
+          "id": "human:R2",
+          "source_id": "human",
+          "kind": "region",
+          "original_id": "R2"
+        },
+        {
+          "id": "human:R3",
+          "source_id": "human",
+          "kind": "region",
+          "original_id": "R3"
+        }
+      ],
+      "edges": [
+        {
+          "src": "human:R1",
+          "dst": "human:R2",
+          "relation": "macro_functional",
+          "weight": 0.4,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:R1",
+          "dst": "human:R3",
+          "relation": "macro_functional",
+          "weight": -0.2,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:R2",
+          "dst": "human:R3",
+          "relation": "macro_functional",
+          "weight": 0.1,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        }
+      ]
+    }
+  ],
+  "sha256": "838a67a986ef4a04fb4478610aeaacb6fd344bd97f6642baf38828551912c919"
+}

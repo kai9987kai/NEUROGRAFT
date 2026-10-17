@@ -1,0 +1,9 @@
+Processing c:\users\kai99\desktop\new folder (5)
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: neurograft
+  Building wheel for neurograft (pyproject.toml): started
+  Building wheel for neurograft (pyproject.toml): finished with status 'done'
+  Created wheel for neurograft: filename=neurograft-0.1.0-py3-none-any.whl size=44041 sha256=5fa173e8642d05f6db523cccda390803091c5f83ff93e57d439cefee36bb2b74
+  Stored in directory: C:\Users\kai99\AppData\Local\Packages\sandbox.{35307b96-174c-4a08-bf58-92a07ec2354b}\AC\Temp\pip-ephem-wheel-cache-c7e2ethv\wheels\92\d9\53\fe88b8dafd10e2bda212ceccd51571053b063b54686297a171
+Successfully built neurograft

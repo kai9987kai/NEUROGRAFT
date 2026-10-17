@@ -1,0 +1,11 @@
+{
+  "source_id": "worm",
+  "species": "synthetic worm-slot fixture",
+  "version": "example-v1",
+  "url": "https://example.invalid/neurograft-fixture",
+  "citation": "NEUROGRAFT synthetic example; no biological data",
+  "license": "synthetic fixture",
+  "scale": "single_neuron",
+  "status": "fixture",
+  "authorized": false
+}

@@ -1,0 +1,438 @@
+{
+  "config": {
+    "batch_size": 8,
+    "data_seed": 1729,
+    "delay": 2,
+    "epochs": 2,
+    "hidden_dim": 8,
+    "learning_rate": 0.01,
+    "seeds": [
+      0
+    ],
+    "test_size": 16,
+    "threads": 2,
+    "train_size": 16,
+    "val_size": 16
+  },
+  "data_hashes": {
+    "test": "c54615e4cdb642b047ba7bc338ec07b8037fc50a634e8ffd9ece39c0e49cedfe",
+    "train": "4f1ea89aeb5552a75a6bbb633f8205cbf46d0d4218a60a91f94755b3086a439a",
+    "validation": "26e738b1942257b13a1fda51637cdc72b60cb5e652178d89fc723b25149117c7"
+  },
+  "elapsed_seconds": 11.719302499997866,
+  "estimated_heldout_tensor_bytes": 6676480,
+  "estimated_training_tensor_bytes": 13352960,
+  "evidence_scope": [
+    "Synthetic delayed XOR communication and memory only; no biological validation.",
+    "This source-communication task is designed to require a graft and recurrence. A graft advantage does not establish a topology benefit.",
+    "Fixed disjoint PRNG seeds define splits; the four underlying XOR cue patterns recur across splits.",
+    "All variants allocate identical trainable parameters, weights, data, epoch shuffles and optimizer steps; effective computation and active gradients differ.",
+    "Variants run sequentially; timing includes initialization, optimizer setup, validation and checkpoint writes. RSS includes prior allocator retention.",
+    "Checkpoint replay is CPU/runtime-specific; training resume is not implemented."
+  ],
+  "format_version": 1,
+  "input_graph_hash": "dbf9ad2c38fb6e571a9409b1dbcd845a8bce586e5a423e987325e1b81fcb9c20",
+  "input_topology_hash": "ce270f6f88f8e7c2de9f984539a279edec2acd7a0eba3e5a39d6e5d5e21ff207",
+  "paired_comparisons": [
+    {
+      "bootstrap_95_ci": null,
+      "bootstrap_resamples": 0,
+      "caveat": "Small seed samples give unstable descriptive bootstrap intervals, not a powered significance test. All seeds use one fixed set of task splits; intervals reflect run-seed variation in initialization/training and, for rewired controls, topology rewiring. They do not measure data-split uncertainty.",
+      "comparison": "grafted minus no_graft",
+      "control": "no_graft",
+      "mean_accuracy_difference": 0.0,
+      "n_paired_seeds": 1,
+      "seed_accuracy_differences": [
+        0.0
+      ],
+      "seeds": [
+        0
+      ]
+    },
+    {
+      "bootstrap_95_ci": null,
+      "bootstrap_resamples": 0,
+      "caveat": "Small seed samples give unstable descriptive bootstrap intervals, not a powered significance test. All seeds use one fixed set of task splits; intervals reflect run-seed variation in initialization/training and, for rewired controls, topology rewiring. They do not measure data-split uncertainty.",
+      "comparison": "grafted minus no_recurrence",
+      "control": "no_recurrence",
+      "mean_accuracy_difference": 0.0,
+      "n_paired_seeds": 1,
+      "seed_accuracy_differences": [
+        0.0
+      ],
+      "seeds": [
+        0
+      ]
+    },
+    {
+      "bootstrap_95_ci": null,
+      "bootstrap_resamples": 0,
+      "caveat": "Small seed samples give unstable descriptive bootstrap intervals, not a powered significance test. All seeds use one fixed set of task splits; intervals reflect run-seed variation in initialization/training and, for rewired controls, topology rewiring. They do not measure data-split uncertainty.",
+      "comparison": "grafted minus rewired",
+      "control": "rewired",
+      "mean_accuracy_difference": 0.0,
+      "n_paired_seeds": 1,
+      "seed_accuracy_differences": [
+        0.0
+      ],
+      "seeds": [
+        0
+      ]
+    }
+  ],
+  "parameter_counts_equal": true,
+  "runs": [
+    {
+      "batch_order_hash": "ca271eeb4885870ca8eaa3cd01e57d72d84990f89fa8db3b0c5ad6c4429ddb2d",
+      "checkpoint_path": "runs/seed_0/grafted/checkpoint.pt",
+      "data_hashes": {
+        "test": "c54615e4cdb642b047ba7bc338ec07b8037fc50a634e8ffd9ece39c0e49cedfe",
+        "train": "4f1ea89aeb5552a75a6bbb633f8205cbf46d0d4218a60a91f94755b3086a439a",
+        "validation": "26e738b1942257b13a1fda51637cdc72b60cb5e652178d89fc723b25149117c7"
+      },
+      "elapsed_seconds": 1.644243999999162,
+      "graph_hash": "dbf9ad2c38fb6e571a9409b1dbcd845a8bce586e5a423e987325e1b81fcb9c20",
+      "initial_state_hash": "3675f3031482a84ca638c12ef94206a0d75273f0aaff9413dff425f54e98900b",
+      "memory": {
+        "after_rss_bytes": 364380160,
+        "before_rss_bytes": 330055680,
+        "max_sampled_rss_bytes": 364380160,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/grafted/metrics.jsonl",
+      "optimizer_steps": 4,
+      "parameter_count": 4902,
+      "rewire_receipt": [],
+      "seed": 0,
+      "selected_epoch": 1,
+      "selected_state_hash": "f5d6fc50e4346b9246301b9146aad594fea61cd88e68c1c02bda6051d048fe5d",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6944068670272827,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "757a7d28bf91e11652d317aaacd15b6750c3e4bfa16a79f98e9cb5e703facf3a",
+      "test_loss": 0.6944077610969543,
+      "topology_changed": false,
+      "topology_hash": "ce270f6f88f8e7c2de9f984539a279edec2acd7a0eba3e5a39d6e5d5e21ff207",
+      "variant": "grafted"
+    },
+    {
+      "batch_order_hash": "ca271eeb4885870ca8eaa3cd01e57d72d84990f89fa8db3b0c5ad6c4429ddb2d",
+      "checkpoint_path": "runs/seed_0/no_graft/checkpoint.pt",
+      "data_hashes": {
+        "test": "c54615e4cdb642b047ba7bc338ec07b8037fc50a634e8ffd9ece39c0e49cedfe",
+        "train": "4f1ea89aeb5552a75a6bbb633f8205cbf46d0d4218a60a91f94755b3086a439a",
+        "validation": "26e738b1942257b13a1fda51637cdc72b60cb5e652178d89fc723b25149117c7"
+      },
+      "elapsed_seconds": 1.3404626000010467,
+      "graph_hash": "dbf9ad2c38fb6e571a9409b1dbcd845a8bce586e5a423e987325e1b81fcb9c20",
+      "initial_state_hash": "3675f3031482a84ca638c12ef94206a0d75273f0aaff9413dff425f54e98900b",
+      "memory": {
+        "after_rss_bytes": 366452736,
+        "before_rss_bytes": 364822528,
+        "max_sampled_rss_bytes": 366456832,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/no_graft/metrics.jsonl",
+      "optimizer_steps": 4,
+      "parameter_count": 4902,
+      "rewire_receipt": [],
+      "seed": 0,
+      "selected_epoch": 1,
+      "selected_state_hash": "272a248f5e0bcf6caeaaf0b7d382cfde29c9d0fc2e7cbdb7e51759f2d2a84f1c",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6945000290870667,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "0efe4bdf79d8e8a655dcf55ab6323fdafe3fb75bdf5410b21f6026ac5624b030",
+      "test_loss": 0.6945000290870667,
+      "topology_changed": false,
+      "topology_hash": "ce270f6f88f8e7c2de9f984539a279edec2acd7a0eba3e5a39d6e5d5e21ff207",
+      "variant": "no_graft"
+    },
+    {
+      "batch_order_hash": "ca271eeb4885870ca8eaa3cd01e57d72d84990f89fa8db3b0c5ad6c4429ddb2d",
+      "checkpoint_path": "runs/seed_0/no_recurrence/checkpoint.pt",
+      "data_hashes": {
+        "test": "c54615e4cdb642b047ba7bc338ec07b8037fc50a634e8ffd9ece39c0e49cedfe",
+        "train": "4f1ea89aeb5552a75a6bbb633f8205cbf46d0d4218a60a91f94755b3086a439a",
+        "validation": "26e738b1942257b13a1fda51637cdc72b60cb5e652178d89fc723b25149117c7"
+      },
+      "elapsed_seconds": 1.095261099999334,
+      "graph_hash": "dbf9ad2c38fb6e571a9409b1dbcd845a8bce586e5a423e987325e1b81fcb9c20",
+      "initial_state_hash": "3675f3031482a84ca638c12ef94206a0d75273f0aaff9413dff425f54e98900b",
+      "memory": {
+        "after_rss_bytes": 366546944,
+        "before_rss_bytes": 366104576,
+        "max_sampled_rss_bytes": 368652288,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/no_recurrence/metrics.jsonl",
+      "optimizer_steps": 4,
+      "parameter_count": 4902,
+      "rewire_receipt": [],
+      "seed": 0,
+      "selected_epoch": 1,
+      "selected_state_hash": "c541eb67abee1963932c899bd5b9f9aaccb1f318899e8668e75d4d9a423f619e",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6941180229187012,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "fea2a3e53dfbe888ec40f1c772e94f7c9ca788f98887d7c8095e6e52aabe7909",
+      "test_loss": 0.6940971612930298,
+      "topology_changed": false,
+      "topology_hash": "ce270f6f88f8e7c2de9f984539a279edec2acd7a0eba3e5a39d6e5d5e21ff207",
+      "variant": "no_recurrence"
+    },
+    {
+      "batch_order_hash": "ca271eeb4885870ca8eaa3cd01e57d72d84990f89fa8db3b0c5ad6c4429ddb2d",
+      "checkpoint_path": "runs/seed_0/rewired/checkpoint.pt",
+      "data_hashes": {
+        "test": "c54615e4cdb642b047ba7bc338ec07b8037fc50a634e8ffd9ece39c0e49cedfe",
+        "train": "4f1ea89aeb5552a75a6bbb633f8205cbf46d0d4218a60a91f94755b3086a439a",
+        "validation": "26e738b1942257b13a1fda51637cdc72b60cb5e652178d89fc723b25149117c7"
+      },
+      "elapsed_seconds": 2.121767999997246,
+      "graph_hash": "5b3d54ed5afe99a6c4bb8e9f5f6f35c5d5ab7633210e67c118f693ed3c0c3408",
+      "initial_state_hash": "3675f3031482a84ca638c12ef94206a0d75273f0aaff9413dff425f54e98900b",
+      "memory": {
+        "after_rss_bytes": 368406528,
+        "before_rss_bytes": 366235648,
+        "max_sampled_rss_bytes": 368406528,
+        "sampling_interval_seconds": 0.05,
+        "scope": "whole process RSS including PyTorch and preceding runs; sampled, not exact peak"
+      },
+      "metrics_path": "runs/seed_0/rewired/metrics.jsonl",
+      "optimizer_steps": 4,
+      "parameter_count": 4902,
+      "rewire_receipt": [
+        {
+          "control_graph_hash": "ec69581caac1cd6c463299f8761865736f70bdf20e14737ac1f919403081f2b5",
+          "original_graph_hash": "cb5735eb06b1a36c7f31169d303310fb7c01f3cf9d468ec829d847ee36dd8317",
+          "processing": [
+            "neuron-only graph using CellsOnly.net.nml populations with explicit source-ID aliases",
+            "neuron_network_url=https://raw.githubusercontent.com/openworm/CElegansNeuroML/1ca08b14f4e795a973ce447565e0c97b897ee4dc/CElegans/generatedNeuroML2/CellsOnly.net.nml",
+            "neuron_network_sha256=3f25c94d623c634749e5477e61bb0585568b8ac20388d03862b9b12036492c3d",
+            "mirrored identical electrical contacts canonicalized once; chemical direction preserved",
+            "{\"conflicting_electrical_pairs\": [{\"dst\": \"VA05\", \"src\": \"AVAL\", \"weights\": [4.0, 5.0]}, {\"dst\": \"VA09\", \"src\": \"AVAL\", \"weights\": [5.0, 4.0]}, {\"dst\": \"VA05\", \"src\": \"AVAR\", \"weights\": [5.0, 4.0]}, {\"dst\": \"VA09\", \"src\": \"AVAR\", \"weights\": [4.0, 5.0]}, {\"dst\": \"DB06\", \"src\": \"AVBL\", \"weights\": [4.0, 3.0]}, {\"dst\": \"VB08\", \"src\": \"AVBL\", \"weights\": [4.0, 3.0]}, {\"dst\": \"VB09\", \"src\": \"AVBL\", \"weights\": [3.0, 4.0]}, {\"dst\": \"VB10\", \"src\": \"AVBL\", \"weights\": [4.0, 3.0]}, {\"dst\": \"DB06\", \"src\": \"AVBR\", \"weights\": [3.0, 4.0]}, {\"dst\": \"VB08\", \"src\": \"AVBR\", \"weights\": [3.0, 4.0]}, {\"dst\": \"VB09\", \"src\": \"AVBR\", \"weights\": [4.0, 3.0]}, {\"dst\": \"VB10\", \"src\": \"AVBR\", \"weights\": [3.0, 4.0]}], \"declared_neurons\": 302, \"deduplicated_electrical_rows\": 1063, \"electrical_conflicts_policy\": \"exclude\", \"excluded_conflicting_electrical_rows\": 24, \"excluded_non_neuron_rows\": 1573, \"neuron_model_aliases\": {\"AS01\": \"AS1\", \"AS02\": \"AS2\", \"AS03\": \"AS3\", \"AS04\": \"AS4\", \"AS05\": \"AS5\", \"AS06\": \"AS6\", \"AS07\": \"AS7\", \"AS08\": \"AS8\", \"AS09\": \"AS9\", \"DA01\": \"DA1\", \"DA02\": \"DA2\", \"DA03\": \"DA3\", \"DA04\": \"DA4\", \"DA05\": \"DA5\", \"DA06\": \"DA6\", \"DA07\": \"DA7\", \"DA08\": \"DA8\", \"DA09\": \"DA9\", \"DB01\": \"DB1\", \"DB02\": \"DB2\", \"DB03\": \"DB3\", \"DB04\": \"DB4\", \"DB05\": \"DB5\", \"DB06\": \"DB6\", \"DB07\": \"DB7\", \"DD01\": \"DD1\", \"DD02\": \"DD2\", \"DD03\": \"DD3\", \"DD04\": \"DD4\", \"DD05\": \"DD5\", \"DD06\": \"DD6\", \"VA01\": \"VA1\", \"VA02\": \"VA2\", \"VA03\": \"VA3\", \"VA04\": \"VA4\", \"VA05\": \"VA5\", \"VA06\": \"VA6\", \"VA07\": \"VA7\", \"VA08\": \"VA8\", \"VA09\": \"VA9\", \"VB01\": \"VB1\", \"VB02\": \"VB2\", \"VB03\": \"VB3\", \"VB04\": \"VB4\", \"VB05\": \"VB5\", \"VB06\": \"VB6\", \"VB07\": \"VB7\", \"VB08\": \"VB8\", \"VB09\": \"VB9\", \"VC01\": \"VC1\", \"VC02\": \"VC2\", \"VC03\": \"VC3\", \"VC04\": \"VC4\", \"VC05\": \"VC5\", \"VC06\": \"VC6\", \"VD01\": \"VD1\", \"VD02\": \"VD2\", \"VD03\": \"VD3\", \"VD04\": \"VD4\", \"VD05\": \"VD5\", \"VD06\": \"VD6\", \"VD07\": \"VD7\", \"VD08\": \"VD8\", \"VD09\": \"VD9\"}, \"raw_rows\": 7379, \"retained_edges\": 4719}",
+            "degree_rewire: seed=0; swaps_per_edge=5; attempted_swaps=23360; successful_swaps=19421; loops_fixed=47; weight_policy=edge-record-multiset; partitions=[chemical:attempted=18020,successful=14831|electrical:attempted=5340,successful=4590]; parent_digest=cb5735eb06b1a36c7f31169d303310fb7c01f3cf9d468ec829d847ee36dd8317"
+          ],
+          "seed": 0,
+          "source_id": "worm"
+        },
+        {
+          "control_graph_hash": "2c5b8bd810f3968654f8d59de3135bd53a0deab2ece55126b07945008321243a",
+          "original_graph_hash": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=1; swaps_per_edge=5; attempted_swaps=90; successful_swaps=39; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=55,successful=34|electrical:attempted=35,successful=5]; parent_digest=9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e"
+          ],
+          "seed": 1,
+          "source_id": "fly_f"
+        },
+        {
+          "control_graph_hash": "94d8980bea90c3949cb01ba9612daedd8a77d524e9c4cce91cbf219736c17b6a",
+          "original_graph_hash": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=2; swaps_per_edge=5; attempted_swaps=115; successful_swaps=33; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[chemical:attempted=80,successful=28|electrical:attempted=35,successful=5]; parent_digest=bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52"
+          ],
+          "seed": 2,
+          "source_id": "fly_m"
+        },
+        {
+          "control_graph_hash": "236e76dcd7351562371d8ed75d1713d1030383fe3b4a6298658442ee8811ac2f",
+          "original_graph_hash": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+          "processing": [
+            "synthetic_fixture: seed=0; nodes_per_source=8; no-biological-input",
+            "degree_rewire: seed=3; swaps_per_edge=5; attempted_swaps=110; successful_swaps=27; loops_fixed=0; weight_policy=edge-record-multiset; partitions=[macro_functional:attempted=35,successful=11|macro_structural:attempted=75,successful=16]; parent_digest=6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc"
+          ],
+          "seed": 3,
+          "source_id": "human"
+        }
+      ],
+      "seed": 0,
+      "selected_epoch": 1,
+      "selected_state_hash": "eb056219aaf8e9c4cb777c98b01d669fdab3c0cd1a8c89694bf4c254696080ab",
+      "selected_validation_accuracy": 0.5,
+      "selected_validation_loss": 0.6944003701210022,
+      "test_accuracy": 0.5,
+      "test_evaluations": 1,
+      "test_logits_hash": "82c05e918fa0ddffb202ba73c2a89707ae09e8e4729c994087c36078f0d91a98",
+      "test_loss": 0.6944010853767395,
+      "topology_changed": true,
+      "topology_hash": "8f7df59d41dd84ce8723b13c6f3caa02c267cf819f88e5409f89645dc66f18e3",
+      "variant": "rewired"
+    }
+  ],
+  "runtime": {
+    "deterministic_algorithms": true,
+    "device": "cpu",
+    "threads": 2,
+    "torch": "2.11.0+cpu"
+  },
+  "selection": "highest validation accuracy, then lowest validation CE; test evaluated once after selection",
+  "source_readiness": {
+    "authentic_four_source_ready": false,
+    "computational_edges": 5886,
+    "digest": "dbf9ad2c38fb6e571a9409b1dbcd845a8bce586e5a423e987325e1b81fcb9c20",
+    "missing_authentic_sources": [
+      "fly_f",
+      "fly_m",
+      "human"
+    ],
+    "rights_four_source_ready": false,
+    "sources": {
+      "fly_f": {
+        "authentic_ready": false,
+        "authorized": false,
+        "computational_edges": 25,
+        "degree_rewired_control": false,
+        "density": 0.35714285714285715,
+        "digest": "9452558aba94b56dd566e92dec7e8d1022ab85c6783b6ecf97aa5e82ef6eeb3e",
+        "edge_count": 18,
+        "isolated_nodes": 0,
+        "largest_component_nodes": 8,
+        "node_count": 8,
+        "relation_counts": {
+          "chemical": 11,
+          "electrical": 7
+        },
+        "rights_ready": false,
+        "scale": "single_neuron",
+        "self_loops": 0,
+        "source_id": "fly_f",
+        "status": "fixture",
+        "topology_digest": "b131e86007a9256a8fb75dcaee509d8fee3c14c2ae32c103d264927ca160b3ed",
+        "weak_components": 1
+      },
+      "fly_m": {
+        "authentic_ready": false,
+        "authorized": false,
+        "computational_edges": 30,
+        "degree_rewired_control": false,
+        "density": 0.4642857142857143,
+        "digest": "bec66f82c2b4b68df28a59f7eadb984de41390c434e0551d2ab046f18f835d52",
+        "edge_count": 23,
+        "isolated_nodes": 0,
+        "largest_component_nodes": 8,
+        "node_count": 8,
+        "relation_counts": {
+          "chemical": 16,
+          "electrical": 7
+        },
+        "rights_ready": false,
+        "scale": "single_neuron",
+        "self_loops": 0,
+        "source_id": "fly_m",
+        "status": "fixture",
+        "topology_digest": "ab060dcfb4d8d95a4bb66908397e02181993735f72d8008a87d838efc8f0ec69",
+        "weak_components": 1
+      },
+      "human": {
+        "authentic_ready": false,
+        "authorized": false,
+        "computational_edges": 44,
+        "degree_rewired_control": false,
+        "density": 0.75,
+        "digest": "6390335d45e454195e628154d5600731f722e061e4698b2bebbaf5a6a2afe5bc",
+        "edge_count": 22,
+        "isolated_nodes": 0,
+        "largest_component_nodes": 8,
+        "node_count": 8,
+        "relation_counts": {
+          "macro_functional": 7,
+          "macro_structural": 15
+        },
+        "rights_ready": false,
+        "scale": "brain_region",
+        "self_loops": 0,
+        "source_id": "human",
+        "status": "fixture",
+        "topology_digest": "ca2bd6dd0687ebf7b5d58bdd276baafce26282c4afe16206d6c882cbfa9e0368",
+        "weak_components": 1
+      },
+      "worm": {
+        "authentic_ready": true,
+        "authorized": false,
+        "computational_edges": 5787,
+        "degree_rewired_control": false,
+        "density": 0.05526831092825241,
+        "digest": "cb5735eb06b1a36c7f31169d303310fb7c01f3cf9d468ec829d847ee36dd8317",
+        "edge_count": 4719,
+        "isolated_nodes": 2,
+        "largest_component_nodes": 300,
+        "node_count": 302,
+        "relation_counts": {
+          "chemical": 3638,
+          "electrical": 1081
+        },
+        "rights_ready": false,
+        "scale": "single_neuron",
+        "self_loops": 47,
+        "source_id": "worm",
+        "status": "imported",
+        "topology_digest": "901c1b6ada8667dbd413a843245510bcd9fa0feadc69a5e6d7010343614a357c",
+        "weak_components": 3
+      }
+    },
+    "topology_digest": "ce270f6f88f8e7c2de9f984539a279edec2acd7a0eba3e5a39d6e5d5e21ff207",
+    "total_edges": 4782,
+    "total_nodes": 326
+  },
+  "split_label_counts": {
+    "test": [
+      8,
+      8
+    ],
+    "train": [
+      8,
+      8
+    ],
+    "validation": [
+      8,
+      8
+    ]
+  },
+  "split_seeds": {
+    "test": 5189,
+    "train": 5187,
+    "validation": 5188
+  },
+  "summary": {
+    "grafted": {
+      "mean_test_accuracy": 0.5,
+      "n_seeds": 1,
+      "std_ddof": 1,
+      "std_test_accuracy": null
+    },
+    "no_graft": {
+      "mean_test_accuracy": 0.5,
+      "n_seeds": 1,
+      "std_ddof": 1,
+      "std_test_accuracy": null
+    },
+    "no_recurrence": {
+      "mean_test_accuracy": 0.5,
+      "n_seeds": 1,
+      "std_ddof": 1,
+      "std_test_accuracy": null
+    },
+    "rewired": {
+      "mean_test_accuracy": 0.5,
+      "n_seeds": 1,
+      "std_ddof": 1,
+      "std_test_accuracy": null
+    }
+  },
+  "task": "delayed_xor_v1",
+  "variants": [
+    "grafted",
+    "no_graft",
+    "no_recurrence",
+    "rewired"
+  ]
+}

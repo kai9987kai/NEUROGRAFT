@@ -1,0 +1,2 @@
+{"elapsed_seconds": 0.24302860000170767, "epoch": 1, "optimizer_steps": 2, "seed": 0, "train_accuracy": 0.5, "train_loss": 0.6988779902458191, "validation_accuracy": 0.5, "validation_loss": 0.6941180229187012, "variant": "no_recurrence"}
+{"elapsed_seconds": 0.2859185000015714, "epoch": 2, "optimizer_steps": 4, "seed": 0, "train_accuracy": 0.5, "train_loss": 0.6985888481140137, "validation_accuracy": 0.5, "validation_loss": 0.6944944858551025, "variant": "no_recurrence"}

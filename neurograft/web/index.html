@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a111d">
+  <title>NEUROGRAFT · Live laboratory</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b1725'/%3E%3Cpath d='M8 24V8l16 16V8' fill='none' stroke='%235ee9ce' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="Neurograft live laboratory">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M10 29V11l20 18V11"/><circle cx="10" cy="11" r="3"/><circle cx="30" cy="29" r="3"/></svg>
+      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.2</span></span></span>
+    </a>
+    <div class="header-note">Four source graphs. One evolving circuit.</div>
+    <div class="connection" id="connection-status" role="status"><span class="status-dot"></span><span id="connection-label">Connecting</span></div>
+  </header>
+
+  <main class="workspace">
+    <div class="main-column">
+      <section class="session-bar" aria-label="Live session controls">
+        <div class="session-title"><span class="eyebrow">EXPERIMENT 01</span><h1>Learn the way through.</h1><p>Continuous navigation with supervised route guidance.</p></div>
+        <div class="session-actions">
+          <span class="run-state" id="run-state">Awaiting session</span>
+          <div class="button-row"><button class="button primary" id="pause-btn" data-write disabled><span aria-hidden="true">Ⅱ</span> Pause</button><button class="button primary" id="resume-btn" data-write hidden disabled><span aria-hidden="true">▶</span> Resume</button><button class="button" id="step-btn" data-write disabled title="Advance one server step">Step <span aria-hidden="true">→</span></button></div>
+          <label class="toggle-label" for="learning-toggle"><input id="learning-toggle" type="checkbox" data-write disabled><span class="toggle-track"></span><span>Online learning <b id="learning-label">—</b></span></label>
+        </div>
+      </section>
+
+      <div id="error-banner" class="error-banner" role="alert" hidden><span id="error-message"></span><button id="dismiss-error" class="icon-button" aria-label="Dismiss error">×</button></div>
+
+      <section class="panel environment-panel" aria-labelledby="environment-heading">
+        <div class="panel-heading"><div><span class="eyebrow">LIVE ENVIRONMENT</span><h2 id="environment-heading">Navigation arena <span class="muted mono" id="world-size">— × —</span></h2></div><span class="pill"><span class="tiny-dot"></span> LOCAL CPU</span></div>
+        <div class="scene-wrap" id="scene-wrap">
+          <canvas id="scene-canvas" aria-label="Interactive 3D navigation arena. Drag to orbit, scroll to zoom, click a beacon or free floor cell to set a target." tabindex="0"></canvas>
+          <div class="scene-topline"><span class="scene-tag" id="scene-state">WAITING FOR WORLD</span><div class="scene-tools"><button id="camera-reset" class="scene-button" title="Reset camera">↺ <span>Reset view</span></button><button id="fullscreen-btn" class="scene-button" title="Fullscreen (F)" aria-label="Toggle arena fullscreen">⛶</button></div></div>
+          <div class="scene-loading" id="scene-loading"><span class="loading-orbit"></span><strong>Connecting to the circuit</strong><span>World state comes from your local session.</span></div>
+          <div class="scene-bottomline"><div class="scene-position"><span class="avatar-dot"></span> AGENT <b id="agent-position">—, —</b><span class="compass-label">N ↑</span></div><span id="scene-goal" class="scene-goal">Target —</span></div>
+        </div>
+        <div class="arena-controls"><div class="goal-controls"><span class="control-caption">SET TARGET</span><button id="goal-blue" class="goal-button blue" data-write disabled><i></i> Blue</button><button id="goal-amber" class="goal-button amber" data-write disabled><i></i> Amber</button><button id="goal-rose" class="goal-button rose" data-write disabled><i></i> Rose</button></div><p class="arena-help">Drag to orbit <span>·</span> Scroll to zoom <span>·</span> Click to target <span>·</span> <kbd>WASD</kbd> when paused</p></div>
+      </section>
+
+      <section class="metrics" aria-label="Session metrics">
+        <div class="metric"><span>Total steps</span><strong id="metric-steps">—</strong><small>Server ticks</small></div>
+        <div class="metric"><span>Learning updates</span><strong id="metric-updates">—</strong><small id="metric-update-note">Waiting for samples</small></div>
+        <div class="metric"><span>Goals reached</span><strong id="metric-goals">—</strong><small id="metric-episode">Episode —</small></div>
+        <div class="metric"><span>Recent policy match</span><strong id="metric-accuracy">—</strong><small>Matches route teacher</small></div>
+        <div class="metric"><span>Total reward</span><strong id="metric-reward">—</strong><small id="metric-action">Action —</small></div>
+      </section>
+
+      <div class="analysis-grid">
+        <section class="panel sources-panel" aria-labelledby="sources-heading"><div class="panel-heading compact"><div><span class="eyebrow">CIRCUIT INPUTS</span><h2 id="sources-heading">Source activity</h2></div><span class="subtle-label">MEAN STATE MAGNITUDE</span></div><div class="source-list" id="source-list"></div><div class="panel-foot">Source topology is fixed. Circuit parameters adapt.</div></section>
+        <section class="panel routing-panel" aria-labelledby="routing-heading"><div class="panel-heading compact"><div><span class="eyebrow">INTERNAL SIGNALS</span><h2 id="routing-heading">Synthetic routing</h2></div><span class="subtle-label">RECIPIENT ↓ / SOURCE →</span></div><div class="routing-matrix" id="routing-matrix" aria-label="Synthetic latent routing weights"></div><div class="panel-foot">Engineered latent edges · brighter cells carry more weight</div></section>
+      </div>
+
+      <section class="panel loss-panel" aria-labelledby="loss-heading"><div class="loss-copy"><span class="eyebrow">ONLINE ADAPTATION</span><h2 id="loss-heading">Training loss <b id="loss-value">—</b></h2><p id="loss-note">Loss appears after the first learning update.</p></div><div class="loss-chart"><svg id="loss-chart" viewBox="0 0 560 90" preserveAspectRatio="none" role="img" aria-label="Recent training loss"><defs><linearGradient id="loss-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5ee9ce" stop-opacity="0.22"/><stop offset="100%" stop-color="#5ee9ce" stop-opacity="0"/></linearGradient></defs><path class="chart-guide" d="M0 25H560 M0 60H560"/><path id="loss-area" fill="url(#loss-fill)"/><path id="loss-line" fill="none" stroke="#5ee9ce" stroke-width="2" vector-effect="non-scaling-stroke"/></svg><div class="chart-captions"><span>EARLIER</span><span>LAST 64 UPDATES</span><span>NOW</span></div></div></section>
+      <footer class="evidence-footer"><span class="tiny-dot"></span><span id="evidence-scope">Experimental synthetic navigation. Policy match is a recent teacher-agreement metric, not held-out generalization.</span><span class="graph-id mono" id="graph-id"></span></footer>
+    </div>
+
+    <aside class="side-column">
+      <section class="panel chat-panel" aria-labelledby="chat-heading"><div class="panel-heading"><div><span class="eyebrow">SESSION COMPANION</span><h2 id="chat-heading">Talk to the circuit <span class="chat-spark" aria-hidden="true">✳</span></h2></div></div><div class="backend-label"><span class="tiny-dot"></span><b>Local commands + memory</b><span>No language model</span></div><div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Session conversation"><div class="chat-welcome"><span class="assistant-symbol">N</span><p>Give the agent a direction.<br>Keep a fact for later.</p><small>I understand session commands and explicit facts. Try a prompt below.</small></div></div><div class="chat-examples"><button class="example-chip" data-example="status">Session status</button><button class="example-chip" data-example="go to blue">Go to blue ↗</button><button class="example-chip" data-example="remember project = Neurograft">Remember a fact</button><button class="example-chip" data-example="help">All commands</button></div><form id="chat-form" class="chat-composer"><label class="sr-only" for="chat-input">Message to local command and memory backend</label><textarea id="chat-input" rows="2" maxlength="4000" placeholder="Try “go to blue” or “remember name = Kai”…" disabled></textarea><div class="composer-bottom"><span>Enter to send · Shift + Enter for a new line</span><button id="chat-send" class="send-button" type="submit" data-write disabled aria-label="Send message">↑</button></div></form></section>
+
+      <section class="panel memory-panel" aria-labelledby="memory-heading"><div class="panel-heading compact"><div><span class="eyebrow">EXPLICIT FACT MEMORY</span><h2 id="memory-heading">Remembered facts <span id="fact-count" class="count-badge">0</span></h2></div></div><div id="facts-list" class="facts-list"><p class="empty-note">No facts yet. Use <code>remember key = value</code> in chat.</p></div><div class="panel-foot">Saved with the circuit. Retrieved by key in chat.</div></section>
+
+      <section class="panel persistence-panel" aria-labelledby="save-heading"><div class="panel-heading compact"><div><span class="eyebrow">CONTINUITY</span><h2 id="save-heading">Session checkpoints</h2></div><span class="save-icon" aria-hidden="true">⌑</span></div><div class="autosave-line"><span class="tiny-dot"></span><span id="autosave-status">Autosave status pending</span></div><label class="field-label" for="save-name">Checkpoint name</label><input id="save-name" type="text" value="default" maxlength="40" pattern="[A-Za-z0-9_-]{1,40}" autocomplete="off" spellcheck="false" list="checkpoint-options" aria-describedby="save-name-hint"><datalist id="checkpoint-options"></datalist><div class="save-actions"><button class="button primary" id="save-btn" data-write disabled>Save state <span aria-hidden="true">↓</span></button><button class="button" id="load-btn" data-write disabled>Restore <span aria-hidden="true">↶</span></button></div><p class="field-hint" id="save-name-hint">Names use letters, numbers, _ or -. Restore replaces this session.</p><p class="saved-status" id="saved-status">No save receipt yet.</p><details class="checkpoint-details"><summary>Available checkpoints <span id="checkpoint-count">0</span></summary><div id="checkpoint-list" class="checkpoint-list"><span class="empty-note">No checkpoints found.</span></div></details><div class="persistence-foot">Includes weights, optimizer, world, replay, random state and chat memory.</div></section>
+    </aside>
+  </main>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

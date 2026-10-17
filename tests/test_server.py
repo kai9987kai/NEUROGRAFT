@@ -142,6 +142,9 @@ def test_static_assets_and_manual_goal_controls(tmp_path):
         status, resized = request(url + '/api/control', {'action': 'world', 'size': 17, 'preset': 'chambers'})
         assert status == 200 and resized['world']['size'] == 17
         assert resized['telemetry']['environment']['preset'] == 'chambers'
+        status, lesioned = request(url + '/api/control', {'action': 'memory_lesion', 'mode': 'shifted'})
+        assert status == 200 and lesioned['telemetry']['memory']['mode'] == 'shifted'
+        assert 'compass' in lesioned['telemetry'] and lesioned['telemetry']['compass']['num_wedges'] == 16
         status, checkpoints = request(url + '/api/checkpoints')
         assert status == 200 and isinstance(checkpoints, list)
 

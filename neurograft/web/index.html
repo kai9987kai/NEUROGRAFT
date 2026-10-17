@@ -116,12 +116,59 @@
         </div>
       </section>
 
+      <!-- Cognitive Architecture: CX Ring Compass, Active Inference EFE, Tri-Tier Memory & Lyapunov Phase Plane -->
+      <section class="research-grid cognitive-grid" aria-labelledby="cognitive-heading">
+        <div class="research-col">
+          <div class="research-header">
+            <div><span class="eyebrow">CENTRAL COMPLEX (CX) RING ATTRACTOR</span><h3 id="cognitive-heading">16-Wedge Heading Compass &amp; PVA</h3></div>
+            <span class="pill" id="compass-status">Coherent bump</span>
+          </div>
+          <div class="compass-dial-wrap">
+            <svg id="compass-dial" viewBox="0 0 120 120" class="compass-svg" role="img" aria-label="16-wedge ring attractor dial">
+              <circle cx="60" cy="60" r="54" class="compass-bg-ring"/>
+              <g id="compass-wedges"></g>
+              <line id="compass-pva-needle" x1="60" y1="60" x2="60" y2="10" class="compass-needle"/>
+              <circle cx="60" cy="60" r="6" class="compass-hub"/>
+            </svg>
+            <div class="compass-metrics">
+              <div class="mod-row"><span>PVA Heading:</span><b id="compass-heading-val" class="mono">0.00 rad</b></div>
+              <div class="mod-row"><span>Coherence <i>R</i>:</span><b id="compass-coherence-val" class="mono">0.85</b></div>
+              <div class="prob-track"><div id="compass-bar-coh" class="prob-fill da" style="width:85%"></div></div>
+              <small id="compass-note">Drosophila Ellipsoid Body E-PG ring attractor with P-EN steering</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="research-col">
+          <div class="research-header">
+            <div><span class="eyebrow">ACTIVE INFERENCE &amp; TRI-TIER MEMORY</span><h3>Expected Free Energy (EFE) &amp; Lesions</h3></div>
+            <span class="pill" id="memory-mode-pill">intact</span>
+          </div>
+          <div class="efe-summary">
+            <div class="efe-row"><span>EFE Policy (N/E/S/W):</span><span id="efe-dist-val" class="mono">—</span></div>
+            <div class="efe-row"><span>Drive breakdown:</span><small id="efe-breakdown">Pragmatic: — · Epistemic: — · Empowerment: —</small></div>
+            <div class="efe-row"><span>Lyapunov Separatrix:</span><b id="phase-status" class="mono">L = — · drift = —</b></div>
+            <div class="memory-lesion-bar">
+              <span class="eyebrow">MEMORY LESION ASSAY:</span>
+              <div class="lesion-btn-group">
+                <button type="button" class="lesion-btn active" data-memory-mode="intact">Intact</button>
+                <button type="button" class="lesion-btn" data-memory-mode="erased">Erased</button>
+                <button type="button" class="lesion-btn" data-memory-mode="shifted">Shifted</button>
+                <button type="button" class="lesion-btn" data-memory-mode="random_retrieval">Random</button>
+                <button type="button" class="lesion-btn" data-memory-mode="memory_free">Free</button>
+              </div>
+            </div>
+            <div class="research-foot" id="memory-stats-foot">Mapped cells: — · Spatial familiarity: —</div>
+          </div>
+        </div>
+      </section>
+
       <section class="panel loss-panel" aria-labelledby="loss-heading"><div class="loss-copy"><span class="eyebrow">ONLINE ADAPTATION</span><h2 id="loss-heading">Training loss <b id="loss-value">—</b></h2><p id="loss-note">Loss appears after the first learning update.</p></div><div class="loss-chart"><svg id="loss-chart" viewBox="0 0 560 90" preserveAspectRatio="none" role="img" aria-label="Recent training loss"><defs><linearGradient id="loss-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5ee9ce" stop-opacity="0.22"/><stop offset="100%" stop-color="#5ee9ce" stop-opacity="0"/></linearGradient></defs><path class="chart-guide" d="M0 25H560 M0 60H560"/><path id="loss-area" fill="url(#loss-fill)"/><path id="loss-line" fill="none" stroke="#5ee9ce" stroke-width="2" vector-effect="non-scaling-stroke"/></svg><div class="chart-captions"><span>EARLIER</span><span>LAST 64 UPDATES</span><span>NOW</span></div></div></section>
       <footer class="evidence-footer"><span class="tiny-dot"></span><span id="evidence-scope">Experimental synthetic navigation. Policy match is a recent teacher-agreement metric, not held-out generalization.</span><span class="graph-id mono" id="graph-id"></span></footer>
     </div>
 
     <aside class="side-column">
-      <section class="panel chat-panel" aria-labelledby="chat-heading"><div class="panel-heading"><div><span class="eyebrow">SESSION COMPANION</span><h2 id="chat-heading">Talk to the circuit <span class="chat-spark" aria-hidden="true">✳</span></h2></div></div><div class="backend-label"><span class="tiny-dot"></span><b>Local commands + memory</b><span>No language model</span></div><div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Session conversation"><div class="chat-welcome"><span class="assistant-symbol">N</span><p>Scale the 3D labyrinth.<br>Probe virtual lesions &amp; neurons.</p><small>I understand world scaling, virtual lesion attribution, neuromodulator queries, and explicit facts.</small></div></div><div class="chat-examples"><button type="button" class="example-chip" data-example="evolve 16">⚡ Evolve ×16</button><button type="button" class="example-chip" data-example="world 19 chambers">🏛️ 19×19 Chambers</button><button type="button" class="example-chip" data-example="world 25 labyrinth">🌐 25×25 Labyrinth</button><button type="button" class="example-chip" data-example="lesion">🔬 Virtual lesion</button><button type="button" class="example-chip" data-example="neuromodulators">🧪 Neuromodulators</button><button type="button" class="example-chip" data-example="motifs">🕸️ Rich-Club hubs</button><button type="button" class="example-chip" data-example="neurons">🧬 Firing neurons</button><button type="button" class="example-chip" data-example="why">🧭 Decision probe</button></div><form id="chat-form" class="chat-composer"><label class="sr-only" for="chat-input">Message to local command and memory backend</label><textarea id="chat-input" rows="2" maxlength="4000" placeholder="Try “world 19 chambers”, “lesion”, “neuromodulators”, “motifs”, or “evolve 16”…" disabled></textarea><div class="composer-bottom"><span>Enter to send · Shift + Enter for a new line</span><button id="chat-send" class="send-button" type="submit" data-write disabled aria-label="Send message">↑</button></div></form></section>
+      <section class="panel chat-panel" aria-labelledby="chat-heading"><div class="panel-heading"><div><span class="eyebrow">SESSION COMPANION</span><h2 id="chat-heading">Talk to the circuit <span class="chat-spark" aria-hidden="true">✳</span></h2></div></div><div class="backend-label"><span class="tiny-dot"></span><b>Local commands + memory</b><span>No language model</span></div><div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Session conversation"><div class="chat-welcome"><span class="assistant-symbol">N</span><p>Scale the 3D labyrinth.<br>Probe virtual lesions &amp; neurons.</p><small>I understand world scaling, virtual lesion attribution, neuromodulator queries, and explicit facts.</small></div></div><div class="chat-examples"><button type="button" class="example-chip" data-example="evolve 16">⚡ Evolve ×16</button><button type="button" class="example-chip" data-example="world 19 chambers">🏛️ 19×19 Chambers</button><button type="button" class="example-chip" data-example="world 25 labyrinth">🌐 25×25 Labyrinth</button><button type="button" class="example-chip" data-example="compass">🧭 CX Compass</button><button type="button" class="example-chip" data-example="efe">⚡ Active Inference</button><button type="button" class="example-chip" data-example="memory">🧠 Tri-tier Memory</button><button type="button" class="example-chip" data-example="phase">🌊 Lyapunov Phase</button><button type="button" class="example-chip" data-example="lesion">🔬 Virtual lesion</button><button type="button" class="example-chip" data-example="neuromodulators">🧪 Neuromodulators</button><button type="button" class="example-chip" data-example="motifs">🕸️ Rich-Club hubs</button><button type="button" class="example-chip" data-example="why">🧭 Decision probe</button></div><form id="chat-form" class="chat-composer"><label class="sr-only" for="chat-input">Message to local command and memory backend</label><textarea id="chat-input" rows="2" maxlength="4000" placeholder="Try “world 19 chambers”, “compass”, “efe”, “memory”, “phase”, “lesion”…" disabled></textarea><div class="composer-bottom"><span>Enter to send · Shift + Enter for a new line</span><button id="chat-send" class="send-button" type="submit" data-write disabled aria-label="Send message">↑</button></div></form></section>
 
       <section class="panel memory-panel" aria-labelledby="memory-heading"><div class="panel-heading compact"><div><span class="eyebrow">EXPLICIT FACT MEMORY</span><h2 id="memory-heading">Remembered facts <span id="fact-count" class="count-badge">0</span></h2></div></div><div id="facts-list" class="facts-list"><p class="empty-note">No facts yet. Use <code>remember key = value</code> in chat.</p></div><div class="panel-foot">Saved with the circuit. Retrieved by key in chat.</div></section>
 

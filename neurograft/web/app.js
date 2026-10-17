@@ -322,6 +322,7 @@ function renderSession() {
     cell.style.borderColor = `rgba(94, 233, 206, ${0.08 + value * 0.36})`;
     cell.style.color = value > 0.35 ? '#c3fff0' : '#8ca8b6';
   }
+  renderCognitiveTelemetry(telemetry);
   renderLoss(); renderChat(); renderFacts(); renderPersistence();
   $('evidence-scope').textContent = session.evidence_scope || 'Experimental synthetic navigation. Online supervised adaptation; policy match is recent teacher agreement.';
   $('graph-id').textContent = [
@@ -330,6 +331,80 @@ function renderSession() {
   ].filter(Boolean).join(' · ');
   $('graph-id').title = `Graph SHA-256: ${session.graph_hash || ''}\nModel SHA-256: ${session.model_hash || ''}`;
   if (webglReady) updateWorld(world);
+}
+
+function initCompassDial() {
+  const g = $('compass-wedges');
+  if (!g) return;
+  g.innerHTML = '';
+  const numWedges = 16;
+  const cx = 60, cy = 60, r1 = 20, r2 = 50;
+  for (let i = 0; i < numWedges; i += 1) {
+    const angle = (2 * Math.PI * i) / numWedges - Math.PI / 2;
+    const half = (Math.PI / numWedges);
+    const a1 = angle - half, a2 = angle + half;
+    const x1 = cx + r1 * Math.cos(a1), y1 = cy + r1 * Math.sin(a1);
+    const x2 = cx + r2 * Math.cos(a1), y2 = cy + r2 * Math.sin(a1);
+    const x3 = cx + r2 * Math.cos(a2), y3 = cy + r2 * Math.sin(a2);
+    const x4 = cx + r1 * Math.cos(a2), y4 = cy + r1 * Math.sin(a2);
+    const d = `M ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)} A ${r2} ${r2} 0 0 1 ${x3.toFixed(2)} ${y3.toFixed(2)} L ${x4.toFixed(2)} ${y4.toFixed(2)} A ${r1} ${r1} 0 0 0 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('id', `compass-wedge-${i}`);
+    path.setAttribute('class', 'compass-wedge');
+    path.setAttribute('fill', 'var(--cyan)');
+    g.appendChild(path);
+  }
+}
+
+function renderCognitiveTelemetry(telemetry) {
+  const cmp = telemetry.compass || {};
+  if ($('compass-heading-val') && Number.isFinite(cmp.pva_heading)) {
+    $('compass-heading-val').textContent = `${cmp.pva_heading.toFixed(2)} rad`;
+    $('compass-coherence-val').textContent = finite(cmp.pva_coherence, 0).toFixed(2);
+    if ($('compass-bar-coh')) $('compass-bar-coh').style.width = `${clip(finite(cmp.pva_coherence), 0, 1) * 100}%`;
+    const needle = $('compass-pva-needle');
+    if (needle) {
+      const deg = (cmp.pva_heading * 180) / Math.PI;
+      needle.style.transform = `rotate(${deg}deg)`;
+    }
+    const statusPill = $('compass-status');
+    if (statusPill) {
+      statusPill.textContent = cmp.disoriented ? 'Optomotor reflex active' : 'Coherent bump';
+      statusPill.classList.toggle('imported', !cmp.disoriented);
+    }
+    if (Array.isArray(cmp.wedges)) {
+      cmp.wedges.forEach((w, i) => {
+        const el = $(`compass-wedge-${i}`);
+        if (el) el.style.opacity = (0.15 + clip(w * 3.5, 0, 0.85)).toFixed(2);
+      });
+    }
+  }
+
+  const efe = telemetry.active_inference || {};
+  if ($('efe-dist-val') && Array.isArray(efe.efe_probs)) {
+    const names = ['N', 'E', 'S', 'W'];
+    $('efe-dist-val').textContent = names.map((n, i) => `${n}: ${(clip(efe.efe_probs[i], 0, 1) * 100).toFixed(0)}%`).join('  ');
+    if ($('efe-breakdown') && Array.isArray(efe.pragmatic)) {
+      const b = efe.best_action || 0;
+      $('efe-breakdown').textContent = `Best: ${names[b]} · Prag: ${finite(efe.pragmatic[b]).toFixed(1)} · Epist: ${finite(efe.epistemic[b]).toFixed(1)} · Emp: ${finite(efe.empowerment[b]).toFixed(2)}`;
+    }
+  }
+
+  const pp = telemetry.phase_plane || {};
+  if ($('phase-status') && Number.isFinite(pp.lyapunov_energy)) {
+    $('phase-status').textContent = `L=${pp.lyapunov_energy.toFixed(3)} · drift=${finite(pp.lyapunov_drift).toFixed(3)} [${pp.stability_regime || 'orbit'}]`;
+  }
+
+  const mem = telemetry.memory || {};
+  const activeMode = mem.mode || 'intact';
+  if ($('memory-mode-pill')) $('memory-mode-pill').textContent = activeMode;
+  if ($('memory-stats-foot') && Number.isFinite(mem.mapped_cells)) {
+    $('memory-stats-foot').textContent = `Mapped cells: ${mem.mapped_cells} · Spatial familiarity: ${(finite(mem.spatial_familiarity) * 100).toFixed(0)}% · Mode: ${activeMode}`;
+  }
+  document.querySelectorAll('.lesion-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.memoryMode === activeMode);
+  });
 }
 
 function renderLoss() {
@@ -458,6 +533,11 @@ function bindControls() {
     const size = session?.world?.size || 15;
     const res = await control({ action: 'world', size, preset });
     if (res) showToast(`Switched ${size}×${size} arena to ${preset} topology.`);
+  }));
+  document.querySelectorAll('[data-memory-mode]').forEach((btn) => btn.addEventListener('click', async () => {
+    const mode = btn.dataset.memoryMode;
+    const res = await control({ action: 'memory_lesion', mode });
+    if (res) showToast(`Switched memory assay to ${mode}.`);
   }));
   $('dismiss-error').addEventListener('click', () => { $('error-banner').hidden = true; });
   $('chat-form').addEventListener('submit', sendChat);
@@ -836,6 +916,7 @@ window.advanceTime = (ms) => {
 };
 
 makeSourceRows();
+initCompassDial();
 bindControls();
 updateControls();
 initScene();

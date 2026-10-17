@@ -24,9 +24,13 @@ import torch
 from torch import Tensor
 import torch.nn.functional as F
 
+from .active_inference import ActiveInferenceArbiter
+from .compass import CXRingCompass
 from .dynamics import DynamicsConfig, GraphCircuit
 from .environment import NavigationWorld
 from .graphs import GraphBundle
+from .memory import TriTierMemory
+from .phase_plane import PhasePlaneEngine
 
 
 MAX_CHECKPOINT_BYTES = 128 * 1024 * 1024
@@ -172,6 +176,10 @@ class LiveSession:
             for name, param in self.model.named_parameters()
         }
         self._connectome_motifs = self._compute_connectome_motifs(bundle)
+        self.compass = CXRingCompass(num_wedges=16)
+        self.active_inference = ActiveInferenceArbiter()
+        self.memory = TriTierMemory(capacity=128, lesion_mode="intact")
+        self.phase_plane = PhasePlaneEngine(dt=0.20)
 
     @staticmethod
     def _compute_connectome_motifs(bundle: GraphBundle) -> dict[str, dict[str, Any]]:
@@ -243,6 +251,7 @@ class LiveSession:
     def _reset_inference(self):
         self.recurrent_state = self.model.initial_state(1)
         self.observation_history.clear()
+        self.compass.reset(float(self.world.direction) * (math.pi / 2.0))
 
     def set_goal(self, color=None, x=None, z=None):
         with self.lock:
@@ -310,6 +319,35 @@ class LiveSession:
                 self.steps += 1
                 self.last_action, self.last_action_source = action, source
                 self.reward_history.append(float(result["reward"]))
+
+                # Biological Central Complex ring attractor compass update
+                cur_dir = self.world.direction
+                ang_vel = float(cur_dir - action) * (math.pi / 2.0)
+                env_t = self.world.environment_telemetry()
+                self.compass.step(angular_velocity=ang_vel, sensory_input=env_t["lidar_8"], dt=0.20)
+
+                # Tri-tier cognitive memory recording
+                flat_obs = [v for row in observation for v in row]
+                surprise = abs(float(result["reward"]) - (self.reward_history[-2] if len(self.reward_history) >= 2 else 0.0))
+                self.memory.record_step(
+                    step=self.steps,
+                    agent_pos=(self.world._agent[0], self.world._agent[1]),
+                    action=action,
+                    reward=float(result["reward"]),
+                    state_features=flat_obs,
+                    surprise=surprise,
+                )
+
+                # Nonlinear dynamical systems phase-plane audit
+                dist_to_goal = math.hypot(self.world._goal[0] - self.world._agent[0], self.world._goal[1] - self.world._agent[1])
+                max_dist = max(1.0, math.hypot(self.world.size, self.world.size))
+                self.phase_plane.audit(
+                    energy_rate=self.world.goals_reached / max(1.0, self.steps / 50.0),
+                    goal_proximity=1.0 - (dist_to_goal / max_dist),
+                    clearance_margin=min(env_t["lidar_8"]) if env_t["lidar_8"] else 0.5,
+                    heading_alignment=1.0 if action == expert else 0.2,
+                )
+
                 if result["episode_done"]:
                     self._reset_inference()
                 if (self._learning and self.steps % self.config.train_every == 0
@@ -396,6 +434,33 @@ class LiveSession:
                 regime = "arousal-exploration"
             else:
                 regime = "foraging-chemotaxis"
+            obstacles_set = {(item["x"], item["z"]) for item in self.world.snapshot()["obstacles"]}
+            agent_pt = (self.world._agent[0], self.world._agent[1])
+            goal_pt = (self.world._goal[0], self.world._goal[1])
+            visits_dict = {
+                (int(k.split(",")[0]), int(k.split(",")[1])): v["visits"]
+                for k, v in self.memory.spatial_map.items()
+            }
+            efe_eval = self.active_inference.evaluate_actions(
+                agent_pos=agent_pt,
+                goal_pos=goal_pt,
+                obstacles=obstacles_set,
+                world_size=self.world.size,
+                lidar_8=env_info["lidar_8"],
+                visit_counts=visits_dict,
+                dopamine=dopamine,
+                octopamine=octopamine,
+            )
+            flat_obs = [v for row in self.world.observe() for v in row]
+            mem_context = self.memory.retrieve_context(flat_obs)
+            dist_to_goal = math.hypot(goal_pt[0] - agent_pt[0], goal_pt[1] - agent_pt[1])
+            max_dist = max(1.0, math.hypot(self.world.size, self.world.size))
+            phase_audit = self.phase_plane.audit(
+                energy_rate=self.world.goals_reached / max(1.0, self.steps / 50.0),
+                goal_proximity=1.0 - (dist_to_goal / max_dist),
+                clearance_margin=min(env_info["lidar_8"]) if env_info["lidar_8"] else 0.5,
+                heading_alignment=1.0 if self.last_action == expert else 0.2,
+            )
             return {
                 "action_probs": [float(p) for p in probs],
                 "policy_confidence": float(max(probs)),
@@ -417,6 +482,10 @@ class LiveSession:
                 },
                 "environment": env_info,
                 "connectome_motifs": connectome_motifs,
+                "compass": self.compass.to_dict(),
+                "active_inference": efe_eval,
+                "memory": mem_context,
+                "phase_plane": phase_audit,
             }
 
     def snapshot(self):
@@ -455,7 +524,7 @@ class LiveSession:
                 reply = f"Online supervised learning is {'on' if self._learning else 'off'}."
             elif lower in ("save", "save state", "save session"):
                 reply, action = "Saving the complete session to the default checkpoint.", "save"
-            elif lower in ("facts", "list facts", "memory"):
+            elif lower in ("facts", "list facts", "stored facts"):
                 reply = ("Remembered facts: " + ", ".join(f"{k} = {v}" for k, v in self.facts.items())
                          if self.facts else "No facts stored yet. Try: remember key = value.")
             elif match := re.fullmatch(r"forget\s+(.+)", lower):
@@ -513,6 +582,39 @@ class LiveSession:
                 hubs = ", ".join(f"{h['id']} (deg={h['degree']}, act={h['activity']:.2f})" for h in worm_m["rich_club_hubs"][:4])
                 reply = (f"Worm connectome motifs: {worm_m['reciprocal_dyads']} reciprocal chemical dyads, "
                          f"{worm_m['electrical_edges']} gap junctions, Rich-Club hubs [{hubs}].")
+            elif lower in ("compass", "pva", "central complex", "heading"):
+                info = self.telemetry()
+                cmp = info["compass"]
+                status = "disoriented (optomotor reflex active)" if cmp["disoriented"] else "coherent bump"
+                reply = (f"Central Complex (CX) Ring Attractor: PVA heading {cmp['pva_heading']:.2f} rad, "
+                         f"coherence R = {cmp['pva_coherence']:.2f} ({status}, 16 wedges).")
+            elif lower in ("active inference", "efe", "free energy", "curiosity"):
+                info = self.telemetry()
+                efe = info["active_inference"]
+                names = ("north", "east", "south", "west")
+                dist = ", ".join(f"{n}: {p:.0%}" for n, p in zip(names, efe["efe_probs"]))
+                best = names[efe["best_action"]]
+                reply = (f"Active Inference EFE Arbiter: policy [{dist}], best {best} "
+                         f"(epistemic weight {efe['epistemic_weight']:.2f}, "
+                         f"pragmatic {efe['pragmatic'][efe['best_action']]:.2f}, "
+                         f"epistemic {efe['epistemic'][efe['best_action']]:.2f}, "
+                         f"empowerment {efe['empowerment'][efe['best_action']]:.2f}).")
+            elif lower in ("memory", "mnemosyne", "spatial map"):
+                info = self.telemetry()
+                mem = info["memory"]
+                reply = (f"Tri-Tier Cognitive Memory [{mem['mode']}]: {mem['mapped_cells']} mapped cells, "
+                         f"spatial familiarity {mem['spatial_familiarity']:.1%}, "
+                         f"working context norm {math.sqrt(sum(v*v for v in mem['working_context'])):.3f}.")
+            elif match := re.fullmatch(r"(?:lesion memory|memory mode)\s+(intact|erased|shifted|random_retrieval|memory_free)", lower):
+                mode = match[1]
+                self.memory.set_lesion_mode(mode)
+                reply = f"Tri-tier memory lesion assay mode set to {mode}."
+            elif lower in ("phase", "lyapunov", "stability", "separatrix"):
+                info = self.telemetry()
+                pp = info["phase_plane"]
+                reply = (f"Lyapunov Separatrix Phase Plane [{pp['stability_regime']}]: energy L = {pp['lyapunov_energy']:.4f}, "
+                         f"drift L_dot = {pp['lyapunov_drift']:.4f}, separatrix margin = {pp['separatrix_distance']:.2f} "
+                         f"({'CRITICAL BASIN' if pp['in_critical_basin'] else 'safe orbit'}).")
             elif lower in ("maze", "environment", "lidar"):
                 env_info = self.world.environment_telemetry()
                 reply = (f"Arena {env_info['size']}×{env_info['size']} ({env_info['preset']}): "

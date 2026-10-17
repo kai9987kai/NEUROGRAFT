@@ -156,6 +156,10 @@ class LiveApp:
             wpreset = values.get('preset', 'labyrinth')
             if not isinstance(wpreset, str) or wpreset not in ('labyrinth', 'chambers', 'corridors', 'pillars'):
                 raise ValueError('invalid world preset')
+        elif action == 'memory_lesion':
+            mmode = values.get('mode', 'intact')
+            if mmode not in ('intact', 'erased', 'shifted', 'random_retrieval', 'memory_free'):
+                raise ValueError('invalid memory lesion mode')
         elif action == 'learning':
             if not isinstance(values.get('enabled'), bool):
                 raise ValueError('enabled must be boolean')
@@ -173,6 +177,8 @@ class LiveApp:
                 self.session.tick(steps=count)
             elif action == 'world':
                 self.session.resize_world(size=wsize, preset=wpreset)
+            elif action == 'memory_lesion':
+                self.session.memory.set_lesion_mode(mmode)
             elif action in ('step', 'move'):
                 if self.session.running:
                     raise ConflictError('pause the session before stepping or moving manually')

@@ -36,5 +36,21 @@
 .ablation-card{background:#132132;border:1px solid #24364b;border-radius:6px;padding:7px 9px}
 .ablation-card strong{display:block;font-size:14px;color:var(--amber);margin:2px 0}
 .ablation-card small{font-size:8px;color:#7c97b0;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Consolas,monospace}
-@media(max-width:930px){.telemetry-panel,.research-panel{grid-template-columns:1fr}.telemetry-stats,.research-col:first-child{border-right:0;border-bottom:1px solid var(--line);padding:0 0 12px}}
-
+@media(max-width:930px){.telemetry-panel,.research-panel,.cognitive-grid{grid-template-columns:1fr}.telemetry-stats,.research-col:first-child{border-right:0;border-bottom:1px solid var(--line);padding:0 0 12px}}
+.cognitive-grid{border-top:1px solid var(--line);padding:16px 20px}
+.compass-dial-wrap{display:flex;align-items:center;gap:18px}
+.compass-svg{width:96px;height:96px;flex-shrink:0}
+.compass-bg-ring{fill:#09121d;stroke:#21374d;stroke-width:2}
+.compass-needle{stroke:var(--cyan);stroke-width:2.5;stroke-linecap:round;transition:transform .2s ease-out;transform-origin:60px 60px}
+.compass-hub{fill:var(--cyan)}
+.compass-wedge{opacity:0.25;transition:opacity .2s;stroke:#122131;stroke-width:0.5}
+.compass-metrics{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.compass-metrics small{font-size:7.5px;color:#6f869c;display:block;margin-top:4px}
+.efe-summary{display:flex;flex-direction:column;gap:8px}
+.efe-row{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#9ab0c5}
+.efe-row small{font-family:Consolas,monospace;color:#7e98b0}
+.memory-lesion-bar{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.lesion-btn-group{display:flex;gap:5px;flex-wrap:wrap}
+.lesion-btn{background:#132132;border:1px solid #24364b;color:#8fa7bf;border-radius:4px;padding:3px 7px;font-size:8px;font-weight:600}
+.lesion-btn.active{background:#1e4347;border-color:var(--cyan);color:var(--cyan)}
+.lesion-btn:hover:not(.active){border-color:#48637f;color:#d0e2f2}

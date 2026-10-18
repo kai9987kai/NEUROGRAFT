@@ -324,6 +324,7 @@ function renderSession() {
   renderCognitiveTelemetry(telemetry);
   renderConsolidationAndDalesTelemetry(telemetry);
   renderSTPAndSpectralTelemetry(telemetry);
+  renderBioelectricAndAgencyTelemetry(telemetry);
   renderLoss(); renderChat(); renderFacts(); renderPersistence();
   $('evidence-scope').textContent = session.evidence_scope || 'Experimental synthetic navigation. Online supervised adaptation; policy match is recent teacher agreement.';
   $('graph-id').textContent = [
@@ -498,6 +499,59 @@ function renderSTPAndSpectralTelemetry(telemetry) {
     const conf = finite(bb.confidence, 0.8).toFixed(2);
     const chars = Array.isArray(bb.top_byte_chars) ? bb.top_byte_chars.map(c => `'${c}'`).join(', ') : 'none';
     $('byte-bridge-note').textContent = `Entropy ${ent} · Conf ${conf} · Attractor: [${chars}]`;
+  }
+}
+
+function renderBioelectricAndAgencyTelemetry(telemetry) {
+  const bio = telemetry.bioelectric || {};
+  const vmem = finite(bio.global_mean_mv, -65.0);
+  const vrest = finite(bio.resting_baseline_mv, -65.0);
+  const gain = finite(bio.excitability_gain, 1.0);
+  const depRatio = finite(bio.depolarized_ratio, 0.0);
+
+  if ($('bioelectric-gain-pill')) {
+    $('bioelectric-gain-pill').textContent = `Gain: ${gain.toFixed(2)}×`;
+    $('bioelectric-gain-pill').classList.toggle('imported', gain > 1.02);
+  }
+  if ($('bio-vmem-val')) $('bio-vmem-val').textContent = `${vmem.toFixed(1)} mV`;
+  if ($('bio-vrest-val')) $('bio-vrest-val').textContent = `${vrest.toFixed(1)} mV`;
+  if ($('bio-gain-val')) $('bio-gain-val').textContent = `${gain.toFixed(2)}×`;
+
+  const vRange = (vmem - (-85.0)) / 65.0;
+  if ($('bio-vmem-bar')) $('bio-vmem-bar').style.width = `${(clip(vRange, 0, 1) * 100).toFixed(0)}%`;
+  const vRestRange = (vrest - (-85.0)) / 65.0;
+  if ($('bio-vrest-bar')) $('bio-vrest-bar').style.width = `${(clip(vRestRange, 0, 1) * 100).toFixed(0)}%`;
+  if ($('bio-gain-bar')) $('bio-gain-bar').style.width = `${(clip(gain / 2.0, 0, 1) * 100).toFixed(0)}%`;
+
+  if ($('bioelectric-note')) {
+    $('bioelectric-note').textContent = `Depolarized: ${(depRatio * 100).toFixed(0)}% · Slow Gap Junction Diffusive Memory Attractor`;
+  }
+
+  const sm = telemetry.self_model || {};
+  const agency = finite(sm.agency_score, 0.0);
+  const predErr = finite(sm.prediction_error, 0.0);
+
+  const arch = telemetry.archaeology || {};
+  const mtpr = finite(arch.mtpr, 1.0);
+
+  if ($('agency-regime-pill') && sm.agency_regime) {
+    $('agency-regime-pill').textContent = String(sm.agency_regime);
+    $('agency-regime-pill').classList.toggle('imported', agency > 0.1);
+  }
+
+  if ($('agency-score-val')) $('agency-score-val').textContent = `${agency >= 0 ? '+' : ''}${agency.toFixed(2)}`;
+  if ($('self-model-err-val')) $('self-model-err-val').textContent = predErr.toFixed(3);
+  if ($('arch-mtpr-val')) $('arch-mtpr-val').textContent = `${(mtpr * 100).toFixed(0)}%`;
+
+  if ($('agency-score-bar')) $('agency-score-bar').style.width = `${(clip((agency + 1.0) / 2.0, 0, 1) * 100).toFixed(0)}%`;
+  if ($('self-model-err-bar')) $('self-model-err-bar').style.width = `${(clip(1.0 - predErr, 0, 1) * 100).toFixed(0)}%`;
+  if ($('arch-mtpr-bar')) $('arch-mtpr-bar').style.width = `${(clip(mtpr, 0, 1) * 100).toFixed(0)}%`;
+
+  if ($('arch-diagnostics-note')) {
+    const tgt = arch.target_species || 'fly_f';
+    const lesSim = ((arch.lesioned_fidelity || 1.0) * 100).toFixed(0);
+    const rDelta = finite(arch.rescue_delta, 0.0);
+    $('arch-diagnostics-note').textContent = `Target: ${tgt} · Lesion Sim: ${lesSim}% · Bioelectric Rescue Δ: ${rDelta >= 0 ? '+' : ''}${rDelta.toFixed(3)} [${arch.regime || 'preserved'}]`;
   }
 }
 

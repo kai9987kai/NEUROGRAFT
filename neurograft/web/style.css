@@ -67,3 +67,6 @@
 .spectral-energy-bars .compass-cell small{display:block;font-size:7.5px;color:#7893ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @container (max-width: 500px){.spectral-energy-bars{grid-template-columns:1fr}}
 @media(max-width:930px){.stp-spectral-grid{grid-template-columns:1fr}}
+.bioelectric-agency-grid{border-top:1px solid var(--line);padding:16px 20px;container-type:inline-size}
+.bioelectric-summary,.self-model-arch-summary{display:flex;flex-direction:column;gap:8px}
+@media(max-width:930px){.bioelectric-agency-grid{grid-template-columns:1fr}}

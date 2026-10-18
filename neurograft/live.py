@@ -25,6 +25,8 @@ from torch import Tensor
 import torch.nn.functional as F
 
 from .active_inference import ActiveInferenceArbiter
+from .archaeology import ArchaeologyReport, MemoryArchaeologyAssay, ResectionSpec
+from .bioelectric import BioelectricConfig, BioelectricMorphogeneticSubstrate
 from .byte_bridge import ByteBridgeConfig, ConnectomeByteBridge
 from .compass import CXRingCompass
 from .consolidation import ConnectomeConsolidationStack, ConsolidationConfig
@@ -34,6 +36,7 @@ from .environment import NavigationWorld
 from .graphs import GraphBundle
 from .memory import TriTierMemory
 from .phase_plane import PhasePlaneEngine
+from .self_model import ConnectomeForwardSelfModel, SelfModelConfig
 from .spectral_diffusion import ChebyshevSpectralDiffusion
 from .stp import STPConfig, TsodyksMarkramSubstrate
 
@@ -161,6 +164,10 @@ class LiveSession:
                 self.stp_state = self.stp.initial_state(1)
                 self.spectral_diffusers = {g.manifest.source_id: ChebyshevSpectralDiffusion(g) for g in bundle.graphs}
                 self.byte_bridge = ConnectomeByteBridge(ByteBridgeConfig(context_dim=4 * self.config.hidden_dim))
+                self.bioelectric = BioelectricMorphogeneticSubstrate(bundle, BioelectricConfig(dt=0.20))
+                self.bioelectric_state = self.bioelectric.initial_voltage(1)
+                self.self_model = ConnectomeForwardSelfModel(SelfModelConfig(latent_dim=4 * self.config.hidden_dim))
+                self.archaeology = MemoryArchaeologyAssay(bundle)
         self.model.eval()
         self._stp_summary = {
             "mean_release_prob": 0.35,
@@ -169,6 +176,22 @@ class LiveSession:
             "depression_fraction": 0.0,
             "facilitation_fraction": 0.0,
         }
+        self._bioelectric_summary = {
+            "global_mean_mv": -65.0,
+            "resting_baseline_mv": -65.0,
+            "excitability_gain": 1.0,
+            "depolarized_ratio": 0.0,
+        }
+        self._self_model_summary = {
+            "prediction_error": 0.0,
+            "counterfactual_null_error": 0.0,
+            "agency_score": 0.0,
+            "reality_drift": 0.0,
+            "agency_regime": "passive-concordance",
+            "self_alignment": 1.0,
+            "total_audits": 0,
+        }
+        self._prev_latent = None
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.world = NavigationWorld(seed=self.config.seed)
         self.rng = random.Random(self.config.seed ^ 0x4E47524F)
@@ -389,8 +412,26 @@ class LiveSession:
                     heading_alignment=1.0 if action == expert else 0.2,
                 )
 
+                # Bioelectric Morphogenetic Substrate (BMS) field update
+                neural_acts = {
+                    g.manifest.source_id: st
+                    for g, st in zip(self.bundle.graphs, self.recurrent_state)
+                }
+                self.bioelectric_state, self._bioelectric_summary = self.bioelectric.step(
+                    self.bioelectric_state, neural_acts
+                )
+
+                # Connectome Forward Self-Model & Agency Audit
+                cur_latent = torch.cat([st.mean(dim=1) for st in self.recurrent_state], dim=-1).detach()
+                if self._prev_latent is not None:
+                    self._self_model_summary = self.self_model.step_audit(
+                        self._prev_latent, action, cur_latent, train=self._learning
+                    )
+                self._prev_latent = cur_latent
+
                 if result["episode_done"]:
                     self._reset_inference()
+                    self._prev_latent = None
                 if (self._learning and self.steps % self.config.train_every == 0
                         and len(self.replay) >= self.config.batch_size):
                     self._train()
@@ -510,6 +551,17 @@ class LiveSession:
             flat_context = torch.cat([st.mean(dim=1) for st in self.recurrent_state], dim=-1)
             byte_summary = self.byte_bridge.decode_semantic_intent(flat_context)
 
+            arch_summary = self.archaeology.latest_summary()
+            if self.observation_history:
+                window = list(self.observation_history)
+                padded = [[[0.0] * 4 for _ in range(4)] for _ in range(self.config.unroll - len(window))] + window
+                seq_probe = torch.tensor([padded], dtype=torch.float32)
+                if self.steps % 8 == 0 or self.archaeology._last_report is None:
+                    gain = float(self._bioelectric_summary.get("excitability_gain", 1.0))
+                    arch_summary = self.archaeology.run_resection_assay(
+                        self.model, seq_probe, bioelectric_gain=gain
+                    ).to_dict()
+
             return {
                 "action_probs": [float(p) for p in probs],
                 "policy_confidence": float(max(probs)),
@@ -553,6 +605,9 @@ class LiveSession:
                 }),
                 "spectral_diffusion": spectral_summary,
                 "byte_bridge": byte_summary,
+                "bioelectric": self._bioelectric_summary,
+                "self_model": self._self_model_summary,
+                "archaeology": arch_summary,
             }
 
     def snapshot(self):
@@ -744,6 +799,30 @@ class LiveSession:
                 reply = (f"Advection-Diffusion Odor Plume: intensity={env_info['plume_intensity']:.3f}, "
                          f"width={env_info['plume_width']:.2f}, gradient ∇=[{grad[0]:.2f}, {grad[1]:.2f}], "
                          f"dynamic gate={gate_str}, topological entropy={env_info['topological_entropy']:.2f}.")
+            elif lower in ("bioelectric", "voltage", "v_mem", "membrane", "gap junctions"):
+                info = self.telemetry()
+                bio = info["bioelectric"]
+                sp = bio.get("species_potentials", {})
+                parts = []
+                for src in ("worm", "fly_f", "fly_m", "human"):
+                    if src in sp:
+                        parts.append(f"{src}: {sp[src]['mean_v_mv']:.1f}mV")
+                reply = (f"Bioelectric Morphogenetic Substrate (BMS): global V_mem={bio['global_mean_mv']:.1f}mV "
+                         f"(resting={bio['resting_baseline_mv']:.1f}mV, excitability gain={bio['excitability_gain']:.2f}×, "
+                         f"depolarized={bio['depolarized_ratio']:.0%}) | Potentials: [{' | '.join(parts)}].")
+            elif lower in ("self model", "agency", "reality drift", "drift", "forward model"):
+                info = self.telemetry()
+                sm = info["self_model"]
+                reply = (f"Connectome Forward Self-Model [{sm['agency_regime']}]: active agency={sm['agency_score']:+.3f}, "
+                         f"prediction error={sm['prediction_error']:.4f}, null error={sm['counterfactual_null_error']:.4f}, "
+                         f"reality drift EMA={sm['reality_drift']:.4f}, self-alignment={sm['self_alignment']:.1%}.")
+            elif lower in ("archaeology", "resection", "mtpr", "resection assay", "engram"):
+                info = self.telemetry()
+                arch = info["archaeology"]
+                reply = (f"Adaptive Memory Archaeology [{arch['regime']}]: target={arch['target_species']} ({arch['resection_mode']}), "
+                         f"MTPR={arch['mtpr']:.3f}, intact entropy={arch['intact_entropy']:.2f}, "
+                         f"lesioned fidelity={arch['lesioned_fidelity']:.1%}, rescued fidelity={arch['rescued_fidelity']:.1%} "
+                         f"(bioelectric rescue Δ={arch['rescue_delta']:+.3f}).")
             elif lower in ("why", "explain", "decision", "probe"):
                 info = self.telemetry()
                 names = ("north", "east", "south", "west")
@@ -768,7 +847,7 @@ class LiveSession:
                          f"{self.world.goals_reached} goals reached; recent policy match {acc:.0%}; "
                          f"||Δθ||₂ = {info['weight_delta_norm']:.3f}; {'running' if self._running else 'paused'}. "
                          "Commands: pause, resume, learn on/off, evolve [1-64], world [5-31] [preset], preset [labyrinth|chambers|corridors|pillars|concentric|hierarchical], "
-                         "neurons, lesion, neuromodulators, motifs, maze, routes, dale, consolidation, anchor sync, stp, spectral, byte, plume, why, "
+                         "neurons, lesion, neuromodulators, motifs, maze, routes, dale, consolidation, anchor sync, stp, spectral, byte, plume, bioelectric, agency, archaeology, why, "
                          "step [1-32], move north/east/south/west, status, save, go to blue/amber/rose or go to x,z, "
                          "remember key = value, recall key, forget key, facts, reset world.")
             elif match := re.fullmatch(r"remember\s+(.+?)\s*(?:=|\bis\b)\s*(.+)", message, re.IGNORECASE):

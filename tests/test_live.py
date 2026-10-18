@@ -261,6 +261,7 @@ def test_telemetry_shortest_path_and_introspective_chat():
         "source_ablation", "liquid_tau", "neuromodulators", "environment", "connectome_motifs",
         "compass", "active_inference", "memory", "phase_plane", "dales_law", "consolidation",
         "stp", "spectral_diffusion", "byte_bridge",
+        "bioelectric", "self_model", "archaeology",
     }
     assert len(telemetry["action_probs"]) == 4
     assert abs(sum(telemetry["action_probs"]) - 1.0) < 1e-4
@@ -282,6 +283,9 @@ def test_telemetry_shortest_path_and_introspective_chat():
     assert set(telemetry["stp"]) == {"mean_release_prob", "mean_vesicle_pool", "mean_synaptic_efficacy", "depression_fraction", "facilitation_fraction"}
     assert "worm" in telemetry["spectral_diffusion"]
     assert "semantic_intent" in telemetry["byte_bridge"]
+    assert "global_mean_mv" in telemetry["bioelectric"]
+    assert "agency_score" in telemetry["self_model"]
+    assert "mtpr" in telemetry["archaeology"]
     before_steps = session.steps
     session.chat("evolve 6")
     assert session.steps == before_steps + 6
@@ -301,4 +305,8 @@ def test_telemetry_shortest_path_and_introspective_chat():
     assert "Chebyshev Spectral Graph Diffusion" in session.chat("spectral")["reply"]
     assert "Connectome Byte-Bridge Attractor" in session.chat("byte")["reply"]
     assert "Advection-Diffusion Odor Plume" in session.chat("plume")["reply"]
+    assert "Bioelectric Morphogenetic Substrate" in session.chat("bioelectric")["reply"]
+    assert "Connectome Forward Self-Model" in session.chat("agency")["reply"]
+    assert "Adaptive Memory Archaeology" in session.chat("archaeology")["reply"]
+
 

@@ -241,6 +241,52 @@ def test_architectural_presets_and_environment_telemetry(preset):
     assert 0.0 <= env["plume_intensity"] <= 1.0
     assert isinstance(env["gate_open"], bool)
     assert env["topological_entropy"] >= 0.0
+    assert env["substrate"]["type"] in ("standard", "viscous_agar", "bioelectric", "thermal_comfort")
+    assert 0.5 <= env["substrate"]["drag_factor"] <= 2.0
+    assert 0.5 <= env["substrate"]["conductance"] <= 3.0
+    assert 18.0 <= env["substrate"]["temperature_celsius"] <= 30.0
+    assert env["substrates"]["counts"]["standard"] >= 1
+    assert len(env["compound_eye"]["ommatidia_clearances"]) == 16
+    assert all(0.0 <= c <= 1.0 for c in env["compound_eye"]["ommatidia_clearances"])
+    assert env["compound_eye"]["looming_tau_ttc"] >= 0.0
+    assert isinstance(env["compound_eye"]["looming_alert"], bool)
+    assert 0.0 <= env["antennal_tropotaxis"]["left_sensilla"] <= 1.0
+    assert 0.0 <= env["antennal_tropotaxis"]["right_sensilla"] <= 1.0
+    assert env["antennal_tropotaxis"]["tropotaxis_steer"] in ("left", "right", "center")
+    assert len(env["plume_dynamics"]["wind_vector"]) == 2
+    assert len(env["plume_dynamics"]["filaments"]) == 5
+    assert env["dynamic_gates"]["count"] == len(env["choke_points"])
+    assert 0 <= env["circadian"]["cycle_step"] < 128
+    assert 0.0 <= env["circadian"]["ambient_lux"] <= 1.0
+    assert env["circadian"]["diurnal_state"] in ("day", "twilight", "night")
     start = (snap["agent"]["x"], snap["agent"]["z"])
     for beacon in snap["beacons"]:
         assert distance(snap, start, (beacon["x"], beacon["z"])) is not None
+
+
+def test_innovated_biophysical_environment_telemetry():
+    cls = world_class()
+    world = cls(seed=42, size=15, preset="labyrinth")
+    t0 = world.environment_telemetry()
+    assert t0["circadian"]["cycle_step"] == 0
+    assert t0["circadian"]["phase"] == 0.0
+
+    # Advance world steps and verify dynamic changes
+    action = world.expert_action()
+    world.step(action)
+    t1 = world.environment_telemetry()
+    assert t1["circadian"]["cycle_step"] == 1
+    assert t1["circadian"]["phase"] == round(1 / 128.0, 4)
+    assert "substrate" in t1
+    assert "antennal_tropotaxis" in t1
+    assert "compound_eye" in t1
+    assert "dynamic_gates" in t1
+
+    # Verify JSON serialization round-trip retains exact substrate telemetry
+    saved = world.to_dict()
+    restored = cls.from_dict(saved)
+    t_restored = restored.environment_telemetry()
+    assert t_restored["substrate"] == t1["substrate"]
+    assert t_restored["substrates"]["counts"] == t1["substrates"]["counts"]
+    assert t_restored["circadian"] == t1["circadian"]
+

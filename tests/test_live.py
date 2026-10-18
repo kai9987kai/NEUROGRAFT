@@ -146,6 +146,11 @@ def test_chat_controls_facts_goals_and_unknown_backend_are_honest():
     session.chat("resume")
     assert session.running is True
     assert session.chat("save")["action"] == "save"
+    assert "Biophysical Substrate" in session.chat("terrain")["reply"]
+    assert "Bilateral Antennal Sensilla" in session.chat("tropotaxis")["reply"]
+    assert "Drosophila 16-Ommatidia" in session.chat("optic")["reply"]
+    assert "Dynamic Osmotic Choke Gates" in session.chat("gates")["reply"]
+    assert "128-Step Circadian" in session.chat("circadian")["reply"]
     assert "local" in session.chat("write me a novel")["reply"].lower()
     assert session.snapshot()["facts"] == {"favourite": "blue", "owner": "Kai"}
     with pytest.raises(ValueError):

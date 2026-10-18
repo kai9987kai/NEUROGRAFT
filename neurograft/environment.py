@@ -12,6 +12,42 @@ from collections import deque
 from typing import Any
 
 
+SUBSTRATE_PROPERTIES: dict[str, dict[str, Any]] = {
+    "standard": {
+        "drag_factor": 1.00,
+        "mobility": 1.00,
+        "conductance": 1.00,
+        "temperature_celsius": 22.0,
+        "bioelectric_potential_mv": -70.0,
+        "color_hex": "#1b3545",
+    },
+    "viscous_agar": {
+        "drag_factor": 1.45,
+        "mobility": 0.69,
+        "conductance": 0.75,
+        "temperature_celsius": 20.5,
+        "bioelectric_potential_mv": -62.0,
+        "color_hex": "#2a423a",
+    },
+    "bioelectric": {
+        "drag_factor": 0.85,
+        "mobility": 1.18,
+        "conductance": 2.10,
+        "temperature_celsius": 23.0,
+        "bioelectric_potential_mv": -54.0,
+        "color_hex": "#3d2b5c",
+    },
+    "thermal_comfort": {
+        "drag_factor": 1.00,
+        "mobility": 1.00,
+        "conductance": 1.25,
+        "temperature_celsius": 25.0,
+        "bioelectric_potential_mv": -68.0,
+        "color_hex": "#5c3d28",
+    },
+}
+
+
 class NavigationWorld:
     """A connected seeded grid with bounded episodes and JSON-safe saves."""
 
@@ -69,6 +105,33 @@ class NavigationWorld:
         self._goal = self._agent
         self._goal_color = "custom"
         self.set_goal()
+        self._ensure_ecological_substrates()
+        self._last_odor_conc = 0.0
+
+    def _ensure_ecological_substrates(self) -> dict[tuple[int, int], str]:
+        """Deterministically map interior grid cells to ecological substrate zones."""
+        if hasattr(self, "_substrates") and self._substrates:
+            return self._substrates
+        sub_rng = random.Random(self.seed ^ 0x5355425354524154)
+        free_cells = [
+            (x, z) for z in range(1, self.size - 1) for x in range(1, self.size - 1)
+            if self._free((x, z))
+        ]
+        substrates: dict[tuple[int, int], str] = {cell: "standard" for cell in free_cells}
+        if len(free_cells) >= 6:
+            special_types = ["viscous_agar", "bioelectric", "thermal_comfort"]
+            num_centers = min(len(free_cells), len(special_types) * 2)
+            centers = sub_rng.sample(free_cells, num_centers)
+            radius = max(1, self.size // 5)
+            for idx, center in enumerate(centers):
+                stype = special_types[idx % len(special_types)]
+                cx, cz = center
+                for cell in free_cells:
+                    dist = abs(cell[0] - cx) + abs(cell[1] - cz)
+                    if dist <= radius and (substrates[cell] == "standard" or sub_rng.random() < 0.3):
+                        substrates[cell] = stype
+        self._substrates = substrates
+        return substrates
 
     def _is_motif_cell(self, cell: tuple[int, int], preset: str) -> bool:
         x, z = cell
@@ -249,6 +312,108 @@ class NavigationWorld:
                 if c > 0
             )
         ), 4)
+
+        heading_angles = (-math.pi / 2.0, 0.0, math.pi / 2.0, math.pi)
+        head_rad = heading_angles[self.direction % 4]
+
+        # Drosophila compound-eye 16-ommatidia wide-field optic flow
+        clearances_16 = []
+        horizon_f = float(horizon)
+        for k in range(16):
+            sector_ang = head_rad + (k - 8) * (2.0 * math.pi / 16.0)
+            cos_a = math.cos(sector_ang)
+            sin_a = math.sin(sector_ang)
+            step_d = 0.5
+            while step_d < horizon_f:
+                rx = int(math.floor(ax + 0.5 + step_d * cos_a))
+                rz = int(math.floor(az + 0.5 + step_d * sin_a))
+                if not self._free((rx, rz)):
+                    break
+                step_d += 0.5
+            clearances_16.append(round(min(1.0, step_d / horizon_f), 4))
+        forward_dist = clearances_16[8] * horizon_f
+        tau_ttc = round(forward_dist / 1.0, 2)
+        looming_alert = bool(forward_dist <= 1.25)
+        min_clearance = min(clearances_16)
+        retinal_expansion = round(1.0 / max(0.15, tau_ttc), 4)
+
+        # 2D corridor advection-diffusion plume & bilateral antennal sensilla (tropotaxis / klinotaxis)
+        wind_angle = ((self.steps % 64) / 64.0) * 2.0 * math.pi
+        wind_x = 0.25 * math.cos(wind_angle)
+        wind_z = 0.25 * math.sin(wind_angle)
+        diff_w = 1.8 + 0.12 * math.sqrt(float(self.steps % 100))
+
+        def _sample_odor(px: float, pz: float) -> float:
+            odx = px - float(gx) - 0.5 * wind_x
+            odz = pz - float(gz) - 0.5 * wind_z
+            d_sq = odx * odx + odz * odz
+            return float(math.exp(-d_sq / (2.0 * diff_w * diff_w)))
+
+        d_ant = 0.38
+        ang_l = head_rad - math.pi / 5.0
+        ang_r = head_rad + math.pi / 5.0
+        s_left = _sample_odor(ax + 0.5 + d_ant * math.cos(ang_l), az + 0.5 + d_ant * math.sin(ang_l))
+        s_right = _sample_odor(ax + 0.5 + d_ant * math.cos(ang_r), az + 0.5 + d_ant * math.sin(ang_r))
+        s_center = _sample_odor(ax + 0.5, az + 0.5)
+
+        tropotaxis_contrast = (s_left - s_right) / (s_left + s_right + 1e-6)
+        if tropotaxis_contrast > 0.03:
+            steer = "left"
+        elif tropotaxis_contrast < -0.03:
+            steer = "right"
+        else:
+            steer = "center"
+
+        prev_odor = getattr(self, "_last_odor_conc", s_center)
+        klinotaxis_dt = s_center - prev_odor
+        self._last_odor_conc = s_center
+
+        filaments = []
+        for f_idx in range(5):
+            frac = (f_idx + 1) / 5.0
+            wobble = 0.28 * math.sin(self.steps * 0.15 + f_idx * 1.2)
+            filaments.append({
+                "x": round(gx + (ax - gx) * frac + wobble * math.cos(wind_angle), 3),
+                "z": round(gz + (az - gz) * frac + wobble * math.sin(wind_angle), 3),
+                "fraction": frac,
+            })
+
+        # Dynamic osmotic choke gates
+        dynamic_gates_list = []
+        for i, cp in enumerate(choke_points):
+            phase_offset = (i * math.pi) / 4.0
+            perm = round(0.55 + 0.45 * math.sin((2.0 * math.pi * self.steps / 32.0) + phase_offset), 3)
+            dynamic_gates_list.append({
+                "x": cp["x"],
+                "z": cp["z"],
+                "permeability": perm,
+                "status": "open" if perm >= 0.50 else "restricted",
+            })
+
+        # Circadian cycle
+        cycle_step = self.steps % 128
+        circadian_phase = round(cycle_step / 128.0, 4)
+        lux = round(0.12 + 0.88 * max(0.0, math.sin(math.pi * circadian_phase)), 3)
+        if 0.20 <= circadian_phase < 0.70:
+            diurnal_state = "day"
+        elif 0.15 <= circadian_phase < 0.20 or 0.70 <= circadian_phase < 0.75:
+            diurnal_state = "twilight"
+        else:
+            diurnal_state = "night"
+        melatonin = round(1.0 - lux, 3)
+
+        # Multi-zone biophysical substrates
+        substrates_map = self._ensure_ecological_substrates()
+        cur_sub_type = substrates_map.get(self._agent, "standard")
+        cur_props = SUBSTRATE_PROPERTIES.get(cur_sub_type, SUBSTRATE_PROPERTIES["standard"])
+        sub_counts = {k: 0 for k in SUBSTRATE_PROPERTIES}
+        for st in substrates_map.values():
+            sub_counts[st] = sub_counts.get(st, 0) + 1
+        sub_zones = {
+            k: [{"x": c[0], "z": c[1]} for c, st in substrates_map.items() if st == k]
+            for k in ("viscous_agar", "bioelectric", "thermal_comfort")
+        }
+
         return {
             "preset": getattr(self, "preset", "labyrinth"),
             "size": self.size,
@@ -271,6 +436,53 @@ class NavigationWorld:
             "topological_entropy": branch_entropy,
             "lidar_8": lidar_8,
             "lidar_rays": lidar_rays,
+            "substrate": {
+                "type": cur_sub_type,
+                "drag_factor": cur_props["drag_factor"],
+                "mobility": cur_props["mobility"],
+                "conductance": cur_props["conductance"],
+                "temperature_celsius": cur_props["temperature_celsius"],
+                "bioelectric_potential_mv": cur_props["bioelectric_potential_mv"],
+            },
+            "substrates": {
+                "counts": sub_counts,
+                "zones": sub_zones,
+            },
+            "antennal_tropotaxis": {
+                "left_sensilla": round(s_left, 4),
+                "right_sensilla": round(s_right, 4),
+                "bilateral_contrast": round(tropotaxis_contrast, 4),
+                "klinotaxis_derivative": round(klinotaxis_dt, 4),
+                "tropotaxis_steer": steer,
+                "antenna_span": 0.70,
+            },
+            "plume_dynamics": {
+                "wind_vector": [round(wind_x, 3), round(wind_z, 3)],
+                "diffusion_coefficient": 0.45,
+                "source_emission_rate": 1.0,
+                "peclet_number": 1.25,
+                "filaments": filaments,
+            },
+            "compound_eye": {
+                "sectors": 16,
+                "ommatidia_clearances": clearances_16,
+                "looming_tau_ttc": tau_ttc,
+                "looming_alert": looming_alert,
+                "min_clearance": round(min_clearance, 3),
+                "retinal_expansion_rate": retinal_expansion,
+            },
+            "dynamic_gates": {
+                "count": len(choke_points),
+                "primary_gate_open": gate_open,
+                "choke_permeabilities": dynamic_gates_list,
+            },
+            "circadian": {
+                "cycle_step": cycle_step,
+                "phase": circadian_phase,
+                "ambient_lux": lux,
+                "diurnal_state": diurnal_state,
+                "melatonin_level": melatonin,
+            },
         }
 
     def set_goal(self, color: str | None = None, x: int | None = None, z: int | None = None) -> dict:

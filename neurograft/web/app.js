@@ -333,6 +333,7 @@ function renderSession() {
   renderConsolidationAndDalesTelemetry(telemetry);
   renderSTPAndSpectralTelemetry(telemetry);
   renderBioelectricAndAgencyTelemetry(telemetry);
+  renderEcologicalTelemetry(telemetry);
   renderLoss(); renderChat(); renderFacts(); renderPersistence();
   renderEvaluation();
   $('service-error').hidden = !session.runtime?.last_error;
@@ -563,6 +564,66 @@ function renderBioelectricAndAgencyTelemetry(telemetry) {
     const lesSim = ((arch.lesioned_fidelity || 1.0) * 100).toFixed(0);
     const rDelta = finite(arch.rescue_delta, 0.0);
     $('arch-diagnostics-note').textContent = `Target: ${tgt} · Lesion Sim: ${lesSim}% · Bioelectric Rescue Δ: ${rDelta >= 0 ? '+' : ''}${rDelta.toFixed(3)} [${arch.regime || 'preserved'}]`;
+  }
+}
+
+function renderEcologicalTelemetry(telemetry) {
+  const env = telemetry.environment || {};
+  const sub = env.substrate || {};
+  const circadian = env.circadian || {};
+  const sensilla = env.antennal_tropotaxis || {};
+  const eye = env.compound_eye || {};
+  const gates = env.dynamic_gates || {};
+
+  if ($('substrate-type-pill')) {
+    const stype = String(sub.type || 'standard').replace('_', ' ');
+    $('substrate-type-pill').textContent = stype;
+    $('substrate-type-pill').classList.toggle('imported', sub.type && sub.type !== 'standard');
+  }
+
+  const drag = finite(sub.drag_factor, 1.0);
+  const temp = finite(sub.temperature_celsius, 22.0);
+  const lux = finite(circadian.ambient_lux, 1.0);
+
+  if ($('sub-drag-val')) $('sub-drag-val').textContent = `${drag.toFixed(2)}×`;
+  if ($('sub-temp-val')) $('sub-temp-val').textContent = `${temp.toFixed(1)}°C`;
+  if ($('circadian-lux-val')) $('circadian-lux-val').textContent = `${lux.toFixed(2)} (${circadian.diurnal_state || 'day'})`;
+
+  if ($('sub-drag-bar')) $('sub-drag-bar').style.width = `${(clip(drag / 2.0, 0, 1) * 100).toFixed(0)}%`;
+  if ($('sub-temp-bar')) $('sub-temp-bar').style.width = `${(clip((temp - 18.0) / 12.0, 0, 1) * 100).toFixed(0)}%`;
+  if ($('circadian-lux-bar')) $('circadian-lux-bar').style.width = `${(clip(lux, 0, 1) * 100).toFixed(0)}%`;
+
+  if ($('substrate-breakdown-note')) {
+    const counts = env.substrates?.counts || {};
+    $('substrate-breakdown-note').textContent = `Agar: ${counts.viscous_agar || 0} · Bioelectric: ${counts.bioelectric || 0} · Thermal: ${counts.thermal_comfort || 0} · Standard: ${counts.standard || 0}`;
+  }
+
+  const sL = finite(sensilla.left_sensilla, 0.5);
+  const sR = finite(sensilla.right_sensilla, 0.5);
+  const contrast = finite(sensilla.bilateral_contrast, 0.0);
+  const steer = String(sensilla.tropotaxis_steer || 'CENTER').toUpperCase();
+
+  if ($('sensilla-left-val')) $('sensilla-left-val').textContent = sL.toFixed(3);
+  if ($('sensilla-right-val')) $('sensilla-right-val').textContent = sR.toFixed(3);
+  if ($('tropotaxis-steer-val')) $('tropotaxis-steer-val').textContent = `${steer} (${contrast >= 0 ? '+' : ''}${contrast.toFixed(2)})`;
+
+  if ($('sensilla-left-bar')) $('sensilla-left-bar').style.width = `${(clip(sL, 0, 1) * 100).toFixed(0)}%`;
+  if ($('sensilla-right-bar')) $('sensilla-right-bar').style.width = `${(clip(sR, 0, 1) * 100).toFixed(0)}%`;
+  if ($('tropotaxis-steer-bar')) $('tropotaxis-steer-bar').style.width = `${(clip((contrast + 1.0) / 2.0, 0, 1) * 100).toFixed(0)}%`;
+
+  if ($('looming-status-pill')) {
+    const looming = Boolean(eye.looming_alert);
+    $('looming-status-pill').textContent = looming ? '⚠️ Looming alert' : 'Clear trajectory';
+    $('looming-status-pill').classList.toggle('imported', !looming);
+    $('looming-status-pill').classList.toggle('evaluation-warning', looming);
+  }
+
+  if ($('optic-gates-note')) {
+    const ttc = finite(eye.looming_tau_ttc, 10.0);
+    const expRate = finite(eye.retinal_expansion_rate, 0.1);
+    const gCount = gates.count || 0;
+    const gOpen = gates.primary_gate_open ? 'OPEN' : 'RESTRICTED';
+    $('optic-gates-note').textContent = `τ_TTC: ${ttc.toFixed(1)} ticks · Expansion: ${expRate.toFixed(2)}/s · Choke Portals: ${gCount} (${gOpen})`;
   }
 }
 
@@ -850,6 +911,12 @@ let pathLine = null;
 let haloGroup = null;
 let chokeGroup = null;
 let lidarGroup = null;
+let substrateGroup = null;
+let plumeGroup = null;
+let leftAntennaTip = null;
+let rightAntennaTip = null;
+let hemiLight = null;
+let keyLight = null;
 const haloNodes = [];
 const haloBridges = [];
 
@@ -912,6 +979,17 @@ function buildWorld(world) {
   agentHalo.rotation.x = -Math.PI / 2; agentHalo.position.y = 0.02; agentGroup.add(agentHalo);
   const nose = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.27, 3), material('#d9fff1', { emissive: '#82f7d0', emissiveIntensity: 0.25 }));
   nose.rotation.x = -Math.PI / 2; nose.position.set(0, 0.24, -0.31); agentGroup.add(nose);
+  const antMat = new THREE.LineBasicMaterial({ color: '#5ee9ce', transparent: true, opacity: 0.8 });
+  const antLGeom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0.24, -0.2), new THREE.Vector3(-0.15, 0.32, -0.42)]);
+  const antRGeom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0.24, -0.2), new THREE.Vector3(0.15, 0.32, -0.42)]);
+  agentGroup.add(new THREE.Line(antLGeom, antMat));
+  agentGroup.add(new THREE.Line(antRGeom, antMat));
+  leftAntennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), material('#5ee9ce', { emissive: '#5ee9ce', emissiveIntensity: 0.6 }));
+  leftAntennaTip.position.set(-0.15, 0.32, -0.42);
+  agentGroup.add(leftAntennaTip);
+  rightAntennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), material('#5ee9ce', { emissive: '#5ee9ce', emissiveIntensity: 0.6 }));
+  rightAntennaTip.position.set(0.15, 0.32, -0.42);
+  agentGroup.add(rightAntennaTip);
   goalGroup = new THREE.Group(); worldGroup.add(goalGroup);
   const target = new THREE.Mesh(new THREE.RingGeometry(0.4, 0.44, 56), new THREE.MeshBasicMaterial({ color: '#69b5ff', transparent: true, opacity: 0.9, side: THREE.DoubleSide }));
   target.rotation.x = -Math.PI / 2; target.position.y = 0.025; goalGroup.add(target);
@@ -923,6 +1001,8 @@ function buildWorld(world) {
   worldGroup.add(pathLine);
   chokeGroup = new THREE.Group(); worldGroup.add(chokeGroup);
   lidarGroup = new THREE.Group(); worldGroup.add(lidarGroup);
+  substrateGroup = new THREE.Group(); worldGroup.add(substrateGroup);
+  plumeGroup = new THREE.Group(); worldGroup.add(plumeGroup);
   haloGroup = new THREE.Group(); haloGroup.position.y = Math.max(2.4, worldSize * 0.17); worldGroup.add(haloGroup);
   const haloRadius = Math.max(2.15, worldSize * 0.18);
   const positions = SOURCE_COLORS.map((_, idx) => {
@@ -970,7 +1050,9 @@ function updateWorld(world) {
   const env = session.telemetry?.environment || {};
   const chokePoints = env.choke_points || [];
   const lidarRays = env.lidar_rays || [];
-  const visualKey = JSON.stringify([world.trail, expertPath, chokePoints, lidarRays, session.routes, session.activity]);
+  const subZones = env.substrates?.zones || {};
+  const filaments = env.plume_dynamics?.filaments || [];
+  const visualKey = JSON.stringify([world.trail, expertPath, chokePoints, lidarRays, subZones, filaments, session.routes, session.activity]);
   if (visualKey !== lastWorldVisualKey) {
     lastWorldVisualKey = visualKey;
     const points = (world.trail || []).slice(-64).map((point) => new THREE.Vector3(point.x - offset, 0.035, point.z - offset));
@@ -979,6 +1061,48 @@ function updateWorld(world) {
       const routePts = expertPath.map((point) => new THREE.Vector3(point.x - offset, 0.065, point.z - offset));
       pathLine.geometry.dispose(); pathLine.geometry = new THREE.BufferGeometry().setFromPoints(routePts);
       pathLine.material.color.set(goalColor);
+    }
+    if (substrateGroup) {
+      disposeGroup(substrateGroup);
+      const subColors = {
+        viscous_agar: '#234438',
+        bioelectric: '#3f2963',
+        thermal_comfort: '#5e3c27',
+      };
+      for (const [stype, cells] of Object.entries(subZones)) {
+        const color = subColors[stype];
+        if (!color || !Array.isArray(cells)) continue;
+        for (const cell of cells) {
+          const tile = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.92, 0.92),
+            new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.15, transparent: true, opacity: 0.75 })
+          );
+          tile.rotation.x = -Math.PI / 2;
+          tile.position.set(cell.x - offset, -0.042, cell.z - offset);
+          tile.receiveShadow = true;
+          substrateGroup.add(tile);
+        }
+      }
+    }
+    if (plumeGroup) {
+      disposeGroup(plumeGroup);
+      if (filaments.length >= 2) {
+        const filPts = filaments.map((f) => new THREE.Vector3(f.x - offset, 0.08, f.z - offset));
+        const filCurve = new THREE.CatmullRomCurve3(filPts);
+        const filLine = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints(filCurve.getPoints(24)),
+          new THREE.LineBasicMaterial({ color: '#5ee9ce', transparent: true, opacity: 0.42 })
+        );
+        plumeGroup.add(filLine);
+        for (const f of filaments) {
+          const puff = new THREE.Mesh(
+            new THREE.SphereGeometry(0.08 * (1.2 - (f.fraction || 0.5) * 0.4), 8, 8),
+            new THREE.MeshBasicMaterial({ color: '#5ee9ce', transparent: true, opacity: 0.35 * (1.1 - (f.fraction || 0.5) * 0.5) })
+          );
+          puff.position.set(f.x - offset, 0.08, f.z - offset);
+          plumeGroup.add(puff);
+        }
+      }
     }
     if (chokeGroup) {
       disposeGroup(chokeGroup);
@@ -1014,6 +1138,16 @@ function updateWorld(world) {
       line.material.opacity = 0.06 + w * 0.78;
     });
   }
+  const antTele = env.antennal_tropotaxis;
+  if (antTele && leftAntennaTip && rightAntennaTip) {
+    const sL = clip(finite(antTele.left_sensilla, 0), 0, 1);
+    const sR = clip(finite(antTele.right_sensilla, 0), 0, 1);
+    leftAntennaTip.material.emissiveIntensity = 0.3 + sL * 1.5;
+    rightAntennaTip.material.emissiveIntensity = 0.3 + sR * 1.5;
+  }
+  const lux = finite(env.circadian?.ambient_lux, 1.0);
+  if (hemiLight) hemiLight.intensity = 1.2 + lux * 1.3;
+  if (keyLight) keyLight.intensity = 1.5 + lux * 2.3;
   sceneDirty = true;
   $('scene-loading').hidden = true;
 }
@@ -1068,8 +1202,8 @@ async function initScene() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.35;
     scene = new THREE.Scene(); scene.background = new THREE.Color('#0b1521'); scene.fog = new THREE.Fog('#0b1521', 24, 57);
     camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    scene.add(new THREE.HemisphereLight('#b9e4f7', '#132f39', 2.5));
-    const keyLight = new THREE.DirectionalLight('#d3efff', 3.8); keyLight.position.set(-5, 11, 6); keyLight.castShadow = true;
+    hemiLight = new THREE.HemisphereLight('#b9e4f7', '#132f39', 2.5); scene.add(hemiLight);
+    keyLight = new THREE.DirectionalLight('#d3efff', 3.8); keyLight.position.set(-5, 11, 6); keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(512, 512); keyLight.shadow.camera.left = -9; keyLight.shadow.camera.right = 9; keyLight.shadow.camera.top = 9; keyLight.shadow.camera.bottom = -9; keyLight.shadow.normalBias = 0.03; scene.add(keyLight);
     const fill = new THREE.DirectionalLight('#57cbbd', 1.4); fill.position.set(6, 5, -8); scene.add(fill);
     worldGroup = new THREE.Group(); scene.add(worldGroup);

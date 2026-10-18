@@ -839,6 +839,42 @@ class LiveSession:
                 reply = (f"Advection-Diffusion Odor Plume: intensity={env_info['plume_intensity']:.3f}, "
                          f"width={env_info['plume_width']:.2f}, gradient ∇=[{grad[0]:.2f}, {grad[1]:.2f}], "
                          f"dynamic gate={gate_str}, topological entropy={env_info['topological_entropy']:.2f}.")
+            elif lower in ("terrain", "substrate", "substrates", "agar", "zones"):
+                env_info = self.world.environment_telemetry()
+                sub = env_info["substrate"]
+                counts = env_info["substrates"]["counts"]
+                counts_str = ", ".join(f"{k}={v}" for k, v in counts.items())
+                reply = (f"Biophysical Substrate [{sub['type'].upper()}]: drag={sub['drag_factor']:.2f}× (mobility {sub['mobility']:.2f}×), "
+                         f"gap conductance={sub['conductance']:.2f}×, temp={sub['temperature_celsius']:.1f}°C, "
+                         f"V_mem={sub['bioelectric_potential_mv']:.1f}mV | Grid zones: [{counts_str}].")
+            elif lower in ("sensilla", "tropotaxis", "antennae", "antenna", "klinotaxis"):
+                env_info = self.world.environment_telemetry()
+                ant = env_info["antennal_tropotaxis"]
+                plume = env_info["plume_dynamics"]
+                w = plume["wind_vector"]
+                reply = (f"Bilateral Antennal Sensilla: S_L={ant['left_sensilla']:.4f}, S_R={ant['right_sensilla']:.4f}, "
+                         f"bilateral contrast ΔS={ant['bilateral_contrast']:+.4f} (steer={ant['tropotaxis_steer'].upper()}), "
+                         f"klinotaxis dS/dt={ant['klinotaxis_derivative']:+.4f} | Advection wind=[{w[0]:.2f}, {w[1]:.2f}], Pe={plume['peclet_number']:.2f}.")
+            elif lower in ("optic", "compound eye", "ommatidia", "looming", "ttc"):
+                env_info = self.world.environment_telemetry()
+                eye = env_info["compound_eye"]
+                alert_str = "⚠️ CRITICAL LOOMING ALERT" if eye["looming_alert"] else "Clear trajectory"
+                reply = (f"Drosophila 16-Ommatidia Optic Flow: time-to-collision τ_TTC={eye['looming_tau_ttc']:.2f} ticks, "
+                         f"retinal expansion rate={eye['retinal_expansion_rate']:.3f}/s, min clearance={eye['min_clearance']:.2f} "
+                         f"[{alert_str}] | Sectors: 16 radial ommatidia spanning 360°.")
+            elif lower in ("gates", "osmotic", "choke", "portals"):
+                env_info = self.world.environment_telemetry()
+                dg = env_info["dynamic_gates"]
+                parts = [f"({g['x']},{g['z']}): {g['permeability']:.2f} [{g['status']}]" for g in dg["choke_permeabilities"][:4]]
+                choke_str = " | ".join(parts) if parts else "No interior choke bottlenecks"
+                reply = (f"Dynamic Osmotic Choke Gates: {dg['count']} choke bottlenecks detected, primary portal="
+                         f"{'OPEN' if dg['primary_gate_open'] else 'RESTRICTED'} | Permeabilities: {choke_str}.")
+            elif lower in ("circadian", "lux", "diurnal", "day", "night", "clock"):
+                env_info = self.world.environment_telemetry()
+                c = env_info["circadian"]
+                reply = (f"128-Step Circadian Oscillator: step {c['cycle_step']}/128 (phase φ={c['phase']:.3f}), "
+                         f"diurnal state={c['diurnal_state'].upper()}, ambient lux={c['ambient_lux']:.2f}, "
+                         f"melatonin={c['melatonin_level']:.2f}.")
             elif lower in ("bioelectric", "voltage", "v_mem", "membrane", "gap junctions"):
                 info = self.telemetry()
                 bio = info["bioelectric"]

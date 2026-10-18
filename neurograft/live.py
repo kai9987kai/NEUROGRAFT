@@ -6,6 +6,7 @@ model. Source observations remain immutable; only circuit parameters adapt.
 from __future__ import annotations
 
 from collections import deque
+import copy
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import hashlib
@@ -19,6 +20,7 @@ import tempfile
 import threading
 from typing import Any
 import zipfile
+import warnings
 
 import torch
 from torch import Tensor
@@ -35,6 +37,7 @@ from .dynamics import DynamicsConfig, GraphCircuit
 from .environment import NavigationWorld
 from .graphs import GraphBundle
 from .memory import TriTierMemory
+from . import live_state
 from .phase_plane import PhasePlaneEngine
 from .self_model import ConnectomeForwardSelfModel, SelfModelConfig
 from .spectral_diffusion import ChebyshevSpectralDiffusion
@@ -43,6 +46,7 @@ from .stp import STPConfig, TsodyksMarkramSubstrate
 
 MAX_CHECKPOINT_BYTES = 128 * 1024 * 1024
 _VERSION = 1
+_CHECKPOINT_VERSION = 2
 _BACKEND = "local-memory-and-control"
 _TORCH_INIT_LOCK = threading.RLock()
 _SCOPE = ("Online supervised shortest-path imitation in a synthetic navigation world; "
@@ -192,6 +196,10 @@ class LiveSession:
             "total_audits": 0,
         }
         self._prev_latent = None
+        self._prev_action = None
+        self._phase_summary = None
+        self._telemetry_archaeology_cache = None
+        self._checkpoint_compatibility = {"loaded_format": _CHECKPOINT_VERSION, "auxiliary_state_restored": True}
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.world = NavigationWorld(seed=self.config.seed)
         self.rng = random.Random(self.config.seed ^ 0x4E47524F)
@@ -300,6 +308,17 @@ class LiveSession:
         self.stp_state = self.stp.initial_state(1)
         self.observation_history.clear()
         self.compass.reset(float(self.world.direction) * (math.pi / 2.0))
+        self._prev_latent = None
+        self._prev_action = None
+        self.phase_plane.reset()
+        self._phase_summary = None
+        self._telemetry_archaeology_cache = None
+
+    @property
+    def checkpoint_compatibility(self):
+        """Legacy v1 artifacts restore policy state but lack observer/anchor history."""
+        with self.lock:
+            return dict(self._checkpoint_compatibility)
 
     def set_goal(self, color=None, x=None, z=None):
         with self.lock:
@@ -335,13 +354,12 @@ class LiveSession:
             anchor_probs = F.softmax(anchor_out.logits, dim=-1)
         student_log_probs = F.log_softmax(student_out.logits, dim=-1)
         distill_loss = F.kl_div(student_log_probs, anchor_probs, reduction="batchmean")
-        self._anchor_kl_drift = float(distill_loss.detach().item())
+        # Roundoff can put an otherwise zero KL a few ulps below zero.
+        self._anchor_kl_drift = max(0.0, float(distill_loss.detach().item()))
 
-        # Native Latent Consolidation Bank routing balance loss
-        _, aux_cons = self.consolidation(student_out.context)
-        aux_balance = self.consolidation.aux_loss(aux_cons)
-
-        loss = imitation_loss + 0.15 * distill_loss + 0.05 * aux_balance
+        # Consolidation is an observer in this live policy. Its detached balance
+        # diagnostic was a constant, not a trainable policy regularizer.
+        loss = imitation_loss + 0.15 * distill_loss
         if not torch.isfinite(loss):
             self.model.eval()
             raise ValueError("online loss became nonfinite")
@@ -379,6 +397,7 @@ class LiveSession:
                     self.policy_matches.append(policy_action == expert)
                     assisted = self.rng.random() < self.config.teacher_probability
                     action, source = (expert, "teacher") if assisted else (policy_action, "policy")
+                previous_direction = self.world.direction
                 result = self.world.step(action)
                 self.steps += 1
                 self.last_action, self.last_action_source = action, source
@@ -386,7 +405,8 @@ class LiveSession:
 
                 # Biological Central Complex ring attractor compass update
                 cur_dir = self.world.direction
-                ang_vel = float(cur_dir - action) * (math.pi / 2.0)
+                turn = (cur_dir - previous_direction + 2) % 4 - 2
+                ang_vel = float(turn) * (math.pi / 2.0) / 0.20
                 env_t = self.world.environment_telemetry()
                 self.compass.step(angular_velocity=ang_vel, sensory_input=env_t["lidar_8"], dt=0.20)
 
@@ -405,7 +425,7 @@ class LiveSession:
                 # Nonlinear dynamical systems phase-plane audit
                 dist_to_goal = math.hypot(self.world._goal[0] - self.world._agent[0], self.world._goal[1] - self.world._agent[1])
                 max_dist = max(1.0, math.hypot(self.world.size, self.world.size))
-                self.phase_plane.audit(
+                self._phase_summary = self.phase_plane.audit(
                     energy_rate=self.world.goals_reached / max(1.0, self.steps / 50.0),
                     goal_proximity=1.0 - (dist_to_goal / max_dist),
                     clearance_margin=min(env_t["lidar_8"]) if env_t["lidar_8"] else 0.5,
@@ -423,15 +443,17 @@ class LiveSession:
 
                 # Connectome Forward Self-Model & Agency Audit
                 cur_latent = torch.cat([st.mean(dim=1) for st in self.recurrent_state], dim=-1).detach()
-                if self._prev_latent is not None:
+                if self._prev_latent is not None and self._prev_action is not None:
                     self._self_model_summary = self.self_model.step_audit(
-                        self._prev_latent, action, cur_latent, train=self._learning
+                        self._prev_latent, self._prev_action, cur_latent, train=self._learning
                     )
                 self._prev_latent = cur_latent
+                self._prev_action = action
 
                 if result["episode_done"]:
                     self._reset_inference()
                     self._prev_latent = None
+                    self._prev_action = None
                 if (self._learning and self.steps % self.config.train_every == 0
                         and len(self.replay) >= self.config.batch_size):
                     self._train()
@@ -440,13 +462,10 @@ class LiveSession:
     def telemetry(self) -> dict[str, Any]:
         """Compute live circuit introspection, virtual lesions, LTC tau, neuromodulators, and environment telemetry."""
         with self.lock:
-            probs = torch.softmax(self.last_logits[0].detach(), dim=-1).tolist()
             expert = self.world.expert_action()
             path = self.world.shortest_path()
             env_info = self.world.environment_telemetry()
             gates = [float(g.detach().sigmoid().mean()) for g in self.model.graft_gates]
-            routes = self.routes.detach().clamp(min=1e-12)
-            entropy = max(0.0, min(1.0, float(-(routes * routes.log()).sum(dim=-1).mean() / math.log(5.0))))
             delta_sq = sum(
                 float((param.detach() - self._initial_weights[name]).pow(2).sum())
                 for name, param in self.model.named_parameters()
@@ -455,16 +474,25 @@ class LiveSession:
             graft_impact = 0.0
             source_keys = ("worm", "fly_f", "fly_m", "human")
             source_ablation = {k: 0.0 for k in source_keys}
-            if self.observation_history:
-                window = list(self.observation_history)
-                padded = [[[0.0] * 4 for _ in range(4)] for _ in range(self.config.unroll - len(window))] + window
-                seq = torch.tensor([padded], dtype=torch.float32)
-                with torch.no_grad():
-                    ungrafted = self.model(seq, graft_enabled=False).logits
-                    graft_impact = float((self.last_logits.detach() - ungrafted.detach()).norm())
-                    for idx, skey in enumerate(source_keys):
-                        ablated = self.model(seq, ablate_source=idx).logits
-                        source_ablation[skey] = float((self.last_logits.detach() - ablated.detach()).norm())
+            # Preview the next decision on the current world with current weights.
+            # Appending to a local window leaves the actual rollout history intact.
+            window = (list(self.observation_history) + [self.world.observe()])[-self.config.unroll:]
+            padded = [[[0.0] * 4 for _ in range(4)] for _ in range(self.config.unroll - len(window))] + window
+            seq = torch.tensor([padded], dtype=torch.float32)
+            with torch.no_grad():
+                intact = self.model(seq)
+                probe_logits, probe_context = intact.logits, intact.context
+                ungrafted = self.model(seq, graft_enabled=False).logits
+                graft_impact = float((probe_logits - ungrafted).norm())
+                for idx, skey in enumerate(source_keys):
+                    ablated = self.model(seq, ablate_source=idx).logits
+                    source_ablation[skey] = float((probe_logits - ablated).norm())
+            routes = intact.routes.detach().clamp(min=1e-12)
+            entropy = max(0.0, min(1.0, float(-(routes * routes.log()).sum(dim=-1).mean() / math.log(5.0))))
+            probs = torch.softmax(probe_logits[0], dim=-1).tolist()
+            env_info["policy_probe"] = {"step": self.steps, "updates": self.updates,
+                                        "input": "current world observation with a copied history window",
+                                        "effect_scope": "paired logit sensitivity; not behavioral or biological causality"}
             top_nodes = {}
             liquid_tau = []
             connectome_motifs = {}
@@ -534,10 +562,19 @@ class LiveSession:
                 octopamine=octopamine,
             )
             flat_obs = [v for row in self.world.observe() for v in row]
-            mem_context = self.memory.retrieve_context(flat_obs)
+            memory_probe = copy.deepcopy(self.memory)
+            if memory_probe.lesion_mode == "random_retrieval" and memory_probe.episodes:
+                # A stable observer-local draw neither consumes global/session RNG
+                # nor changes what the next training sample will be.
+                selected = random.Random(self.config.seed ^ self.steps ^ 0x4D454D).choice(list(memory_probe.episodes))
+                memory_probe.episodes = deque([selected], maxlen=memory_probe.capacity)
+                memory_probe.lesion_mode = "intact"
+            mem_context = memory_probe.retrieve_context(flat_obs)
+            mem_context["mode"] = self.memory.lesion_mode
+            mem_context["role"] = "observer_only; retrieval does not drive the navigation policy"
             dist_to_goal = math.hypot(goal_pt[0] - agent_pt[0], goal_pt[1] - agent_pt[1])
             max_dist = max(1.0, math.hypot(self.world.size, self.world.size))
-            phase_audit = self.phase_plane.audit(
+            phase_audit = copy.deepcopy(self._phase_summary) if self._phase_summary is not None else copy.deepcopy(self.phase_plane).audit(
                 energy_rate=self.world.goals_reached / max(1.0, self.steps / 50.0),
                 goal_proximity=1.0 - (dist_to_goal / max_dist),
                 clearance_margin=min(env_info["lidar_8"]) if env_info["lidar_8"] else 0.5,
@@ -550,17 +587,19 @@ class LiveSession:
 
             flat_context = torch.cat([st.mean(dim=1) for st in self.recurrent_state], dim=-1)
             byte_summary = self.byte_bridge.decode_semantic_intent(flat_context)
+            byte_summary["role"] = "untrained observer projection; labels are not language understanding"
 
-            arch_summary = self.archaeology.latest_summary()
-            if self.observation_history:
-                window = list(self.observation_history)
-                padded = [[[0.0] * 4 for _ in range(4)] for _ in range(self.config.unroll - len(window))] + window
-                seq_probe = torch.tensor([padded], dtype=torch.float32)
-                if self.steps % 8 == 0 or self.archaeology._last_report is None:
-                    gain = float(self._bioelectric_summary.get("excitability_gain", 1.0))
-                    arch_summary = self.archaeology.run_resection_assay(
-                        self.model, seq_probe, bioelectric_gain=gain
-                    ).to_dict()
+            with torch.no_grad():
+                _, consolidation_aux = self.consolidation(probe_context)
+            route_mean = consolidation_aux["route_probs"].reshape(-1, 4).mean(dim=0).tolist()
+
+            gain = float(self._bioelectric_summary.get("excitability_gain", 1.0))
+            cache_key = (self.steps, self.updates, _checkpoint_digest(padded), gain)
+            if self._telemetry_archaeology_cache is None or self._telemetry_archaeology_cache[0] != cache_key:
+                report = copy.copy(self.archaeology).run_resection_assay(self.model, seq, bioelectric_gain=gain).to_dict()
+                self._telemetry_archaeology_cache = (cache_key, report)
+            arch_summary = copy.deepcopy(self._telemetry_archaeology_cache[1])
+            arch_summary["role"] = "observer sensitivity assay; rescue rescales logits and cannot change the chosen action"
 
             return {
                 "action_probs": [float(p) for p in probs],
@@ -589,24 +628,25 @@ class LiveSession:
                 "phase_plane": phase_audit,
                 "dales_law": self._dales_law_reports,
                 "consolidation": {
-                    "gate_abs_mean": round(float(self.consolidation.block.out_gate.detach().abs().mean().item()), 4),
-                    "router_entropy": round(float(-sum(p * math.log(max(1e-9, p)) for p in [0.25, 0.25, 0.25, 0.25])), 4),
-                    "router_balance": 1.0,
-                    "route_probs": [0.25, 0.25, 0.25, 0.25],
-                    "memory_entropy": 1.3863,
+                    "gate_abs_mean": consolidation_aux["gate_abs_mean"],
+                    "router_entropy": consolidation_aux["router_entropy"],
+                    "router_balance": consolidation_aux["router_balance"],
+                    "route_probs": route_mean,
+                    "memory_entropy": consolidation_aux.get("memory_entropy", 0.0),
                     "anchor_kl_drift": round(self._anchor_kl_drift, 4),
+                    "role": "observer_only; consolidation is not an optimized policy input",
                 },
-                "stp": getattr(self, "_stp_summary", {
+                "stp": copy.deepcopy(getattr(self, "_stp_summary", {
                     "mean_release_prob": 0.35,
                     "mean_vesicle_pool": 1.0,
                     "mean_synaptic_efficacy": 1.0,
                     "depression_fraction": 0.0,
                     "facilitation_fraction": 0.0,
-                }),
+                })),
                 "spectral_diffusion": spectral_summary,
                 "byte_bridge": byte_summary,
-                "bioelectric": self._bioelectric_summary,
-                "self_model": self._self_model_summary,
+                "bioelectric": {**copy.deepcopy(self._bioelectric_summary), "role": "observer_only; voltage does not modulate policy"},
+                "self_model": {**copy.deepcopy(self._self_model_summary), "role": "online predictive observer; agency score is not causal evidence"},
                 "archaeology": arch_summary,
             }
 
@@ -664,7 +704,7 @@ class LiveSession:
                 reply = (f"Executed {count}-step evolution burst: step {self.steps}, {self.updates} updates, "
                          f"loss {loss_str}, ||Δθ||₂ = {info['weight_delta_norm']:.3f}, "
                          f"graft impact Δlogits = {info['graft_impact']:.3f}.")
-            elif match := re.fullmatch(r"(?:world|resize|arena)\s+(\d+)(?:\s+(labyrinth|chambers|corridors|pillars))?", lower):
+            elif match := re.fullmatch(r"(?:world|resize|arena)\s+(\d+)(?:\s+(" + "|".join(map(re.escape, NavigationWorld.PRESETS)) + r"))?", lower):
                 new_size = max(5, min(31, int(match[1])))
                 preset = match[2] or getattr(self.world, "preset", "labyrinth")
                 self.resize_world(size=new_size, preset=preset)
@@ -672,7 +712,7 @@ class LiveSession:
                 reply = (f"Resized 3D arena to {new_size}×{new_size} ({preset} topology, "
                          f"{env_info['free_cells']} free cells, {env_info['obstacle_cells']} interior obstacles, "
                          f"{env_info['corridor_cells']} corridors).")
-            elif match := re.fullmatch(r"(?:preset|topology)\s+(labyrinth|chambers|corridors|pillars)", lower):
+            elif match := re.fullmatch(r"(?:preset|topology)\s+(" + "|".join(map(re.escape, NavigationWorld.PRESETS)) + r")", lower):
                 preset = match[1]
                 self.resize_world(size=self.world.size, preset=preset)
                 env_info = self.world.environment_telemetry()
@@ -875,7 +915,7 @@ class LiveSession:
             return {"reply": reply, "backend": _BACKEND, **({"action": action} if action else {})}
 
     def _payload(self):
-        return {"version": _VERSION, "graph_hash": self.bundle.digest(), "topology_hash": self.bundle.topology_digest(),
+        return {"version": _CHECKPOINT_VERSION, "graph_hash": self.bundle.digest(), "topology_hash": self.bundle.topology_digest(),
                 "config": asdict(self.config), "model": self.model.state_dict(), "optimizer": self.optimizer.state_dict(),
                 "world": self.world.to_dict(), "rng": self.rng.getstate(), "recurrent_state": list(self.recurrent_state),
                 "replay": list(self.replay), "observation_history": list(self.observation_history),
@@ -884,7 +924,8 @@ class LiveSession:
                 "reward_history": list(self.reward_history), "policy_matches": list(self.policy_matches),
                 "last_action": self.last_action, "last_action_source": self.last_action_source,
                 "last_logits": self.last_logits, "routes": self.routes, "facts": dict(self.facts),
-                "chat": list(self.chat_history), "last_saved": self.last_saved}
+                "chat": list(self.chat_history), "last_saved": self.last_saved,
+                "auxiliary": live_state.capture(self)}
 
     def save(self, path):
         path = Path(path).resolve()
@@ -969,10 +1010,16 @@ class LiveSession:
     def _restore_validated(self, payload):
         """Validate the entire candidate before it can replace a live session."""
         with self.lock:
-            if set(payload) != set(self._payload()) or type(payload["version"]) is not int or payload["version"] != _VERSION:
+            version = payload.get("version")
+            expected_fields = set(self._payload())
+            if version == 1:
+                expected_fields.remove("auxiliary")
+            if set(payload) != expected_fields or type(version) is not int or version not in (1, _CHECKPOINT_VERSION):
                 raise ValueError("unsupported checkpoint fields or version")
             _integer(payload["steps"], 0, 2**53 - 1, "steps")
             _integer(payload["updates"], 0, payload["steps"] // self.config.train_every, "updates")
+            if version == _CHECKPOINT_VERSION:
+                live_state.validate(self, payload["auxiliary"], payload["steps"])
             if type(payload["running"]) is not bool or type(payload["learning"]) is not bool:
                 raise ValueError("checkpoint control flags must be booleans")
             expected = self.model.state_dict()
@@ -1072,6 +1119,11 @@ class LiveSession:
             self.facts = dict(facts)
             self.chat_history.extend(chat)
             self._model_hash = None
+            if version == _CHECKPOINT_VERSION:
+                live_state.install(self, payload["auxiliary"])
+            else:
+                self._checkpoint_compatibility = {"loaded_format": 1, "auxiliary_state_restored": False}
+                warnings.warn("Legacy live checkpoint lacks auxiliary state; anchor and observers were reinitialized. Exact full-session continuation is unavailable.", RuntimeWarning, stacklevel=2)
 
     @staticmethod
     def _tensor(tensor, shape, dtype, name):

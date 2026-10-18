@@ -28,7 +28,7 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768):
         raise ValueError('live service binds only to loopback')
 
     class Handler(BaseHTTPRequestHandler):
-        server_version = 'NEUROGRAFT/0.2'
+        server_version = 'NEUROGRAFT/0.5'
 
         def log_message(self, format, *args):
             return  # Keep continuous polling quiet; errors are returned visibly.
@@ -69,7 +69,11 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768):
             elif path == '/api/checkpoints':
                 self.send_data(200, app.checkpoints())
             elif path == '/api/health':
-                self.send_data(200, {'ok': True})
+                health = app.health()
+                self.send_data(200 if health['ok'] else 503, health)
+            elif path == '/api/evaluation':
+                report = app.evaluation()
+                self.send_data(200, b'null' if report is None else report)
             elif path == '/favicon.ico':
                 self.send_data(204, b'')
             elif path in ('/report.html', '/v0.1-report.html'):
@@ -113,6 +117,8 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768):
                     result = app.save(payload.get('name', 'default'))
                 elif path == '/api/load':
                     result = app.load(payload.get('name', 'default'))
+                elif path == '/api/evaluate':
+                    result = app.evaluate(payload)
                 else:
                     self.send_data(404, {'error': 'not found'})
                     return

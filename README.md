@@ -17,6 +17,75 @@ The working package includes typed sparse graphs, CSV and human-matrix importers
 
 **Current evidence:** the circuit implementation runs and trains locally. The OpenWorm source has been acquired and normalized with explicit filtering receipts. Female fly, male fly, and human inputs in the included demonstration are **synthetic fixtures**. Qwen interface tests use tiny **randomly initialized** models from the actual Transformers implementations. A pretrained Qwen checkpoint has not been loaded or trained. No biological-connectome advantage is established.
 
+## Navigation curriculum (v0.6)
+
+An isolated curriculum training protocol (`python -m neurograft train-navigation`) designed to train and benchmark candidate navigation policies without mutating the live session or overwriting captured baselines.
+
+- **Dataset aggregation & progressive imitation**: Gathers shortest-path labels across diverse world sizes (`5×5` to `31×31`), topologies, and disjoint seeds. Rollouts progressively shift from expert teacher to learner-controlled exploration.
+- **Action-balanced finite replay & counter augmentation**: Replay buffers cap memory storage and balance gradient batches equally across action classes to eliminate directional collapse. Lifetime goal progress counters are randomized during training rollouts to prevent distribution shift.
+- **Cross-source routing warmup**: Allows all three cross-source senders (`top_k=3`) during an explicit routing warmup before returning to standard `top_k=2` for validation and exports.
+- **Validation-only checkpoint selection**: Best models are chosen strictly by validation success rate, then SPL, then lowest collision rate (preserving earlier ties). Test seeds are evaluated once only on the selected model.
+- **Standalone offline HTML reports**: Generates rich self-contained HTML reports (`report.html`) containing side-by-side trial tables, validation curves, and full sha256 checksum receipts.
+
+```powershell
+python -m neurograft train-navigation --bundle data/imported/mixed.bundle.json --checkpoint reports/runs/navigation-v05-20261018/frozen-input.pt --out reports/runs/navigation-v06-candidate --rounds 4 --worlds 16 --updates 32
+```
+
+## Reproducible live laboratory (v0.5)
+
+The live workspace now includes **Navigation trials**: evaluate a frozen copy of
+the current policy on matched seeded arenas while the original session continues.
+Compare full policy, disabled grafts, disabled recurrence, seeded random actions,
+and a full-map shortest-path oracle. Export JSON with graph/model/protocol hashes,
+per-seed action traces, success rate, SPL path efficiency, collisions, and attempted
+steps. These inference interventions reuse identical weights; they are not
+separately trained controls. Declared evaluation seeds are not proof of unseen
+training worlds. Small runs are exploratory.
+
+Evaluate an existing checkpoint without changing it:
+
+```powershell
+python -m neurograft evaluate-live --bundle data/imported/mixed.bundle.json --checkpoint data/live/session.pt --seeds 10000,10001,10002 --size 11 --preset labyrinth --max-steps 48 --out reports/my-navigation-trials.json
+```
+
+The output must be a new path. Defaults are three worlds and 48 steps, with a cap
+of 16 seeds and 128 steps. SPL counts successful cell moves relative to shortest
+distance; failed trials score zero. Collision rate and attempted steps capture
+blocked actions separately. See [Anderson et al.](https://arxiv.org/abs/1807.06757)
+for the metric's basis. This grid instrument does not establish robot transfer.
+
+New v2 live checkpoints preserve the synced anchor, auxiliary module/optimizer
+state, memory, compass, phase history, STP, bioelectric state and topology preset,
+in addition to the policy and replay state. Legacy v1 files remain readable, with
+a warning that omitted auxiliary state must be reinitialized. Their missing state
+cannot be reconstructed. `session.checkpoint_compatibility` reports that boundary.
+Use a new named checkpoint when retaining an upgraded copy.
+
+Diagnostic reads no longer advance phase history or global retrieval randomness.
+Lesion probes compare the same current weights and copied input window. These
+are logit sensitivities, not evidence of biological causal mechanisms.
+
+| Component | Role in the live experiment |
+|---|---|
+| Sparse GraphCircuit encoders, GRUs, grafts and navigation head | Produces actions and receives supervised imitation gradients |
+| Frozen anchor | Supplies the KL regularizer; `anchor sync` updates its reference |
+| Forward self-model | Trains a separate predictive observer; does not choose navigation actions |
+| Memory, compass, phase plane, STP and bioelectric substrate | Diagnostic observers; their lesions/gains do not alter the navigation policy |
+| Consolidation, byte bridge, Dale audit and spectral probes | Standalone or untrained observer calculations; no demonstrated policy benefit |
+
+The browser startup syntax failure, inaccessible Concentric/Hierarchical presets,
+checkpoint omissions and stale-weight lesion comparison are repaired in this
+version. Health reports include worker status and degraded service errors.
+
+**Measured captured-policy result:** eight seeded 11×11 labyrinth trials with a
+48-step horizon yielded 0/8 full-policy successes (SPL 0), 1/8 seeded-random
+successes, and 8/8 oracle successes (SPL 1). This checkpoint has not demonstrated
+useful unassisted navigation on these trials. Its input was a legacy v1 capture;
+missing observer state is recorded, and those observers do not drive this policy.
+See [the raw report](reports/runs/navigation-v05-20261018/report.json) and
+[capture provenance](reports/runs/navigation-v05-20261018/capture.json).
+Implementation details and validation are in the [v0.5 build report](docs/v05-build-report.md).
+
 ## Live 3D environment, continuous learning, and saved state (v0.4)
 
 Start the persistent local live session and open `http://127.0.0.1:8768/`:
@@ -30,26 +99,26 @@ python -m neurograft live --bundle data/imported/mixed.bundle.json --state data/
 What the live session provides:
 
 - **Scalable Multi-Chamber 3D Environment (`15×15` default, scalable `5×5` to `31×31`)**: Supports live architectural presets (`labyrinth`, `chambers`, `corridors`, `pillars`, `concentric`, `hierarchical`) with guaranteed full free-cell connectivity, 8-ray LiDAR / optic-flow clearance beams (`N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`), topological choke-point doorway rings, 2D advection-diffusion chemoattractant gradient plumes, and tortuosity/detour index metrics.
-- **Continuous online adaptation (`supervised-shortest-path-imitation`)**: On each step in the multi-chamber navigation world, source-specific sensory features feed the worm (beacon bearing/distance), female-fly (local wall/hazard clearances), male-fly (visit recency and heading velocity), and human (active goal beacon selector and step urgency) graph modules. When **Learn** is enabled, the 4-way navigation head (`north`, `east`, `south`, `west`), sparse cross-source grafts, and recurrent encoders update online via AdamW (`lr=8e-3`, window length `4`, batch size `8`) with gradient clipping (`1.0`) against the deterministic shortest-path teacher action, plus an interactive **⚡ Boost ×16** evolution burst trigger.
+- **Continuous online adaptation (`supervised-shortest-path-imitation`)**: On each step in the multi-chamber navigation world, source-specific sensory features feed the worm (beacon bearing/distance), female-fly (local wall/hazard clearances), male-fly (visit recency and heading velocity), and human (active goal beacon selector and step urgency) graph modules. When **Learn** is enabled, the 4-way navigation head (`north`, `east`, `south`, `west`), sparse cross-source grafts, and recurrent encoders update online via Adam (`lr=8e-3`, window length `4`, batch size `8`) with gradient clipping (`1.0`) against the deterministic shortest-path teacher action, plus an interactive **⚡ Boost ×16** training burst trigger.
 - **2024–2026 Connectome & Cognitive Architecture Grounding (`session.telemetry()`)**:
-  - **Bioelectric Morphogenetic Substrate (BMS)** (*Morpheus & Memory Carrier Observatory*): Computes persistent non-spiking membrane potentials $V_{\text{mem}} \in [-85\text{mV}, -20\text{mV}]$ diffusing across gap junctions: $\frac{\mathrm{d}V}{\mathrm{d}t} = \frac{1}{C_m} [ g_{\text{gap}} \Delta V - g_{\text{leak}} (V - V_{\text{rest}}) + \gamma_{\text{pump}} \cdot \text{Act} ]$. Acts as a slow morphogenetic memory attractor that coordinates tissue excitability and drives homeostatic recovery.
-  - **Connectome Forward Self-Model & Agency Stabilization Audit** (*GhostInTheMachine & QuantumBot*): Introspectively forecasts the connectome's next latent state $\hat{s}_{t+1} = f_\theta(s_t, a_t)$ and contrasts against a counterfactual null action $\hat{s}_{t+1}^{\text{null}} = f_\theta(s_t, \vec{0})$. Computes active causal agency $\Delta_{\text{agency}} = \frac{E_{\text{null}} - E_{\text{pred}}}{\max(\epsilon, E_{\text{null}})}$, reality drift EMA, and self-alignment without modifying the main policy weights.
+  - **Bioelectric Morphogenetic Substrate (BMS)** (*Morpheus & Memory Carrier Observatory*): Computes persistent non-spiking membrane potentials $V_{\text{mem}} \in [-85\text{mV}, -20\text{mV}]$ diffusing across gap junctions: $\frac{\mathrm{d}V}{\mathrm{d}t} = \frac{1}{C_m} [ g_{\text{gap}} \Delta V - g_{\text{leak}} (V - V_{\text{rest}}) + \gamma_{\text{pump}} \cdot \text{Act} ]$. This simulated voltage is an observer signal and does not modulate the navigation policy.
+  - **Connectome Forward Self-Model & Agency Stabilization Audit** (*GhostInTheMachine & QuantumBot*): Introspectively forecasts the connectome's next latent state $\hat{s}_{t+1} = f_\theta(s_t, a_t)$ and contrasts against a counterfactual null action $\hat{s}_{t+1}^{\text{null}} = f_\theta(s_t, \vec{0})$. Computes a descriptive action-versus-null prediction score $\Delta_{\text{agency}} = \frac{E_{\text{null}} - E_{\text{pred}}}{\max(\epsilon, E_{\text{null}})}$, reality drift EMA, and self-alignment without modifying the main policy weights.
   - **Adaptive Memory Archaeology & Tissue Resection Assays** (*Mnemorph, MOLT, TESSERA & Archimedes*): Assesses connectome structural resilience, cross-species opcode/motif conservation, and Memory Trace Preservation Ratios (MTPR) under targeted virtual lesions and bioelectric rescue: classifies recovery into `engram-preserved`, `behaviorally-compensated`, or `irreversible-loss`.
   - **Tsodyks-Markram Short-Term Synaptic Plasticity (STP)** (*Tsodyks, Pawelzik & Markram PNAS 1998*): Implements frequency-dependent synaptic depression and facilitation with finite release probability $u \in (0, 1]$ and vesicle availability $R \in (0, 1]$, relaxing to resting identity efficacy $E = 1.000\times$ at quiescence.
   - **Chebyshev Spectral Graph Diffusion** (*Hammond, Vandergheynst & Gribonval 2011*): Computes multi-scale wavelet graph diffusion energies (local $s=0.5$, meso $s=2.0$, macro $s=6.0$) in $\mathcal{O}(K \cdot |\mathcal{E}|)$ via truncated Chebyshev orthogonal polynomials without matrix inversion.
-  - **Byte-Level Semantic Guidance Bridge** (*NexusFlow & Byte-Level Attractors*): Bidirectional cross-modal bridge mapping high-dimensional connectome latent context into ASCII byte distributions and decoding semantic behavioral intent (`foraging-chemotaxis`, `choke-point-maneuver`, `goal-exploitation`, `arousal-exploration`).
-  - **Connectome Latent Consolidation Substrate (CLCS)** (*Supermix-Expanse v2 Latent MoE Consolidation*): Consolidates heterogeneous cross-species representations (worm, fly female, fly male, human) into a shared normalized latent space using Top-2 SwiGLU sparse latent experts, 16 learned associative memory slots with query-key attention, and a zero-initialized highway residual output gate (`out_gate = 0.0`) guaranteeing exact identity preservation at initialization.
+  - **Byte-Level Semantic Guidance Bridge** (*NexusFlow & Byte-Level Attractors*): Untrained projection mapping high-dimensional connectome latent context into ASCII byte distributions and heuristic display labels (`foraging-chemotaxis`, `choke-point-maneuver`, `goal-exploitation`, `arousal-exploration`).
+  - **Connectome Latent Consolidation Substrate (CLCS)** (*Supermix-Expanse v2 Latent MoE Consolidation*): Consolidates heterogeneous cross-species representations (worm, fly female, fly male, human) into a shared normalized latent space using Top-2 SwiGLU sparse latent experts, 16 learned associative memory slots with query-key attention, and a zero-initialized highway residual output gate (`out_gate = 0.0`) providing identity preservation at initialization in its standalone tests. This block is not an optimized input to the live navigation head.
   - **Dale's Principle / Law & Synaptic Input Fraction Scaling** (*Janelia Male-CNS Connectome & Collatz-Wielandt contraction*): Enforces biological neurotransmitter polarity on chemical synapses (cholinergic/monoaminergic $+1$, GABAergic/glutamatergic $-1$), normalized by measured incoming input fractions $f_{\text{in}}(post, pre) = \frac{W[post, pre]}{\sum_k W[post, k]}$. Computes shifted power iteration and Collatz-Wielandt upper bounds guaranteeing contractive rate dynamics ($\rho(|W|) \le 0.90$).
-  - **Anti-Forgetting Soft-KL Anchor Distillation** (*Supermix-Expanse Anchor Checkpoint*): Online imitation is continuously anchored against representational collapse and catastrophic forgetting via soft-KL divergence teacher distillation against a frozen initial anchor policy: $\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{imitation}} + 0.15 \cdot D_{\text{KL}}(\pi_{\text{student}} \parallel \pi_{\text{anchor}}) + 0.05 \cdot \mathcal{L}_{\text{balance}}$.
+  - **Anti-Forgetting Soft-KL Anchor Distillation** (*Supermix-Expanse Anchor Checkpoint*): Online imitation is regularized against the frozen reference distribution; forgetting prevention has not been established. The objective uses KL distillation against the frozen reference policy: $\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{imitation}} + 0.15 \cdot D_{\text{KL}}(\pi_{\text{anchor}} \parallel \pi_{\text{student}})$.
   - **Central Complex (CX) 16-Wedge Ring Attractor Compass** (*FlyWire Drosophila Connectome & Central Complex E-PG/P-EN Models*): Couples insect modules (`fly_female`, `fly_male`) to a biologically authentic 16-wedge recurrent ring attractor with Mexican-hat cosine connectivity and angular velocity integration. Computes Population Vector Average (PVA) heading $\theta_{\text{PVA}}$, PVA coherence $R \in [0, 1]$, and triggers an optomotor counter-torque stabilization reflex if turbulence or wall proximity collapses coherence below $R_{\text{crit}} = 0.35$.
   - **Active Inference & Expected Free Energy (EFE) Decision Arbiter** (*Friston, Parr, Pezzulo Free Energy Principle*): Evaluates policies by decomposing action values into pragmatic homeostatic value ($-\|x - x_{\text{goal}}\|$), epistemic curiosity (information gain from LiDAR open vistas over unvisited cells), and empowerment (degrees of navigable escape freedom), dynamically balanced by Dopamine (exploitation) and Octopamine (arousal).
   - **Tri-Tier Cognitive Memory Hierarchy with Matched Lesion Assays** (*Supermix-Poseidon Mnemosyne architecture*): Maintains Tier 1 (surprise-driven recurrent working memory), Tier 2 (value-gated episodic store indexed by reward, surprise, and recency), and Tier 3 (topological cognitive spatial map tracking visit frequency, cell clearance, and landmark confidence), with 5 matched lesion modes (`intact`, `erased`, `shifted`, `random_retrieval`, `memory_free`) selectable live via the UI.
   - **Lyapunov Separatrix & Phase-Plane Stability Engine** (*Nonlinear Dynamical Systems & Separatrix Geometry*): Tracks the 4D homeostatic state $[E, S, D, V]$ (energy efficiency, goal proximity, barrier clearance, heading alignment), computing Lyapunov energy $L(\mathbf{x})$, orbital drift $\dot{L}$ (contracting attractor basin vs divergent saddle), and Euclidean distance to the critical obstacle collision separatrix.
-  - **Virtual Connectome Lesion & Causal Attribution** (*Lappalainen et al., Nature Sep 2024; Shiu et al., Nature Oct 2024*): Counterfactual *in silico* silencing (`ablate_source`) computes the exact per-source policy KL divergence $D_{\mathrm{KL}}(\pi_{\text{intact}} \parallel \pi_{-s})$ and $\ell_2$ logit shift when silencing `worm`, `fly_female`, `fly_male`, or `human` in real time.
-  - **Liquid Time-Constant (LTC) Continuous-Time Integration** (*Hasani et al., Nature Machine Intelligence 2022*): Input-dependent liquid time constants $\tau_s(x,h)$ and retention $\alpha_s(t) = \exp(-\Delta t / \tau_s)$ dynamically modulate recurrent state decay across sensory, obstacle-avoidance, path-integration, and executive sub-graphs.
-  - **Endogenous 3-Factor Monoaminergic Neuromodulation** (*Bargmann / Flavell C. elegans foraging & FlyWire neuromodulatory motifs*): Reward prediction error (Dopamine), goal proximity / exploited shelter (Serotonin), and novelty / boundary hazard arousal (Octopamine) drive a live plasticity gain multiplier ($0.5\times\text{–}1.9\times$) and classify the active behavioral regime (`choke-point-maneuver`, `goal-exploitation`, `arousal-exploration`, `foraging-chemotaxis`).
+  - **Virtual Connectome Lesion & Logit Sensitivity** (*Lappalainen et al., Nature Sep 2024; Shiu et al., Nature Oct 2024*): Counterfactual *in silico* silencing (`ablate_source`) computes per-source $\ell_2$ logit shift using the same weights and input window when silencing `worm`, `fly_female`, `fly_male`, or `human` in real time.
+  - **Liquid Time-Constant (LTC) Continuous-Time Integration** (*Hasani et al., Nature Machine Intelligence 2022*): Standalone circuit integration accepts liquid retention factors. The live display estimates time constants $\tau_s(x,h)$ and retention $\alpha_s(t) = \exp(-\Delta t / \tau_s)$ for inspection; the live policy does not receive these estimated retention factors.
+  - **Endogenous 3-Factor Monoaminergic Neuromodulation** (*Bargmann / Flavell C. elegans foraging & FlyWire neuromodulatory motifs*): Reward prediction error (Dopamine), goal proximity / exploited shelter (Serotonin), and novelty / boundary hazard arousal (Octopamine) produce a displayed plasticity gain estimate ($0.5\times\text{–}1.9\times$) and classify the active behavioral regime (`choke-point-maneuver`, `goal-exploitation`, `arousal-exploration`, `foraging-chemotaxis`).
   - **Rich-Club Hub & Reciprocal Motif Telemetry** (*Towlson et al. C. elegans Rich-Club*): Identifies high-degree Rich-Club command hubs (`AVAL`, `AVAR`, `AVBL`, `AVBR`, `PVCL`, `PVCR`), reciprocal chemical dyads, and electrical gap-junction edges alongside the top-4 firing authentic *C. elegans* neurons.
-- **Persistent state and named checkpoints**: Atomic `weights_only=True` checkpoints (`data/live/session.pt` plus named saves under `data/live/checkpoints/<name>.pt`) capture model weights, navigation head weights, AdamW optimizer state, recurrent hidden states across all four source graphs, world state and deterministic RNG state, Python/PyTorch RNG states, loss/reward history, and chat/fact memory. Checkpoints verify bundle SHA-256 digests, ZIP entry CRCs, local headers, and tensor finiteness on load.
+- **Persistent state and named checkpoints**: Versioned atomic `weights_only=True` checkpoints (`data/live/session.pt` plus named saves under `data/live/checkpoints/<name>.pt`) capture model weights, navigation head weights, Adam optimizer state, recurrent hidden states across all four source graphs, world state and private deterministic RNG state, auxiliary state, loss/reward history, and chat/fact memory. Initialization isolates global PyTorch randomness; ticks use private RNG state. Checkpoints verify bundle SHA-256 digests, ZIP entry CRCs, local headers, and tensor finiteness on load.
 - **Local command, introspection & memory chat (`local-memory-and-control`)**: The chat drawer explicitly reports its backend as `local-memory-and-control` (not a pretrained LLM). It supports natural commands (`status`, `pause`, `resume`, `step 5`, `evolve 16` / `boost 16`, `world 19 labyrinth`, `preset chambers`, `dale` / `dales law`, `consolidation` / `clcs`, `anchor sync`, `compass` / `pva`, `efe` / `active inference`, `memory`, `lesion memory <mode>`, `phase` / `lyapunov`, `lesion` / `ablation`, `neuromodulators` / `liquid`, `motifs` / `rich club`, `top neurons` / `firing`, `routes` / `bridges`, `why` / `explain`, `learn on/off`, `go to cyan|amber|rose`, `move north|east|south|west`, `save <name>`, `load <name>`, `remember key = value`, `recall key`, `forget key`, `facts`, `reset world`, `help`, `bioelectric`, `agency`, `archaeology`).
 - **Interactive 3D Three.js workspace**: Displays the scalable multi-chamber arena (`11²`, `15²`, `19²`, `25²`), Central Complex (CX) 16-wedge circular compass dial, Active Inference EFE probability bars, 1-click memory lesion buttons, Lyapunov phase plane status, 8-ray 3D LiDAR laser fan, glowing choke-point doorway portals, agent pose and trail, BFS shortest-path teacher ribbon, floating 4-source **3D Connectome Constellation Halo** with 12 live quadratic Bezier cross-species bridge arcs, beacons, hazards, live 4×5 cross-source route matrix, neuromodulation & virtual lesion bars, rolling loss/accuracy sparkline, keyboard navigation (`WASD` / arrow keys / `Space`), and deterministic automation hooks (`window.render_game_to_text()`, `window.advanceTime(ms)`).
 

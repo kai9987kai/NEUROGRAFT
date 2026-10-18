@@ -358,7 +358,8 @@ class NavigationWorld:
 
     def to_dict(self) -> dict:
         state = self._rng.getstate()
-        return {**self.snapshot(), "rng_state": [state[0], list(state[1]), state[2]]}
+        return {**self.snapshot(), "preset": self.preset,
+                "rng_state": [state[0], list(state[1]), state[2]]}
 
     @classmethod
     def from_dict(cls, data: Any) -> NavigationWorld:
@@ -367,8 +368,11 @@ class NavigationWorld:
         Only primitive save fields are accepted. No constructor, caller-owned
         object, or global random generator is mutated during validation.
         """
-        if type(data) is not dict or set(data) != cls._SAVE_KEYS:
+        if type(data) is not dict or set(data) not in (cls._SAVE_KEYS, cls._SAVE_KEYS | {"preset"}):
             raise ValueError("world save fields are missing or unknown")
+        preset = data.get("preset", "labyrinth")
+        if type(preset) is not str or preset not in cls.PRESETS:
+            raise ValueError("invalid saved world preset")
         if type(data["version"]) is not int or data["version"] != cls.VERSION:
             raise ValueError("unsupported world serialization version")
         seed = cls._integer(data["seed"], "seed", -(2**63), 2**63 - 1)
@@ -450,7 +454,7 @@ class NavigationWorld:
 
         candidate = cls.__new__(cls)
         candidate.seed, candidate.size = seed, size
-        candidate.preset = "labyrinth"
+        candidate.preset = preset
         candidate._obstacles = obstacles
         candidate._agent, candidate.direction = agent, direction
         candidate._goal, candidate._goal_color = goal, goal_color

@@ -1,0 +1,16 @@
+{
+  "input_checkpoint": "reports\\runs\\navigation-v05-20261018\\frozen-input.pt",
+  "input_sha256": "3e143f8eb514eb59d4fb0e6f1d681c33d39cef4d769f47a35991b941aa6057af",
+  "source_path": "data\\live\\session.pt",
+  "bundle_path": "data\\imported\\mixed.bundle.json",
+  "checkpoint_compatibility": {
+    "loaded_format": 1,
+    "auxiliary_state_restored": false
+  },
+  "load_notices": [
+    "Legacy live checkpoint lacks auxiliary state; anchor and observers were reinitialized. Exact full-session continuation is unavailable."
+  ],
+  "protocol_id": "479c1cd730459d724b51b8ad77a9a83030462a2f5f55d9570882710bd15f6982",
+  "model_hash": "28b8e709b44ee4abe799e4bed3be95140f22f978706516e0589cdb22446466f6",
+  "scope": "Read-only capture of existing policy. Original checkpoint was not written. Auxiliary legacy omissions do not participate in the frozen GraphCircuit evaluation."
+}

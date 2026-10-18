@@ -13,7 +13,7 @@
   <header class="app-header">
     <a class="brand" href="/" aria-label="Neurograft live laboratory">
       <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M10 29V11l20 18V11"/><circle cx="10" cy="11" r="3"/><circle cx="30" cy="29" r="3"/></svg>
-      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.3</span></span></span>
+      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.5</span></span></span>
     </a>
     <div class="header-note">Four source graphs. One evolving circuit.</div>
     <button type="button" class="pill research-trigger" popovertarget="research-popover">📚 2024–2026 Research Basis</button>
@@ -42,6 +42,7 @@
       </section>
 
       <div id="error-banner" class="error-banner" role="alert" hidden><span id="error-message"></span><button type="button" id="dismiss-error" class="icon-button" aria-label="Dismiss error">×</button></div>
+      <div id="service-error" class="error-banner" role="alert" hidden><span id="service-error-message"></span></div>
 
       <section class="panel environment-panel" aria-labelledby="environment-heading">
         <div class="panel-heading"><div><span class="eyebrow">LIVE 3D MULTI-CHAMBER ENVIRONMENT</span><h2 id="environment-heading">Navigation arena <span class="muted mono" id="world-size">— × —</span> <span class="pill" id="world-preset-badge">labyrinth</span></h2></div><span class="pill"><span class="tiny-dot"></span> 3D HALO · 8-RAY LIDAR · CHOKE PORTALS</span></div>
@@ -65,6 +66,26 @@
         <div class="metric"><span>Goals reached</span><strong id="metric-goals">—</strong><small id="metric-episode">Episode —</small></div>
         <div class="metric"><span>Recent policy match</span><strong id="metric-accuracy">—</strong><small>Matches route teacher</small></div>
         <div class="metric"><span>Total reward</span><strong id="metric-reward">—</strong><small id="metric-action">Action —</small></div>
+      </section>
+
+      <section class="panel evaluation-panel" aria-labelledby="evaluation-heading">
+        <div class="panel-heading"><div><span class="eyebrow">FROZEN WEIGHTS · FRESH SEEDED WORLDS</span><h2 id="evaluation-heading">Navigation trials</h2></div><span class="pill">Teacher OFF · Learning OFF</span></div>
+        <p class="evaluation-intro">Measure this policy on fresh arenas with matched controls. Live controls stay available while an isolated copy is evaluated. These synthetic navigation trials are separate from recent live teacher agreement.</p>
+        <form id="evaluation-form" class="evaluation-form">
+          <label>World seeds<input id="evaluation-seeds" value="10000,10001,10002" required maxlength="180" data-evaluation-config autocomplete="off" aria-describedby="evaluation-budget-note"></label>
+          <label>Arena size<input id="evaluation-size" type="number" min="5" max="31" value="11" required data-evaluation-config></label>
+          <label>Topology<select id="evaluation-preset" data-evaluation-config><option value="labyrinth">Labyrinth</option><option value="chambers">Chambers</option><option value="corridors">Corridors</option><option value="pillars">Pillars</option><option value="concentric">Concentric</option><option value="hierarchical">Hierarchical</option></select></label>
+          <label>Steps per trial<input id="evaluation-steps" type="number" min="1" max="128" value="48" required data-evaluation-config></label>
+          <div class="evaluation-actions"><button id="evaluate-btn" class="button primary" type="submit" disabled>Evaluate frozen policy</button><button id="export-evaluation-btn" class="button" type="button" disabled>Export JSON ↓</button></div>
+        </form>
+        <p id="evaluation-budget-note" class="evaluation-note">Up to 16 seeds and 128 steps each. CPU trials may take a little time.</p>
+        <p id="evaluation-status" class="evaluation-status" role="status" aria-live="polite">No frozen evaluation yet.</p>
+        <div id="evaluation-results" hidden>
+          <p id="evaluation-snapshot" class="evaluation-snapshot mono"></p>
+          <div class="evaluation-table-wrap"><table class="evaluation-table"><caption class="sr-only">Frozen policy and matched navigation controls</caption><thead><tr><th scope="col">Variant</th><th scope="col">Trials</th><th scope="col">Success</th><th scope="col"><abbr title="Success weighted by path length: failed trials score zero, direct successful routes score one">SPL</abbr></th><th scope="col">Collisions</th><th scope="col">Mean steps</th><th scope="col">Teacher agreement</th></tr></thead><tbody id="evaluation-table-body"></tbody></table></div>
+          <p id="evaluation-effects" class="evaluation-note"></p>
+          <p id="evaluation-scope" class="evaluation-note"></p>
+        </div>
       </section>
 
       <div class="analysis-grid">
@@ -104,7 +125,7 @@
         </div>
         <div class="research-col">
           <div class="research-header">
-            <div><span class="eyebrow">VIRTUAL CONNECTOME LESIONS &amp; LIQUID τ</span><h3>Causal source silencing (Δlogits) &amp; LTC τ</h3></div>
+            <div><span class="eyebrow">VIRTUAL CONNECTOME LESIONS &amp; LIQUID τ</span><h3>Source silencing sensitivity (Δlogits) &amp; LTC τ</h3></div>
             <span class="pill" id="mod-gain">Gain 1.00×</span>
           </div>
           <div class="ablation-grid">
@@ -133,7 +154,7 @@
             <div class="compass-metrics">
               <div class="mod-row"><span>PVA Heading:</span><b id="compass-heading-val" class="mono">0.00 rad</b></div>
               <div class="mod-row"><span>Coherence <i>R</i>:</span><b id="compass-coherence-val" class="mono">0.85</b></div>
-              <div class="prob-track"><div id="compass-bar-coh" class="prob-fill da" style="width:85%"></div></div>
+              <div class="prob-track"><div id="compass-bar-coh" class="prob-fill da"></div></div>
               <small id="compass-note">Drosophila Ellipsoid Body E-PG ring attractor with P-EN steering</small>
             </div>
           </div>
@@ -149,6 +170,7 @@
             <div class="efe-row"><span>Drive breakdown:</span><small id="efe-breakdown">Pragmatic: — · Epistemic: — · Empowerment: —</small></div>
             <div class="efe-row"><span>Lyapunov Separatrix:</span><b id="phase-status" class="mono">L = — · drift = —</b></div>
             <div class="memory-lesion-bar">
+              <span class="research-foot">Memory observer; does not drive policy.</span>
               <span class="eyebrow">MEMORY LESION ASSAY:</span>
               <div class="lesion-btn-group">
                 <button type="button" class="lesion-btn active" data-memory-mode="intact">Intact</button>
@@ -173,12 +195,12 @@
           <div class="consolidation-summary">
             <span class="eyebrow">LATENT EXPERT ROUTING (TOP-2 SPARSE SOFTMAX)</span>
             <div class="expert-bars">
-              <div class="compass-cell"><small>E0 (Worm Motor)</small><b id="expert-prob-0" class="mono">25%</b><div class="prob-track"><div id="expert-bar-0" class="prob-fill da" style="width:25%"></div></div></div>
-              <div class="compass-cell"><small>E1 (Fly Visual)</small><b id="expert-prob-1" class="mono">25%</b><div class="prob-track"><div id="expert-bar-1" class="prob-fill ht" style="width:25%"></div></div></div>
-              <div class="compass-cell"><small>E2 (Propriocept)</small><b id="expert-prob-2" class="mono">25%</b><div class="prob-track"><div id="expert-bar-2" class="prob-fill oa" style="width:25%"></div></div></div>
-              <div class="compass-cell"><small>E3 (Cortical Exec)</small><b id="expert-prob-3" class="mono">25%</b><div class="prob-track"><div id="expert-bar-3" class="prob-fill" style="width:25%"></div></div></div>
+              <div class="compass-cell"><small>E0 (Worm Motor)</small><b id="expert-prob-0" class="mono">25%</b><div class="prob-track"><div id="expert-bar-0" class="prob-fill da"></div></div></div>
+              <div class="compass-cell"><small>E1 (Fly Visual)</small><b id="expert-prob-1" class="mono">25%</b><div class="prob-track"><div id="expert-bar-1" class="prob-fill ht"></div></div></div>
+              <div class="compass-cell"><small>E2 (Propriocept)</small><b id="expert-prob-2" class="mono">25%</b><div class="prob-track"><div id="expert-bar-2" class="prob-fill oa"></div></div></div>
+              <div class="compass-cell"><small>E3 (Cortical Exec)</small><b id="expert-prob-3" class="mono">25%</b><div class="prob-track"><div id="expert-bar-3" class="prob-fill"></div></div></div>
             </div>
-            <div class="efe-row" style="margin-top:6px;"><span>Consolidation Diagnostics:</span><small id="clcs-diagnostics" class="mono">H=1.38 · Bal=1.00 · Gate=0.000 · Mem=1.39</small></div>
+            <div class="efe-row telemetry-spaced"><span>Consolidation Diagnostics:</span><small id="clcs-diagnostics" class="mono">H=1.38 · Bal=1.00 · Gate=0.000 · Mem=1.39</small></div>
             <div class="research-foot" id="consolidation-foot">Teacher-free shared latent distillation with zero-gate identity bypass.</div>
           </div>
         </div>
@@ -204,11 +226,11 @@
           </div>
           <div class="stp-summary">
             <div class="mod-bars">
-              <div class="mod-row"><span>Release Prob (<i>u</i> · Calcium)</span><b id="stp-u-val" class="mono">0.35</b><div class="prob-track"><div id="stp-u-bar" class="prob-fill da" style="width:35%"></div></div></div>
-              <div class="mod-row"><span>Vesicle Pool (<i>R</i> · Depletion)</span><b id="stp-r-val" class="mono">1.00</b><div class="prob-track"><div id="stp-r-bar" class="prob-fill ht" style="width:100%"></div></div></div>
-              <div class="mod-row"><span>Synaptic Gain (<i>E</i> · Net Transmission)</span><b id="stp-e-val" class="mono">1.00×</b><div class="prob-track"><div id="stp-e-bar" class="prob-fill oa" style="width:50%"></div></div></div>
+              <div class="mod-row"><span>Release Prob (<i>u</i> · Calcium)</span><b id="stp-u-val" class="mono">0.35</b><div class="prob-track"><div id="stp-u-bar" class="prob-fill da"></div></div></div>
+              <div class="mod-row"><span>Vesicle Pool (<i>R</i> · Depletion)</span><b id="stp-r-val" class="mono">1.00</b><div class="prob-track"><div id="stp-r-bar" class="prob-fill ht"></div></div></div>
+              <div class="mod-row"><span>Synaptic Gain (<i>E</i> · Net Transmission)</span><b id="stp-e-val" class="mono">1.00×</b><div class="prob-track"><div id="stp-e-bar" class="prob-fill oa"></div></div></div>
             </div>
-            <div class="efe-row" style="margin-top:6px;"><span>Synaptic Filtering:</span><small id="stp-filtering-note" class="mono">Depression: 0% · Facilitation: 0% · Idle Fixpoint</small></div>
+            <div class="efe-row telemetry-spaced"><span>Synaptic Filtering:</span><small id="stp-filtering-note" class="mono">Depression: 0% · Facilitation: 0% · Idle Fixpoint</small></div>
             <div class="research-foot" id="stp-foot">Biological rate-dependent filtering: burst detection vs tonic desensitization.</div>
           </div>
         </div>
@@ -221,11 +243,11 @@
           <div class="spectral-byte-summary">
             <span class="eyebrow">SPECTRAL HEAT DIFFUSION RATIOS (K=3 POLYNOMIAL EXPANSION)</span>
             <div class="spectral-energy-bars">
-              <div class="compass-cell"><small>Local (s=0.5)</small><b id="spectral-local-val" class="mono">0.95</b><div class="prob-track"><div id="spectral-local-bar" class="prob-fill da" style="width:95%"></div></div></div>
-              <div class="compass-cell"><small>Meso (s=2.0)</small><b id="spectral-meso-val" class="mono">0.65</b><div class="prob-track"><div id="spectral-meso-bar" class="prob-fill ht" style="width:65%"></div></div></div>
-              <div class="compass-cell"><small>Macro (s=6.0)</small><b id="spectral-macro-val" class="mono">0.30</b><div class="prob-track"><div id="spectral-macro-bar" class="prob-fill oa" style="width:30%"></div></div></div>
+              <div class="compass-cell"><small>Local (s=0.5)</small><b id="spectral-local-val" class="mono">0.95</b><div class="prob-track"><div id="spectral-local-bar" class="prob-fill da"></div></div></div>
+              <div class="compass-cell"><small>Meso (s=2.0)</small><b id="spectral-meso-val" class="mono">0.65</b><div class="prob-track"><div id="spectral-meso-bar" class="prob-fill ht"></div></div></div>
+              <div class="compass-cell"><small>Macro (s=6.0)</small><b id="spectral-macro-val" class="mono">0.30</b><div class="prob-track"><div id="spectral-macro-bar" class="prob-fill oa"></div></div></div>
             </div>
-            <div class="efe-row" style="margin-top:6px;"><span>Connectome Byte-Bridge:</span><small id="byte-bridge-note" class="mono">Entropy 4.12 · Conf 0.88 · Tokens: ['f','o','r','a','g','e']</small></div>
+            <div class="efe-row telemetry-spaced"><span>Connectome Byte-Bridge:</span><small id="byte-bridge-note" class="mono">Entropy 4.12 · Conf 0.88 · Tokens: ['f','o','r','a','g','e']</small></div>
             <div class="research-foot" id="spectral-foot">Multi-scale graph wavelets via O(K·|E|) Chebyshev recurrence without matrix inversion.</div>
           </div>
         </div>
@@ -240,11 +262,11 @@
           </div>
           <div class="bioelectric-summary">
             <div class="mod-bars">
-              <div class="mod-row"><span>Global Mean Potential (<i>V_mem</i>)</span><b id="bio-vmem-val" class="mono">-65.0 mV</b><div class="prob-track"><div id="bio-vmem-bar" class="prob-fill da" style="width:31%"></div></div></div>
-              <div class="mod-row"><span>Resting Baseline</span><b id="bio-vrest-val" class="mono">-65.0 mV</b><div class="prob-track"><div id="bio-vrest-bar" class="prob-fill ht" style="width:31%"></div></div></div>
-              <div class="mod-row"><span>Excitability Modulation</span><b id="bio-gain-val" class="mono">1.00×</b><div class="prob-track"><div id="bio-gain-bar" class="prob-fill oa" style="width:50%"></div></div></div>
+              <div class="mod-row"><span>Global Mean Potential (<i>V_mem</i>)</span><b id="bio-vmem-val" class="mono">-65.0 mV</b><div class="prob-track"><div id="bio-vmem-bar" class="prob-fill da"></div></div></div>
+              <div class="mod-row"><span>Resting Baseline</span><b id="bio-vrest-val" class="mono">-65.0 mV</b><div class="prob-track"><div id="bio-vrest-bar" class="prob-fill ht"></div></div></div>
+              <div class="mod-row"><span>Excitability Modulation</span><b id="bio-gain-val" class="mono">1.00×</b><div class="prob-track"><div id="bio-gain-bar" class="prob-fill oa"></div></div></div>
             </div>
-            <div class="efe-row" style="margin-top:6px;"><span>Field Coherence:</span><small id="bioelectric-note" class="mono">Depolarized Nodes: 0% · Non-Spiking Slow Attractor Memory</small></div>
+            <div class="efe-row telemetry-spaced"><span>Field Coherence:</span><small id="bioelectric-note" class="mono">Depolarized Nodes: 0% · Non-Spiking Slow Attractor Memory</small></div>
             <div class="research-foot" id="bioelectric-foot">Laplacian gap junction diffusion: morphogenetic field maintains tissue excitability.</div>
           </div>
         </div>
@@ -257,11 +279,11 @@
           <div class="self-model-arch-summary">
             <span class="eyebrow">CAUSAL AGENCY VS COUNTERFACTUAL NULL (GHOST IN THE MACHINE)</span>
             <div class="spectral-energy-bars">
-              <div class="compass-cell"><small>Agency Gain</small><b id="agency-score-val" class="mono">+0.35</b><div class="prob-track"><div id="agency-score-bar" class="prob-fill da" style="width:68%"></div></div></div>
-              <div class="compass-cell"><small>Pred RMS</small><b id="self-model-err-val" class="mono">0.04</b><div class="prob-track"><div id="self-model-err-bar" class="prob-fill ht" style="width:40%"></div></div></div>
-              <div class="compass-cell"><small>Resection MTPR</small><b id="arch-mtpr-val" class="mono">92%</b><div class="prob-track"><div id="arch-mtpr-bar" class="prob-fill oa" style="width:92%"></div></div></div>
+              <div class="compass-cell"><small>Agency Gain</small><b id="agency-score-val" class="mono">+0.35</b><div class="prob-track"><div id="agency-score-bar" class="prob-fill da"></div></div></div>
+              <div class="compass-cell"><small>Pred RMS</small><b id="self-model-err-val" class="mono">0.04</b><div class="prob-track"><div id="self-model-err-bar" class="prob-fill ht"></div></div></div>
+              <div class="compass-cell"><small>Resection MTPR</small><b id="arch-mtpr-val" class="mono">92%</b><div class="prob-track"><div id="arch-mtpr-bar" class="prob-fill oa"></div></div></div>
             </div>
-            <div class="efe-row" style="margin-top:6px;"><span>Archaeology Diagnostics:</span><small id="arch-diagnostics-note" class="mono">Target: fly_f · Lesion Sim: 89% · Bioelectric Rescue Δ: +0.06</small></div>
+            <div class="efe-row telemetry-spaced"><span>Archaeology Diagnostics:</span><small id="arch-diagnostics-note" class="mono">Target: fly_f · Lesion Sim: 89% · Bioelectric Rescue Δ: +0.06</small></div>
             <div class="research-foot" id="agency-foot">Forward dynamics audit verifies causal agency; rescue assay confirms engram preservation.</div>
           </div>
         </div>
@@ -276,7 +298,7 @@
 
       <section class="panel memory-panel" aria-labelledby="memory-heading"><div class="panel-heading compact"><div><span class="eyebrow">EXPLICIT FACT MEMORY</span><h2 id="memory-heading">Remembered facts <span id="fact-count" class="count-badge">0</span></h2></div></div><div id="facts-list" class="facts-list"><p class="empty-note">No facts yet. Use <code>remember key = value</code> in chat.</p></div><div class="panel-foot">Saved with the circuit. Retrieved by key in chat.</div></section>
 
-      <section class="panel persistence-panel" aria-labelledby="save-heading"><div class="panel-heading compact"><div><span class="eyebrow">CONTINUITY</span><h2 id="save-heading">Session checkpoints</h2></div><span class="save-icon" aria-hidden="true">⌑</span></div><div class="autosave-line"><span class="tiny-dot"></span><span id="autosave-status">Autosave status pending</span></div><label class="field-label" for="save-name">Checkpoint name</label><input id="save-name" type="text" value="default" maxlength="40" pattern="[A-Za-z0-9_-]{1,40}" autocomplete="off" spellcheck="false" list="checkpoint-options" aria-describedby="save-name-hint"><datalist id="checkpoint-options"></datalist><div class="save-actions"><button type="button" class="button primary" id="save-btn" data-write disabled>Save state <span aria-hidden="true">↓</span></button><button type="button" class="button" id="load-btn" data-write disabled>Restore <span aria-hidden="true">↶</span></button></div><p class="field-hint" id="save-name-hint">Names use letters, numbers, _ or -. Restore replaces this session.</p><p class="saved-status" id="saved-status">No save receipt yet.</p><details class="checkpoint-details"><summary>Available checkpoints <span id="checkpoint-count">0</span></summary><div id="checkpoint-list" class="checkpoint-list"><span class="empty-note">No checkpoints found.</span></div></details><div class="persistence-foot">Includes weights, optimizer, world, replay, random state and chat memory.</div></section>
+      <section class="panel persistence-panel" aria-labelledby="save-heading"><div class="panel-heading compact"><div><span class="eyebrow">CONTINUITY</span><h2 id="save-heading">Session checkpoints</h2></div><span class="save-icon" aria-hidden="true">⌑</span></div><div class="autosave-line"><span class="tiny-dot"></span><span id="autosave-status">Autosave status pending</span></div><p id="checkpoint-compatibility-note" class="checkpoint-compatibility-note" role="status" hidden></p><label class="field-label" for="save-name">Checkpoint name</label><input id="save-name" type="text" value="default" maxlength="40" pattern="[A-Za-z0-9_-]{1,40}" autocomplete="off" spellcheck="false" list="checkpoint-options" aria-describedby="save-name-hint"><datalist id="checkpoint-options"></datalist><div class="save-actions"><button type="button" class="button primary" id="save-btn" data-write disabled>Save state <span aria-hidden="true">↓</span></button><button type="button" class="button" id="load-btn" data-write disabled>Restore <span aria-hidden="true">↶</span></button></div><p class="field-hint" id="save-name-hint">Names use letters, numbers, _ or -. Restore replaces this session.</p><p class="saved-status" id="saved-status">No save receipt yet.</p><details class="checkpoint-details"><summary>Available checkpoints <span id="checkpoint-count">0</span></summary><div id="checkpoint-list" class="checkpoint-list"><span class="empty-note">No checkpoints found.</span></div></details><div class="persistence-foot">Includes weights, optimizer, world, replay, random state and chat memory.</div></section>
     </aside>
   </main>
   <div id="toast" class="toast" role="status" hidden></div>

@@ -1,0 +1,4 @@
+include CITATIONS.md CODE_OF_CONDUCT.md SECURITY.md Run-NEUROGRAFT.ps1
+recursive-include docs *.md *.json
+recursive-include examples *.csv *.json
+recursive-include tools *.py *.cjs

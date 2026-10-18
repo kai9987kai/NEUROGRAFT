@@ -1,0 +1,54 @@
+{
+  "version": "0.5.0",
+  "python_suite": {
+    "command": "python -m pytest -q --tb=short",
+    "passed": 327,
+    "failed": 0,
+    "elapsed_seconds": 63.26,
+    "loopback_access": true
+  },
+  "javascript_syntax": true,
+  "python_compilation": true,
+  "diff_whitespace": true,
+  "browser": {
+    "ok": true,
+    "page_errors": [],
+    "tested": [
+      "startup",
+      "step",
+      "learning toggle",
+      "hierarchical preset",
+      "frozen matched trials",
+      "JSON export",
+      "stale weight notice",
+      "mobile startup",
+      "mobile layout"
+    ],
+    "oracle": {
+      "episodes": 2,
+      "success_rate": 1,
+      "spl": 1,
+      "collision_rate": 0,
+      "mean_steps": 2,
+      "teacher_agreement": 1,
+      "mean_terminal_distance": 0
+    },
+    "evaluated_model": "c042cc921c77cd6e29979af6974fd4052ca6ac8ef2b71e2fb66330e334481496",
+    "protocol_id": "563a4f2b8d1d4a5062df3736447936eaaa394c4403090eb51c8f64413e7fc2e2",
+    "renderer": "three-webgl"
+  },
+  "independent_review": {
+    "material_findings_fixed": [
+      "phase cache after discontinuities",
+      "finite auxiliary tensor overflow"
+    ]
+  },
+  "captured_policy_report": "reports/runs/navigation-v05-20261018/report.json",
+  "capture_successes": {
+    "policy": 0,
+    "random": 1,
+    "shortest_path": 8
+  },
+  "capture_trials": 8,
+  "publication": "local only; uncommitted"
+}

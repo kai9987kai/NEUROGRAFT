@@ -15,6 +15,11 @@ let lastChat = '';
 let lastFacts = '';
 let lastCheckpoints = '';
 let toastTimer;
+let evaluationReport = null;
+let evaluationInFlight = false;
+let evaluationStarted = 0;
+let evaluationError = '';
+let renderedEvaluation = null;
 let THREE, renderer, scene, camera, worldGroup, wallGroup, beaconGroup, agentGroup, goalGroup, trailLine;
 let floorMesh, raycaster, pointerVector;
 let renderedWorldKey = '';
@@ -49,9 +54,9 @@ class APIError extends Error {
   constructor(message, status = 0) { super(message); this.status = status; }
 }
 
-async function fetchJSON(path, payload) {
+async function fetchJSON(path, payload, timeoutMs = payload ? 20000 : 7000) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), payload ? 20000 : 7000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(path, {
       method: payload ? 'POST' : 'GET',
@@ -97,6 +102,8 @@ function updateControls() {
   $('chat-send').disabled = unavailable || !$('chat-input').value.trim();
   document.querySelectorAll('.example-chip').forEach((el) => { el.disabled = unavailable; });
   if (session && !writeInFlight) $('learning-toggle').checked = Boolean(session.learning);
+  $('evaluate-btn').disabled = unavailable || evaluationInFlight;
+  $('export-evaluation-btn').disabled = !evaluationReport;
 }
 
 function applySnapshot(incoming) {
@@ -321,11 +328,15 @@ function renderSession() {
     cell.style.background = `rgba(71, 182, 161, ${0.06 + value * 0.54})`;
     cell.style.borderColor = `rgba(94, 233, 206, ${0.08 + value * 0.36})`;
     cell.style.color = value > 0.35 ? '#c3fff0' : '#8ca8b6';
+  }
   renderCognitiveTelemetry(telemetry);
   renderConsolidationAndDalesTelemetry(telemetry);
   renderSTPAndSpectralTelemetry(telemetry);
   renderBioelectricAndAgencyTelemetry(telemetry);
   renderLoss(); renderChat(); renderFacts(); renderPersistence();
+  renderEvaluation();
+  $('service-error').hidden = !session.runtime?.last_error;
+  $('service-error-message').textContent = session.runtime?.last_error ? `Live service paused after an error: ${session.runtime.last_error}. Review the session before resuming.` : '';
   $('evidence-scope').textContent = session.evidence_scope || 'Experimental synthetic navigation. Online supervised adaptation; policy match is recent teacher agreement.';
   $('graph-id').textContent = [
     session.graph_hash ? `GRAPH ${session.graph_hash.slice(0, 8)}` : '',
@@ -613,6 +624,9 @@ function readableDate(value) {
 
 function renderPersistence() {
   const runtime = session.runtime || {};
+  const legacyAuxiliaryReset = runtime.checkpoint_compatibility?.auxiliary_state_restored === false;
+  $('checkpoint-compatibility-note').hidden = !legacyAuxiliaryReset;
+  $('checkpoint-compatibility-note').textContent = legacyAuxiliaryReset ? 'Legacy checkpoint restored: policy retained; auxiliary diagnostic state was initialized afresh.' : '';
   const autosave = finite(runtime.autosave_seconds);
   $('autosave-status').textContent = runtime.autosave_seconds === undefined ? 'Autosave status pending' : autosave > 0 ? `Autosave every ${formatNumber(autosave)} seconds` : 'Autosave disabled';
   if (runtime.last_error) {
@@ -652,6 +666,79 @@ function validCheckpointName() {
   return name;
 }
 
+function renderEvaluation() {
+  const stale = Boolean(evaluationReport && session && (evaluationReport.model_hash !== session.model_hash || evaluationReport.graph_hash !== session.graph_hash));
+  $('evaluate-btn').textContent = evaluationInFlight ? 'Evaluating…' : 'Evaluate frozen policy';
+  document.querySelectorAll('[data-evaluation-config]').forEach((field) => { field.disabled = evaluationInFlight; });
+  $('evaluation-status').textContent = evaluationInFlight
+    ? `Running isolated trials · ${Math.floor((Date.now() - evaluationStarted) / 1000)}s elapsed. Live controls remain available.`
+    : evaluationError || (evaluationReport ? `Frozen evaluation complete${stale ? ' · live weights have changed since this snapshot' : ' · matches the currently displayed weight hash'}.` : 'No frozen evaluation yet.');
+  $('evaluation-status').classList.toggle('evaluation-warning', Boolean(evaluationError || stale));
+  $('evaluation-results').hidden = !evaluationReport;
+  if (!evaluationReport) return;
+  const report = evaluationReport;
+  const config = report.config || {};
+  $('evaluation-snapshot').textContent = `Evaluated model ${(report.model_hash || '').slice(0, 12)} · step ${formatNumber(report.checkpoint_steps)} · ${config.size}×${config.size} ${config.preset} · seeds ${(config.seeds || []).join(', ')} · ${config.max_steps} steps/trial`;
+  $('evaluation-snapshot').title = `Model SHA-256: ${report.model_hash}\nGraph SHA-256: ${report.graph_hash}\nProtocol: ${report.protocol_id}`;
+  if (renderedEvaluation === report) return;
+  renderedEvaluation = report;
+  const names = { policy: 'Full policy', no_graft: 'Without grafts', no_recurrence: 'Without recurrence', random: 'Random actions', shortest_path: 'Shortest-path oracle' };
+  const body = $('evaluation-table-body');
+  body.replaceChildren();
+  const percent = (value) => Number.isFinite(value) ? `${formatNumber(value * 100, 1)}%` : '—';
+  for (const key of ['policy', 'no_graft', 'no_recurrence', 'random', 'shortest_path']) {
+    const summary = report.variants?.[key]?.summary;
+    if (!summary) continue;
+    const row = document.createElement('tr');
+    const label = document.createElement('th'); label.scope = 'row'; label.textContent = names[key]; row.append(label);
+    const values = [formatNumber(summary.episodes), percent(summary.success_rate), formatNumber(summary.spl, 3), percent(summary.collision_rate), formatNumber(summary.mean_steps, 1), percent(summary.teacher_agreement)];
+    for (const value of values) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }
+    body.append(row);
+  }
+  const effects = Object.entries(report.paired_effects || {}).map(([key, effect]) => {
+    const delta = finite(effect.success_rate_delta) * 100;
+    const splDelta = finite(effect.spl_delta);
+    return `vs ${names[key] || key}: success ${delta >= 0 ? '+' : ''}${formatNumber(delta, 1)} pp, SPL ${splDelta >= 0 ? '+' : ''}${formatNumber(splDelta, 3)}`;
+  });
+  $('evaluation-effects').textContent = effects.length ? `Full policy paired differences · ${effects.join(' · ')}` : '';
+  $('evaluation-scope').textContent = report.evidence_scope || 'Synthetic navigation trials. Small seed sets are exploratory.';
+}
+
+async function evaluatePolicy(event) {
+  event.preventDefault();
+  if (evaluationInFlight || !session || networkError || isStale()) return;
+  const seedText = $('evaluation-seeds').value.split(',').map((value) => value.trim());
+  if (seedText.length < 1 || seedText.length > 16 || seedText.some((value) => !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value))) || new Set(seedText.map(Number)).size !== seedText.length) {
+    showError('Enter 1–16 distinct, comma-separated nonnegative integers up to 9007199254740991.'); return;
+  }
+  const payload = { seeds: seedText.map(Number), size: Number($('evaluation-size').value), preset: $('evaluation-preset').value, max_steps: Number($('evaluation-steps').value) };
+  evaluationInFlight = true; evaluationStarted = Date.now(); evaluationError = '';
+  updateControls(); renderEvaluation();
+  try {
+    evaluationReport = await fetchJSON('/api/evaluate', payload, 300000);
+    showToast('Frozen navigation trials complete. Export JSON to keep the full receipt.');
+  } catch (error) {
+    evaluationError = `Evaluation request failed: ${error.message}`;
+    showError(evaluationError);
+  } finally {
+    evaluationInFlight = false; updateControls(); renderEvaluation();
+  }
+}
+
+async function loadEvaluation() {
+  try { evaluationReport = await fetchJSON('/api/evaluation'); renderEvaluation(); updateControls(); }
+  catch { /* A transient startup failure is retried when a trial is requested. */ }
+}
+
+function exportEvaluation() {
+  if (!evaluationReport) return;
+  const blob = new Blob([`${JSON.stringify(evaluationReport, null, 2)}\n`], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a'); link.href = url;
+  link.download = `neurograft-navigation-${evaluationReport.protocol_id?.slice(0, 12) || 'evaluation'}.json`;
+  link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 async function sendChat(event) {
   event?.preventDefault();
   const message = $('chat-input').value.trim();
@@ -661,6 +748,8 @@ async function sendChat(event) {
 }
 
 function bindControls() {
+  $('evaluation-form').addEventListener('submit', evaluatePolicy);
+  $('export-evaluation-btn').addEventListener('click', exportEvaluation);
   $('pause-btn').addEventListener('click', () => control({ action: 'pause' }));
   $('resume-btn').addEventListener('click', () => control({ action: 'resume' }));
   $('step-btn').addEventListener('click', () => control({ action: 'step', steps: 1 }));
@@ -1069,4 +1158,5 @@ bindControls();
 updateControls();
 initScene();
 poll();
-setInterval(updateConnectivity, 1000);
+loadEvaluation();
+setInterval(() => { updateConnectivity(); renderEvaluation(); }, 1000);

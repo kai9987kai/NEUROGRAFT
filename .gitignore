@@ -12,3 +12,4 @@ reports/runs/fixture-five-seed/
 benchmark-output.json
 dist/neurograft-0.1.0-py3-none-any.whl
 scratch/
+output/playwright/

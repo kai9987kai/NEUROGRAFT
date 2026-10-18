@@ -1,0 +1,11 @@
+{
+  "version": "0.5.0",
+  "wheel": "dist\\neurograft-0.5.0-py3-none-any.whl",
+  "wheel_sha256": "fc086e2b4cc7725cfee873b83870fa863b7c9c8c6bdca49b30be45a9859abb6a",
+  "package_files_verified": 36,
+  "source_wheel_mismatches": [],
+  "source_archive": "dist\\neurograft-0.5.0.tar.gz",
+  "source_archive_sha256": "6b2f2d2859c38aef6ba18894b7d0aa25382de24031e1ad058edaacb9186fd787",
+  "source_archive_tools_and_docs": true,
+  "extracted_package_runtime_smoke": true
+}

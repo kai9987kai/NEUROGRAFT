@@ -85,6 +85,25 @@ def parser():
     replay = commands.add_parser("replay", help="verify checkpoint and regenerate held-out task logits")
     replay.add_argument("--checkpoint", required=True)
     replay.add_argument("--bundle", required=True)
+    nav = commands.add_parser("evaluate-live", help="evaluate a frozen live checkpoint on matched navigation trials")
+    nav.add_argument("--bundle", required=True)
+    nav.add_argument("--checkpoint", required=True)
+    nav.add_argument("--out", required=True)
+    nav.add_argument("--seeds", default="10000,10001,10002")
+    nav.add_argument("--size", type=int, default=11)
+    nav.add_argument("--preset", default="labyrinth")
+    nav.add_argument("--max-steps", type=int, default=48)
+    curriculum = commands.add_parser('train-navigation', help='train an isolated navigation candidate and compare frozen trials')
+    curriculum.add_argument('--bundle', required=True)
+    curriculum.add_argument('--checkpoint', required=True, help='captured baseline checkpoint; never overwritten')
+    curriculum.add_argument('--out', required=True, help='new experiment directory')
+    curriculum.add_argument('--config', help='JSON object containing CurriculumConfig fields; explicit CLI options override it')
+    curriculum.add_argument('--rounds', type=int, default=None)
+    curriculum.add_argument('--worlds-per-round', '--worlds', dest='worlds_per_round', type=int, default=None)
+    curriculum.add_argument('--updates-per-round', '--updates', dest='updates_per_round', type=int, default=None)
+    curriculum.add_argument('--seed', type=int, default=None)
+    curriculum.add_argument('--learning-rate', '--lr', dest='learning_rate', type=float, default=None)
+    curriculum.add_argument('--init', choices=('fresh', 'checkpoint'), default=None)
     report = commands.add_parser("report", help="create a standalone local HTML experiment report")
     report.add_argument("report")
     report.add_argument("--out", required=True)
@@ -146,6 +165,48 @@ def main(argv=None):
                                      batch_size=args.batch_size, delay=args.delay, hidden_dim=args.hidden_dim,
                                      threads=args.threads, learning_rate=args.learning_rate, data_seed=args.data_seed)
             _print(run_benchmark(bundle, config, args.out, variants=tuple(args.variants.split(','))))
+        elif args.command == "evaluate-live":
+            from .navigation_evaluation import NavigationEvalConfig, frozen_navigation_evaluation
+            from .live import LiveSession
+            destination = Path(args.out)
+            if destination.exists():
+                raise ValueError(f"output already exists: {destination}; choose a new path")
+            config = NavigationEvalConfig(seeds=tuple(int(s) for s in args.seeds.split(',')),
+                                          size=args.size, preset=args.preset, max_steps=args.max_steps)
+            bundle = _bundle(args.bundle)
+            if sum(len(g.nodes) for g in bundle.graphs) > 2000 or sum(len(g.edges) for g in bundle.graphs) > 50000:
+                raise ValueError("navigation evaluation cap is 2,000 nodes and 50,000 observations")
+            result = frozen_navigation_evaluation(LiveSession.load(args.checkpoint, bundle), config)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with destination.open('x', encoding='utf-8') as handle:
+                json.dump(result, handle, indent=2, allow_nan=False)
+                handle.write('\n')
+            _print(result)
+        elif args.command == 'train-navigation':
+            from dataclasses import fields
+            from .navigation_training import CurriculumConfig, run_navigation_training
+            values = {}
+            if args.config is not None:
+                config_path = Path(args.config)
+                if config_path.stat().st_size > 65536:
+                    raise ValueError('curriculum config exceeds 64 KiB')
+                values = json.loads(config_path.read_text(encoding='utf-8-sig'))
+                if not isinstance(values, dict):
+                    raise ValueError('curriculum config must be a JSON object')
+                unknown = set(values) - {field.name for field in fields(CurriculumConfig)}
+                if unknown:
+                    raise ValueError('unknown curriculum config fields: ' + ', '.join(sorted(unknown)))
+                for name in ('validation_seeds', 'test_seeds', 'sizes', 'presets'):
+                    if name in values:
+                        if not isinstance(values[name], list):
+                            raise ValueError(f'{name} must be a JSON array')
+                        values[name] = tuple(values[name])
+            for name in ('rounds', 'worlds_per_round', 'updates_per_round', 'seed', 'learning_rate', 'init'):
+                value = getattr(args, name)
+                if value is not None:
+                    values[name] = value
+            config = CurriculumConfig(**values)
+            _print(run_navigation_training(_bundle(args.bundle), args.checkpoint, args.out, config))
         elif args.command == "report":
             from .report import write_html_report
             result = json.loads(Path(args.report).read_text(encoding="utf-8"))

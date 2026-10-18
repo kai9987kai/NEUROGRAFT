@@ -59,6 +59,8 @@ class LiveApp:
         self.slots = self.state_path.parent / 'checkpoints'
         self.interval, self.autosave = float(interval), float(autosave)
         self.guard = threading.RLock()
+        self.evaluation_guard = threading.Lock()
+        self.latest_evaluation = None
         self.stop_event = threading.Event()
         self.last_error = None
         self.worker = None
@@ -117,7 +119,43 @@ class LiveApp:
             return {**self.session.snapshot(), 'telemetry': self.session.telemetry(),
                     'checkpoints': self.checkpoints(),
                     'runtime': {'autosave_seconds': self.autosave, 'interval_seconds': self.interval,
-                                'last_error': self.last_error}}
+                                'last_error': self.last_error,
+                                'checkpoint_compatibility': self.session.checkpoint_compatibility}}
+
+    def health(self):
+        with self.guard:
+            worker_alive = bool(self.worker and self.worker.is_alive())
+            return {'ok': not self.closed and self.last_error is None and (self.worker is None or worker_alive),
+                    'running': self.session.running, 'learning': self.session.learning,
+                    'worker': {'enabled': self.worker is not None, 'alive': worker_alive},
+                    'last_error': self.last_error, 'closed': self.closed,
+                    'evaluation_running': self.evaluation_guard.locked()}
+
+    def evaluation(self):
+        with self.guard:
+            return self.latest_evaluation
+
+    def evaluate(self, values):
+        from .navigation_evaluation import NavigationEvalConfig, frozen_navigation_evaluation
+        if not isinstance(values, dict) or set(values) - {'seeds', 'size', 'preset', 'max_steps'}:
+            raise ValueError('evaluation accepts only seeds, size, preset and max_steps')
+        seeds = values.get('seeds', [10000, 10001, 10002])
+        if not isinstance(seeds, list):
+            raise ValueError('evaluation seeds must be a JSON array of integers')
+        config = NavigationEvalConfig(seeds=tuple(seeds), size=values.get('size', 11),
+                                      preset=values.get('preset', 'labyrinth'),
+                                      max_steps=values.get('max_steps', 48))
+        if not self.evaluation_guard.acquire(blocking=False):
+            raise ConflictError('a frozen navigation evaluation is already running')
+        try:
+            with self.guard:
+                candidate = self.session
+            report = frozen_navigation_evaluation(candidate, config)
+            with self.guard:
+                self.latest_evaluation = report
+            return report
+        finally:
+            self.evaluation_guard.release()
 
     def save(self, name='default'):
         path = self._slot(name)
@@ -152,9 +190,10 @@ class LiveApp:
         elif action == 'boost':
             count = _bounded_int(values.get('steps', 16), 'steps', 1, 64)
         elif action == 'world':
+            from .environment import NavigationWorld
             wsize = _bounded_int(values.get('size', 15), 'size', 5, 31)
             wpreset = values.get('preset', 'labyrinth')
-            if not isinstance(wpreset, str) or wpreset not in ('labyrinth', 'chambers', 'corridors', 'pillars'):
+            if not isinstance(wpreset, str) or wpreset not in NavigationWorld.PRESETS:
                 raise ValueError('invalid world preset')
         elif action == 'memory_lesion':
             mmode = values.get('mode', 'intact')

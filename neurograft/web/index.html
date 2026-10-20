@@ -13,7 +13,7 @@
   <header class="app-header">
     <a class="brand" href="/" aria-label="Neurograft live laboratory">
       <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M10 29V11l20 18V11"/><circle cx="10" cy="11" r="3"/><circle cx="30" cy="29" r="3"/></svg>
-      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.7</span></span></span>
+      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.9</span></span></span>
     </a>
     <div class="header-note">Four source graphs. One evolving circuit.</div>
     <button type="button" class="pill research-trigger" popovertarget="research-popover">📚 2024–2026 Research Basis</button>
@@ -68,28 +68,46 @@
         <div class="metric"><span>Total reward</span><strong id="metric-reward">—</strong><small id="metric-action">Action —</small></div>
       </section>
 
+      <section class="panel navigation-panel" aria-labelledby="navigation-heading">
+        <div class="panel-heading compact"><div><span class="eyebrow">LOCAL SENSORS · EPISODIC MEMORY</span><h2 id="navigation-heading">Navigation controller</h2></div></div>
+        <div class="navigation-layout"><div>
+          <label for="navigation-mode">Action selection</label>
+          <select id="navigation-mode" data-write disabled><option value="policy">Raw policy + configured guidance</option><option value="masked_policy">Policy with legal-action mask</option><option value="observed_map">Observed map + policy tie-break</option></select>
+          <p id="navigation-status" class="evaluation-status" role="status">Waiting for a session.</p>
+          <p class="evaluation-note">Mask and map modes bypass teacher actions. Mapping uses current position, known goal, adjacent walls and public arena size. Gains here belong to the controller; raw neural performance is measured separately.</p>
+          <p id="navigation-map-note" class="evaluation-note"></p>
+        </div><div class="navigation-map-wrap"><svg id="observed-map" viewBox="0 0 150 150" role="img" aria-label="Controller map: dark unknown cells, gray observed walls, teal observed free cells, bright visited cells"></svg><p class="evaluation-note">Observed cells only · amber goal · white agent</p></div></div>
+      </section>
+
       <section class="panel evaluation-panel" aria-labelledby="evaluation-heading">
         <div class="panel-heading"><div><span class="eyebrow">FROZEN WEIGHTS · FRESH SEEDED WORLDS</span><h2 id="evaluation-heading">Navigation trials</h2></div><span class="pill">Teacher OFF · Learning OFF</span></div>
-        <p class="evaluation-intro">Measure this policy on fresh arenas with matched controls. Live controls stay available while an isolated copy is evaluated. These synthetic navigation trials are separate from recent live teacher agreement.</p>
+        <p class="evaluation-intro">Measure this policy on seeded arenas with matched controls. Live controls stay available while an isolated copy is evaluated. These synthetic navigation trials are separate from recent live teacher agreement; seeds alone do not certify unseen training worlds.</p>
         <form id="evaluation-form" class="evaluation-form">
           <label>World seeds<input id="evaluation-seeds" value="10000,10001,10002" required maxlength="180" data-evaluation-config autocomplete="off" aria-describedby="evaluation-budget-note"></label>
           <label>Arena size<input id="evaluation-size" type="number" min="5" max="31" value="11" required data-evaluation-config></label>
           <label>Topology<select id="evaluation-preset" data-evaluation-config><option value="labyrinth">Labyrinth</option><option value="chambers">Chambers</option><option value="corridors">Corridors</option><option value="pillars">Pillars</option><option value="concentric">Concentric</option><option value="hierarchical">Hierarchical</option></select></label>
           <label>Steps per trial<input id="evaluation-steps" type="number" min="1" max="128" value="48" required data-evaluation-config></label>
+          <label class="controller-suite-option"><input id="evaluation-controllers" type="checkbox" data-evaluation-config> Include mask, observed-map and map-only controls</label>
           <div class="evaluation-actions"><button id="evaluate-btn" class="button primary" type="submit" disabled>Evaluate frozen policy</button><button id="export-evaluation-btn" class="button" type="button" disabled>Export JSON ↓</button></div>
         </form>
         <p id="evaluation-budget-note" class="evaluation-note">Up to 16 seeds and 128 steps each. CPU trials may take a little time.</p>
         <p id="evaluation-status" class="evaluation-status" role="status" aria-live="polite">No frozen evaluation yet.</p>
         <div id="evaluation-results" hidden>
           <p id="evaluation-snapshot" class="evaluation-snapshot mono"></p>
-          <div class="evaluation-table-wrap"><table class="evaluation-table"><caption class="sr-only">Frozen policy and matched navigation controls</caption><thead><tr><th scope="col">Variant</th><th scope="col">Trials</th><th scope="col">Success</th><th scope="col"><abbr title="Success weighted by path length: failed trials score zero, direct successful routes score one">SPL</abbr></th><th scope="col">Collisions</th><th scope="col">Mean steps</th><th scope="col">Teacher agreement</th></tr></thead><tbody id="evaluation-table-body"></tbody></table></div>
+          <div class="evaluation-table-wrap"><table class="evaluation-table"><caption class="sr-only">Frozen policy and matched navigation controls</caption><thead><tr><th scope="col">Variant</th><th scope="col">Trials</th><th scope="col">Success</th><th scope="col"><abbr title="Success weighted by path length: failed trials score zero, direct successful routes score one">SPL</abbr></th><th scope="col">Collisions</th><th scope="col">Mean steps</th><th scope="col">Teacher agreement</th><th scope="col">Proposed walls</th><th scope="col">Overrides</th></tr></thead><tbody id="evaluation-table-body"></tbody></table></div>
           <p id="evaluation-effects" class="evaluation-note"></p>
           <p id="evaluation-scope" class="evaluation-note"></p>
         </div>
       </section>
 
+      <section class="panel" aria-labelledby="scope-heading" id="experiment-scope">
+        <div class="panel-heading compact"><div><span class="eyebrow">EXPERIMENT SCOPE</span><h2 id="scope-heading">What drives navigation</h2></div><span class="pill">Synthetic grid task</span></div>
+        <p class="evaluation-intro">Graph encoders, recurrence, synthetic grafts and the action head produce raw policy moves. Live raw-policy mode can supply teacher actions. Optional mask/map controllers alter action selection explicitly; extended trials distinguish their effects from the raw policy.</p>
+        <p class="evaluation-note">Terrain, odor plume, antennae, optic clearance, gate permeability and circadian lighting are synthetic diagnostic cues. They do not feed the policy or change movement physics. Auxiliary memory, compass, bioelectric and agency panels are observers; their readouts do not establish biological mechanisms or navigation benefit.</p>
+      </section>
+
       <div class="analysis-grid">
-        <section class="panel sources-panel" aria-labelledby="sources-heading"><div class="panel-heading compact"><div><span class="eyebrow">CIRCUIT INPUTS &amp; TOP FIRING NODES</span><h2 id="sources-heading">Source activity</h2></div><span class="subtle-label">MEAN STATE MAGNITUDE</span></div><div class="source-list" id="source-list"></div><div class="panel-foot">Source topology is fixed. Top firing authentic worm neurons &amp; graft gates update live.</div></section>
+        <section class="panel sources-panel" aria-labelledby="sources-heading"><div class="panel-heading compact"><div><span class="eyebrow">CIRCUIT INPUTS &amp; TOP FIRING NODES</span><h2 id="sources-heading">Source activity</h2></div><span class="subtle-label">MEAN STATE MAGNITUDE</span></div><div class="source-list" id="source-list"></div><div class="panel-foot">Source topology is fixed. Source labels distinguish fixtures from imported graphs; activity and synthetic graft gates update live.</div></section>
         <section class="panel routing-panel" aria-labelledby="routing-heading"><div class="panel-heading compact"><div><span class="eyebrow">INTERNAL SIGNALS</span><h2 id="routing-heading">Synthetic routing</h2></div><span class="subtle-label">RECIPIENT ↓ / SOURCE →</span></div><div class="routing-matrix" id="routing-matrix" aria-label="Synthetic latent routing weights"></div><div class="panel-foot">Engineered latent edges · brighter cells carry more weight</div></section>
       </div>
 

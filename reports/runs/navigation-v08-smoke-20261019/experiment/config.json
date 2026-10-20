@@ -1,0 +1,39 @@
+{
+  "rounds": 2,
+  "worlds_per_round": 24,
+  "updates_per_round": 16,
+  "batch_size": 8,
+  "sizes": [
+    5,
+    7,
+    9,
+    11
+  ],
+  "presets": [
+    "labyrinth",
+    "chambers",
+    "corridors",
+    "pillars",
+    "concentric",
+    "hierarchical"
+  ],
+  "init": "fresh",
+  "learning_rate": 0.005,
+  "validation_seeds": [
+    20000,
+    20001
+  ],
+  "test_seeds": [
+    30000,
+    30001,
+    30002,
+    30003
+  ],
+  "dense_warmup_rounds": 1,
+  "train_seed_start": 0,
+  "seed": 0,
+  "replay_capacity": 128,
+  "max_steps": 24,
+  "eval_size": 7,
+  "eval_preset": "labyrinth"
+}

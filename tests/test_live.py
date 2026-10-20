@@ -73,7 +73,7 @@ def test_snapshot_is_finite_json_and_reports_world_counters_and_honest_scope():
     expected = {"version", "running", "learning", "steps", "updates", "episodes", "goals_reached",
                 "last_loss", "loss_history", "reward_history", "policy_accuracy", "last_action",
                 "last_action_source", "teacher_probability", "world", "sources", "routes", "activity",
-                "facts", "chat", "backend", "graph_hash", "model_hash", "last_saved", "evidence_scope"}
+                "facts", "chat", "backend", "graph_hash", "model_hash", "last_saved", "evidence_scope", "navigation"}
     assert set(snap) == expected
     assert snap["backend"] == "local-memory-and-control"
     assert "supervised" in snap["evidence_scope"].lower()

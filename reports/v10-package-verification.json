@@ -1,0 +1,16 @@
+{
+  "wheel": "neurograft-0.10.0-py3-none-any.whl",
+  "sha256": "eedfff48401630c99f7dd2776511363cb285275566c347cfaa15370f834f98bd",
+  "source_files_equal": 42,
+  "readme_metadata_equal": true,
+  "isolated_package_verification": {
+    "ok": true,
+    "schema": "navigation-readout-study-v1",
+    "runs_verified": 12,
+    "artifacts_verified": 18,
+    "replay_verified": false,
+    "training_replayed": false,
+    "promotion_performed": false,
+    "evidence_scope": "Synthetic navigation learning study. All four arms and all initialization seeds are reported; there is no test-based selection among arms or seeds. Each run selects its checkpoint using validation success, SPL and collisions only, retaining the earlier checkpoint on ties. Each seed sets both model initialization and the training-world seed offset; arms share that seed's corpus. Raw policy is unassisted during frozen evaluation. Expert collection uses privileged full-map shortest-path labels with fixed N/E/S/W tie-breaking; the student sees only its observation window. Rotation augmentation transforms observations and labels, without providing architectural equivariance. No-graft, no-recurrence and no-context are inference interventions, not separately trained ablations. Context residual increases the parameter count while optimizer updates and raw sample budgets are matched. Random and shortest-path controls are reported separately. Episodes pooled across initialization seeds are correlated by scenario and are not independent replications; no episode-level significance test or confidence interval is claimed. Declared test seeds do not certify absence from earlier source training. No checkpoint promotion or biological advantage is established. Hashes are local integrity receipts, not authenticity signatures; training is not replayed."
+  }
+}

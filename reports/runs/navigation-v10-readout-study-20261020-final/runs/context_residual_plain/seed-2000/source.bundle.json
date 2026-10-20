@@ -1,0 +1,505 @@
+{
+  "schema_version": 1,
+  "graphs": [
+    {
+      "manifest": {
+        "source_id": "worm",
+        "species": "synthetic neurons",
+        "version": "fixture-v1",
+        "url": "local://neurograft/synthetic-fixture",
+        "citation": "NEUROGRAFT synthetic software fixture",
+        "license": "synthetic-test-data",
+        "scale": "single_neuron",
+        "status": "fixture",
+        "sha256": "",
+        "retrieved_at": "2026-10-17T00:00:00Z",
+        "processing": [
+          "synthetic_fixture: seed=0; nodes_per_source=4; no-biological-input"
+        ],
+        "authorized": false
+      },
+      "nodes": [
+        {
+          "id": "worm:0",
+          "source_id": "worm",
+          "kind": "neuron",
+          "original_id": "0"
+        },
+        {
+          "id": "worm:1",
+          "source_id": "worm",
+          "kind": "neuron",
+          "original_id": "1"
+        },
+        {
+          "id": "worm:2",
+          "source_id": "worm",
+          "kind": "neuron",
+          "original_id": "2"
+        },
+        {
+          "id": "worm:3",
+          "source_id": "worm",
+          "kind": "neuron",
+          "original_id": "3"
+        }
+      ],
+      "edges": [
+        {
+          "src": "worm:0",
+          "dst": "worm:1",
+          "relation": "chemical",
+          "weight": 3.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "worm:1",
+          "dst": "worm:2",
+          "relation": "chemical",
+          "weight": 5.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "worm:2",
+          "dst": "worm:1",
+          "relation": "chemical",
+          "weight": 2.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "worm:2",
+          "dst": "worm:3",
+          "relation": "chemical",
+          "weight": 5.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "worm:3",
+          "dst": "worm:0",
+          "relation": "chemical",
+          "weight": 2.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "worm:3",
+          "dst": "worm:1",
+          "relation": "chemical",
+          "weight": 3.0,
+          "source_id": "worm",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "worm:0",
+          "dst": "worm:1",
+          "relation": "electrical",
+          "weight": 1.0,
+          "source_id": "worm",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "worm:0",
+          "dst": "worm:2",
+          "relation": "electrical",
+          "weight": 3.0,
+          "source_id": "worm",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "worm:1",
+          "dst": "worm:3",
+          "relation": "electrical",
+          "weight": 2.0,
+          "source_id": "worm",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "worm:2",
+          "dst": "worm:3",
+          "relation": "electrical",
+          "weight": 2.0,
+          "source_id": "worm",
+          "directed": false,
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "manifest": {
+        "source_id": "fly_f",
+        "species": "synthetic neurons",
+        "version": "fixture-v1",
+        "url": "local://neurograft/synthetic-fixture",
+        "citation": "NEUROGRAFT synthetic software fixture",
+        "license": "synthetic-test-data",
+        "scale": "single_neuron",
+        "status": "fixture",
+        "sha256": "",
+        "retrieved_at": "2026-10-17T00:00:00Z",
+        "processing": [
+          "synthetic_fixture: seed=0; nodes_per_source=4; no-biological-input"
+        ],
+        "authorized": false
+      },
+      "nodes": [
+        {
+          "id": "fly_f:0",
+          "source_id": "fly_f",
+          "kind": "neuron",
+          "original_id": "0"
+        },
+        {
+          "id": "fly_f:1",
+          "source_id": "fly_f",
+          "kind": "neuron",
+          "original_id": "1"
+        },
+        {
+          "id": "fly_f:2",
+          "source_id": "fly_f",
+          "kind": "neuron",
+          "original_id": "2"
+        },
+        {
+          "id": "fly_f:3",
+          "source_id": "fly_f",
+          "kind": "neuron",
+          "original_id": "3"
+        }
+      ],
+      "edges": [
+        {
+          "src": "fly_f:0",
+          "dst": "fly_f:1",
+          "relation": "chemical",
+          "weight": 5.0,
+          "source_id": "fly_f",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_f:1",
+          "dst": "fly_f:2",
+          "relation": "chemical",
+          "weight": 3.0,
+          "source_id": "fly_f",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_f:2",
+          "dst": "fly_f:3",
+          "relation": "chemical",
+          "weight": 1.0,
+          "source_id": "fly_f",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_f:3",
+          "dst": "fly_f:0",
+          "relation": "chemical",
+          "weight": 5.0,
+          "source_id": "fly_f",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_f:3",
+          "dst": "fly_f:1",
+          "relation": "chemical",
+          "weight": 1.0,
+          "source_id": "fly_f",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_f:0",
+          "dst": "fly_f:2",
+          "relation": "electrical",
+          "weight": 1.0,
+          "source_id": "fly_f",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "fly_f:1",
+          "dst": "fly_f:3",
+          "relation": "electrical",
+          "weight": 3.0,
+          "source_id": "fly_f",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "fly_f:2",
+          "dst": "fly_f:3",
+          "relation": "electrical",
+          "weight": 2.0,
+          "source_id": "fly_f",
+          "directed": false,
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "manifest": {
+        "source_id": "fly_m",
+        "species": "synthetic neurons",
+        "version": "fixture-v1",
+        "url": "local://neurograft/synthetic-fixture",
+        "citation": "NEUROGRAFT synthetic software fixture",
+        "license": "synthetic-test-data",
+        "scale": "single_neuron",
+        "status": "fixture",
+        "sha256": "",
+        "retrieved_at": "2026-10-17T00:00:00Z",
+        "processing": [
+          "synthetic_fixture: seed=0; nodes_per_source=4; no-biological-input"
+        ],
+        "authorized": false
+      },
+      "nodes": [
+        {
+          "id": "fly_m:0",
+          "source_id": "fly_m",
+          "kind": "neuron",
+          "original_id": "0"
+        },
+        {
+          "id": "fly_m:1",
+          "source_id": "fly_m",
+          "kind": "neuron",
+          "original_id": "1"
+        },
+        {
+          "id": "fly_m:2",
+          "source_id": "fly_m",
+          "kind": "neuron",
+          "original_id": "2"
+        },
+        {
+          "id": "fly_m:3",
+          "source_id": "fly_m",
+          "kind": "neuron",
+          "original_id": "3"
+        }
+      ],
+      "edges": [
+        {
+          "src": "fly_m:0",
+          "dst": "fly_m:1",
+          "relation": "chemical",
+          "weight": 1.0,
+          "source_id": "fly_m",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:0",
+          "dst": "fly_m:3",
+          "relation": "chemical",
+          "weight": 3.0,
+          "source_id": "fly_m",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:1",
+          "dst": "fly_m:0",
+          "relation": "chemical",
+          "weight": 5.0,
+          "source_id": "fly_m",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:1",
+          "dst": "fly_m:2",
+          "relation": "chemical",
+          "weight": 4.0,
+          "source_id": "fly_m",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:2",
+          "dst": "fly_m:3",
+          "relation": "chemical",
+          "weight": 1.0,
+          "source_id": "fly_m",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:3",
+          "dst": "fly_m:0",
+          "relation": "chemical",
+          "weight": 3.0,
+          "source_id": "fly_m",
+          "directed": true,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:0",
+          "dst": "fly_m:2",
+          "relation": "electrical",
+          "weight": 3.0,
+          "source_id": "fly_m",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:1",
+          "dst": "fly_m:2",
+          "relation": "electrical",
+          "weight": 3.0,
+          "source_id": "fly_m",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "fly_m:2",
+          "dst": "fly_m:3",
+          "relation": "electrical",
+          "weight": 2.0,
+          "source_id": "fly_m",
+          "directed": false,
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "manifest": {
+        "source_id": "human",
+        "species": "synthetic human regions",
+        "version": "fixture-v1",
+        "url": "local://neurograft/synthetic-fixture",
+        "citation": "NEUROGRAFT synthetic software fixture",
+        "license": "synthetic-test-data",
+        "scale": "brain_region",
+        "status": "fixture",
+        "sha256": "",
+        "retrieved_at": "2026-10-17T00:00:00Z",
+        "processing": [
+          "synthetic_fixture: seed=0; nodes_per_source=4; no-biological-input"
+        ],
+        "authorized": false
+      },
+      "nodes": [
+        {
+          "id": "human:0",
+          "source_id": "human",
+          "kind": "region",
+          "original_id": "0"
+        },
+        {
+          "id": "human:1",
+          "source_id": "human",
+          "kind": "region",
+          "original_id": "1"
+        },
+        {
+          "id": "human:2",
+          "source_id": "human",
+          "kind": "region",
+          "original_id": "2"
+        },
+        {
+          "id": "human:3",
+          "source_id": "human",
+          "kind": "region",
+          "original_id": "3"
+        }
+      ],
+      "edges": [
+        {
+          "src": "human:0",
+          "dst": "human:1",
+          "relation": "macro_structural",
+          "weight": 2.0,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:0",
+          "dst": "human:3",
+          "relation": "macro_structural",
+          "weight": 1.0,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:1",
+          "dst": "human:2",
+          "relation": "macro_structural",
+          "weight": 5.0,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:1",
+          "dst": "human:3",
+          "relation": "macro_structural",
+          "weight": 3.0,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:2",
+          "dst": "human:3",
+          "relation": "macro_structural",
+          "weight": 4.0,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:0",
+          "dst": "human:1",
+          "relation": "macro_functional",
+          "weight": 0.3,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:0",
+          "dst": "human:3",
+          "relation": "macro_functional",
+          "weight": -0.4,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        },
+        {
+          "src": "human:2",
+          "dst": "human:3",
+          "relation": "macro_functional",
+          "weight": -0.4,
+          "source_id": "human",
+          "directed": false,
+          "confidence": null
+        }
+      ]
+    }
+  ],
+  "sha256": "e11df95be51a132ca1db6f5f8a104d4fefe98455623e0ca0fc1e89133bf92fd5"
+}

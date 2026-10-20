@@ -37,6 +37,7 @@ from .dynamics import DynamicsConfig, GraphCircuit
 from .environment import NavigationWorld
 from .graphs import GraphBundle
 from .memory import TriTierMemory
+from .navigation_controller import MODES, ObservedMapNavigator, legal_action
 from . import live_state
 from .phase_plane import PhasePlaneEngine
 from .self_model import ConnectomeForwardSelfModel, SelfModelConfig
@@ -46,7 +47,7 @@ from .stp import STPConfig, TsodyksMarkramSubstrate
 
 MAX_CHECKPOINT_BYTES = 128 * 1024 * 1024
 _VERSION = 1
-_CHECKPOINT_VERSION = 2
+_CHECKPOINT_VERSION = 3
 _BACKEND = "local-memory-and-control"
 _TORCH_INIT_LOCK = threading.RLock()
 _SCOPE = ("Online supervised shortest-path imitation in a synthetic navigation world; "
@@ -130,6 +131,7 @@ class LiveConfig:
     replay_capacity: int = 128
     teacher_probability: float = 0.45
     threads: int = 2
+    readout: str = "human"
 
     def __post_init__(self):
         for name, low, high in (("seed", 0, 2**63 - 1), ("hidden_dim", 2, 32), ("batch_size", 1, 16),
@@ -140,6 +142,8 @@ class LiveConfig:
         _number(self.teacher_probability, 0, 1, "teacher_probability")
         if self.replay_capacity < self.batch_size:
             raise ValueError("replay_capacity must cover batch_size")
+        if type(self.readout) is not str or self.readout not in ("human", "context_residual"):
+            raise ValueError("readout must be 'human' or 'context_residual'")
 
 
 class LiveSession:
@@ -157,11 +161,13 @@ class LiveSession:
                 torch.set_num_threads(self.config.threads)
             with torch.random.fork_rng(devices=[]):
                 torch.manual_seed(self.config.seed)
-                self.model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4))
+                self.model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4,
+                                                                 readout=self.config.readout))
                 self.consolidation = ConnectomeConsolidationStack(
                     ConsolidationConfig(hidden_size=self.config.hidden_dim, shared_dim=32, latent_experts=4, latent_top_k=2)
                 )
-                self.anchor_model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4))
+                self.anchor_model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4,
+                                                                        readout=self.config.readout))
                 self.anchor_model.load_state_dict(self.model.state_dict())
                 self.anchor_model.eval()
                 self.stp = TsodyksMarkramSubstrate([len(g.nodes) for g in bundle.graphs], STPConfig(dt=0.20))
@@ -202,6 +208,8 @@ class LiveSession:
         self._checkpoint_compatibility = {"loaded_format": _CHECKPOINT_VERSION, "auxiliary_state_restored": True}
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.world = NavigationWorld(seed=self.config.seed)
+        self.navigation_mode = 'policy'
+        self.navigator = ObservedMapNavigator(self.world.size)
         self.rng = random.Random(self.config.seed ^ 0x4E47524F)
         self.recurrent_state = self.model.initial_state(1)
         self.replay = deque(maxlen=self.config.replay_capacity)
@@ -313,6 +321,20 @@ class LiveSession:
         self.phase_plane.reset()
         self._phase_summary = None
         self._telemetry_archaeology_cache = None
+        self.navigator = ObservedMapNavigator(self.world.size)
+
+    def set_navigation_mode(self, mode):
+        """Select explicit control assistance; learned-policy behavior is default.
+
+        Opt-in controllers read observations and never mix shortest-path teacher
+        actions. Supervised replay labels can still be collected while learning.
+        """
+        if type(mode) is not str or mode not in MODES:
+            raise ValueError('navigation mode must be one of: ' + ', '.join(MODES))
+        with self.lock:
+            self.navigation_mode = mode
+            self._reset_inference()
+            return self.snapshot()
 
     @property
     def checkpoint_compatibility(self):
@@ -391,8 +413,16 @@ class LiveSession:
                 self.routes = output.routes[0].detach().clone()
                 self.replay.append({"observations": padded, "action": expert})
                 policy_action = int(output.logits.argmax(-1))
+                controlled_action = None
+                if self.navigation_mode == 'observed_map':
+                    controlled_action = self.navigator.choose(observation, output.logits[0].tolist())
+                elif self.navigation_mode == 'masked_policy':
+                    controlled_action = legal_action(observation, output.logits[0].tolist())
                 if manual_action is not None:
                     action, source = manual_action, "manual"
+                elif controlled_action is not None:
+                    self.policy_matches.append(policy_action == expert)
+                    action, source = controlled_action, self.navigation_mode
                 else:
                     self.policy_matches.append(policy_action == expert)
                     assisted = self.rng.random() < self.config.teacher_probability
@@ -663,6 +693,10 @@ class LiveSession:
                     "policy_accuracy": sum(self.policy_matches) / len(self.policy_matches) if self.policy_matches else 0.0,
                     "last_action": self.last_action, "last_action_source": self.last_action_source,
                     "teacher_probability": self.config.teacher_probability, "world": world,
+                    "navigation": {"mode": self.navigation_mode,
+                                   "readout": self.config.readout,
+                                   "teacher_probability": self.config.teacher_probability if self.navigation_mode == 'policy' else 0.0,
+                                   "map": self.navigator.snapshot()},
                     "sources": {key: dict(value) for key, value in self._sources.items()},
                     "routes": self.routes.tolist(),
                     "activity": [float(state.abs().mean()) for state in self.recurrent_state],
@@ -899,6 +933,13 @@ class LiveSession:
                          f"MTPR={arch['mtpr']:.3f}, intact entropy={arch['intact_entropy']:.2f}, "
                          f"lesioned fidelity={arch['lesioned_fidelity']:.1%}, rescued fidelity={arch['rescued_fidelity']:.1%} "
                          f"(bioelectric rescue Δ={arch['rescue_delta']:+.3f}).")
+            elif lower in ('navigation', 'navigator'):
+                effective_teacher = self.config.teacher_probability if self.navigation_mode == 'policy' else 0.0
+                observed = self.navigator.snapshot()
+                reply = (f"Navigation controller: {self.navigation_mode}; effective teacher actions {effective_teacher:.0%}. "
+                         f"Observed map: {observed['known_free']} free cells, {observed['known_blocked']} blocked cells, "
+                         f"{observed['visited']} visited; last decision reason: {observed['reason']}. "
+                         "Observed-map routing and legal-action masking are engineered assistance; raw policy accuracy is separate.")
             elif lower in ("why", "explain", "decision", "probe"):
                 info = self.telemetry()
                 names = ("north", "east", "south", "west")
@@ -908,6 +949,10 @@ class LiveSession:
                 reply = (f"Decision probe at ({self.world._agent[0]}, {self.world._agent[1]}) toward {goal['color']} "
                          f"({goal['x']}, {goal['z']}): policy [{dist}], shortest-path teacher recommends {teacher} "
                          f"(remaining path {max(0, len(info['expert_path']) - 1)} cells, graft Δlogits = {info['graft_impact']:.3f}).")
+                effective_teacher = self.config.teacher_probability if self.navigation_mode == 'policy' else 0.0
+                assistance = 'configured teacher mixing' if self.navigation_mode == 'policy' else 'teacher actions bypassed'
+                reply += (f" Active controller: {self.navigation_mode}; effective teacher actions {effective_teacher:.0%} "
+                          f"({assistance}); observed-map last decision reason: {self.navigator.snapshot()['reason']}.")
             elif match := re.fullmatch(r"move\s+(north|east|south|west)", lower):
                 direction = {"north": 0, "east": 1, "south": 2, "west": 3}[match[1]]
                 self.tick(steps=1, manual_action=direction)
@@ -923,7 +968,7 @@ class LiveSession:
                          f"{self.world.goals_reached} goals reached; recent policy match {acc:.0%}; "
                          f"||Δθ||₂ = {info['weight_delta_norm']:.3f}; {'running' if self._running else 'paused'}. "
                          "Commands: pause, resume, learn on/off, evolve [1-64], world [5-31] [preset], preset [labyrinth|chambers|corridors|pillars|concentric|hierarchical], "
-                         "neurons, lesion, neuromodulators, motifs, maze, routes, dale, consolidation, anchor sync, stp, spectral, byte, plume, bioelectric, agency, archaeology, why, "
+                         "neurons, lesion, neuromodulators, motifs, maze, routes, dale, consolidation, anchor sync, stp, spectral, byte, plume, bioelectric, agency, archaeology, why, navigation, "
                          "step [1-32], move north/east/south/west, status, save, go to blue/amber/rose or go to x,z, "
                          "remember key = value, recall key, forget key, facts, reset world.")
             elif match := re.fullmatch(r"remember\s+(.+?)\s*(?:=|\bis\b)\s*(.+)", message, re.IGNORECASE):
@@ -961,7 +1006,8 @@ class LiveSession:
                 "last_action": self.last_action, "last_action_source": self.last_action_source,
                 "last_logits": self.last_logits, "routes": self.routes, "facts": dict(self.facts),
                 "chat": list(self.chat_history), "last_saved": self.last_saved,
-                "auxiliary": live_state.capture(self)}
+                "auxiliary": live_state.capture(self),
+                "navigation": {"mode": self.navigation_mode, "navigator": self.navigator.to_dict()}}
 
     def save(self, path):
         path = Path(path).resolve()
@@ -1050,11 +1096,13 @@ class LiveSession:
             expected_fields = set(self._payload())
             if version == 1:
                 expected_fields.remove("auxiliary")
-            if set(payload) != expected_fields or type(version) is not int or version not in (1, _CHECKPOINT_VERSION):
+            if version in (1, 2):
+                expected_fields.remove("navigation")
+            if set(payload) != expected_fields or type(version) is not int or version not in (1, 2, _CHECKPOINT_VERSION):
                 raise ValueError("unsupported checkpoint fields or version")
             _integer(payload["steps"], 0, 2**53 - 1, "steps")
             _integer(payload["updates"], 0, payload["steps"] // self.config.train_every, "updates")
-            if version == _CHECKPOINT_VERSION:
+            if version >= 2:
                 live_state.validate(self, payload["auxiliary"], payload["steps"])
             if type(payload["running"]) is not bool or type(payload["learning"]) is not bool:
                 raise ValueError("checkpoint control flags must be booleans")
@@ -1071,6 +1119,24 @@ class LiveSession:
             world = NavigationWorld.from_dict(payload["world"])
             if world.steps != payload["steps"]:
                 raise ValueError("world/session step counters disagree")
+            navigation_mode = 'policy'
+            navigator = ObservedMapNavigator(world.size)
+            if version >= 3:
+                navigation = payload['navigation']
+                if (type(navigation) is not dict or set(navigation) != {'mode', 'navigator'}
+                        or type(navigation['mode']) is not str or navigation['mode'] not in MODES):
+                    raise ValueError('invalid checkpoint navigation fields or mode')
+                navigation_mode = navigation['mode']
+                navigator = ObservedMapNavigator.from_dict(navigation['navigator'])
+                if navigator.size != world.size:
+                    raise ValueError('checkpoint navigation map size disagrees with world')
+                if sum(navigator.visits.values()) > payload['steps']:
+                    raise ValueError('checkpoint navigation visits exceed session steps')
+                if (any(not world._free(cell) for cell in navigator.known_free)
+                        or any(world._free(cell) for cell in navigator.known_blocked)):
+                    raise ValueError('checkpoint navigation observations disagree with world occupancy')
+                if navigator.goal is not None and navigator.goal != world._goal:
+                    raise ValueError('checkpoint navigation goal disagrees with world')
             rng = random.Random()
             try:
                 rng.setstate(payload["rng"])
@@ -1115,7 +1181,23 @@ class LiveSession:
                 _number(payload["last_loss"], 0, 1e9, "last_loss")
             if payload["last_action"] is not None:
                 _integer(payload["last_action"], 0, 3, "last_action")
-            if payload["last_action_source"] not in (None, "manual", "policy", "teacher"):
+            if navigator.current is not None:
+                # A controller records the sensory pose before its last step.
+                # The saved world records the pose after the executed action,
+                # which may differ from the controller's proposal after a
+                # manual override, or stay put after a wall collision.
+                if payload['last_action'] is None:
+                    raise ValueError('checkpoint navigation transition lacks an executed action')
+                dx, dz = world.ACTIONS[payload['last_action']]
+                expected_position = (navigator.current[0] + dx, navigator.current[1] + dz)
+                if not world._free(expected_position):
+                    expected_position = navigator.current
+                if world._agent not in navigator.known_free or world._agent != expected_position:
+                    raise ValueError('checkpoint navigation position disagrees with the executed transition')
+            action_sources = (None, "manual", "policy", "teacher")
+            if version >= 3:
+                action_sources += ('masked_policy', 'observed_map')
+            if payload["last_action_source"] not in action_sources:
                 raise ValueError("invalid action source")
             facts = payload["facts"]
             if not isinstance(facts, dict) or len(facts) > 64:
@@ -1142,6 +1224,7 @@ class LiveSession:
             self._anchor_kl_drift = 0.0
             self.optimizer.load_state_dict(payload["optimizer"])
             self.world, self.rng = world, rng
+            self.navigation_mode, self.navigator = navigation_mode, navigator
             self.recurrent_state = tuple(tensor.detach().clone() for tensor in state)
             self.last_logits, self.routes = payload["last_logits"].clone(), routes.clone()
             self.replay.extend(replay)
@@ -1155,8 +1238,9 @@ class LiveSession:
             self.facts = dict(facts)
             self.chat_history.extend(chat)
             self._model_hash = None
-            if version == _CHECKPOINT_VERSION:
+            if version >= 2:
                 live_state.install(self, payload["auxiliary"])
+                self._checkpoint_compatibility = {'loaded_format': version, 'auxiliary_state_restored': True}
             else:
                 self._checkpoint_compatibility = {"loaded_format": 1, "auxiliary_state_restored": False}
                 warnings.warn("Legacy live checkpoint lacks auxiliary state; anchor and observers were reinitialized. Exact full-session continuation is unavailable.", RuntimeWarning, stacklevel=2)

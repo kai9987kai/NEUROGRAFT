@@ -180,6 +180,7 @@ def test_legacy_restore_exposes_auxiliary_reset_notice_in_runtime(tmp_path):
     with service(tmp_path) as (app, url):
         payload = copy.deepcopy(app.session._payload())
         payload.pop('auxiliary')
+        payload.pop('navigation')
         payload['version'] = 1
         app.slots.mkdir(parents=True)
         torch.save({'payload': payload, 'sha256': _checkpoint_digest(payload)}, app.slots / 'legacy.pt')
@@ -234,4 +235,285 @@ def test_browser_application_javascript_parses():
     script = Path(__file__).resolve().parents[1] / 'neurograft' / 'web' / 'app.js'
     result = subprocess.run([node, '--check', str(script)], capture_output=True, text=True, timeout=15)
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize('existing', [False, True])
+def test_failed_live_bind_preserves_checkpoint_and_releases_writer(tmp_path, monkeypatch, existing):
+    from neurograft.fixtures import make_fixture_bundle
+    from neurograft.live import LiveSession
+    from neurograft import server
+    from neurograft.service import LiveApp
+    bundle = make_fixture_bundle(nodes_per_source=4)
+    path = tmp_path / 'session.pt'
+    if existing:
+        session = LiveSession(bundle)
+        session.tick(4)
+        session.running = session.learning = False
+        session.save(path)
+    before = path.read_bytes() if path.exists() else None
+    apps = []
+
+    def capture_app(*args, **kwargs):
+        app = LiveApp(*args, **kwargs)
+        apps.append(app)
+        return app
+
+    def occupied_port(*args, **kwargs):
+        raise OSError('injected occupied live port')
+
+    monkeypatch.setattr(server, 'LiveApp', capture_app)
+    monkeypatch.setattr(server, 'create_server', occupied_port)
+    try:
+        with pytest.raises(OSError, match='occupied live port'):
+            server.serve_live(bundle, path, interval=10)
+        assert (path.read_bytes() if path.exists() else None) == before
+        assert apps[0].closed and apps[0].lease.handle.closed
+        assert apps[0].worker is None or not apps[0].worker.is_alive()
+    finally:
+        # Failed implementations may leave a worker behind; never leak it from a regression test.
+        for app in apps:
+            app.stop_event.set()
+            if app.worker:
+                app.worker.join(3)
+            app.lease.close()
+
+
+@pytest.mark.parametrize('existing', [False, True])
+def test_live_binds_before_start_and_preserves_saved_control_flags(tmp_path, monkeypatch, existing):
+    from neurograft.fixtures import make_fixture_bundle
+    from neurograft.live import LiveSession
+    from neurograft import server
+    bundle = make_fixture_bundle(nodes_per_source=4)
+    path = tmp_path / 'session.pt'
+    if existing:
+        session = LiveSession(bundle)
+        session.running = session.learning = False
+        session.save(path)
+    before = path.read_bytes() if path.exists() else None
+    observed = {}
+
+    class InterruptServer:
+        server_address = ('127.0.0.1', 8767)
+
+        def serve_forever(self, **kwargs):
+            observed['state'] = observed['app'].session.snapshot()
+            raise KeyboardInterrupt
+
+        def server_close(self):
+            pass
+
+    def bind(app, **kwargs):
+        observed['app'] = app
+        observed['prebind_worker'] = app.worker
+        observed['prebind_checkpoint'] = path.read_bytes() if path.exists() else None
+        return InterruptServer()
+
+    monkeypatch.setattr(server, 'create_server', bind)
+    server.serve_live(bundle, path, port=8767, interval=10)
+    assert observed['prebind_worker'] is None
+    assert observed['prebind_checkpoint'] == before
+    assert observed['state']['running'] is (not existing)
+    assert observed['state']['learning'] is (not existing)
+    assert observed['app'].closed and observed['app'].lease.handle.closed
+
+
+def test_initial_save_failure_closes_bound_server_without_retrying_save(tmp_path, monkeypatch):
+    from neurograft.fixtures import make_fixture_bundle
+    from neurograft import server
+    from neurograft.service import LiveApp
+    apps = []
+    bound = []
+    attempts = []
+
+    def capture_app(*args, **kwargs):
+        app = LiveApp(*args, **kwargs)
+        apps.append(app)
+        return app
+
+    def fail_save(self, name='default'):
+        attempts.append(name)
+        raise OSError('injected initial write failure')
+
+    class BoundServer:
+        server_address = ('127.0.0.1', 8767)
+        closed = False
+
+        def server_close(self):
+            self.closed = True
+
+    def bind(*args, **kwargs):
+        candidate = BoundServer()
+        bound.append(candidate)
+        return candidate
+
+    monkeypatch.setattr(server, 'LiveApp', capture_app)
+    monkeypatch.setattr(server, 'create_server', bind)
+    monkeypatch.setattr(LiveApp, 'save', fail_save)
+    try:
+        with pytest.raises(OSError, match='initial write failure'):
+            server.serve_live(make_fixture_bundle(nodes_per_source=4), tmp_path / 'session.pt',
+                              port=8767, interval=10)
+        assert len(bound) == 1 and bound[0].closed
+        assert len(attempts) == 1
+        assert apps[0].closed and apps[0].lease.handle.closed
+        assert apps[0].worker is None or not apps[0].worker.is_alive()
+    finally:
+        for app in apps:
+            app.stop_event.set()
+            if app.worker:
+                app.worker.join(3)
+            app.lease.close()
+
+
+def test_background_thread_start_failure_releases_session_lease(tmp_path, monkeypatch):
+    from neurograft.fixtures import make_fixture_bundle
+    from neurograft import service as live_service
+    leases = []
+    real_lease = live_service.SessionLease
+
+    def capture_lease(path):
+        lease = real_lease(path)
+        leases.append(lease)
+        return lease
+
+    def fail_thread_start(self):
+        raise RuntimeError('injected worker start failure')
+
+    monkeypatch.setattr(live_service, 'SessionLease', capture_lease)
+    monkeypatch.setattr(threading.Thread, 'start', fail_thread_start)
+    try:
+        with pytest.raises(RuntimeError, match='worker start failure'):
+            live_service.LiveApp(make_fixture_bundle(nodes_per_source=4), tmp_path / 'session.pt')
+        assert leases[0].handle.closed
+        assert not (tmp_path / 'session.pt').exists()
+    finally:
+        for lease in leases:
+            lease.close()
+
+
+def test_delayed_mirror_start_failure_cannot_tick_or_autosave_existing_session(tmp_path, monkeypatch):
+    import time
+    from neurograft.fixtures import make_fixture_bundle
+    from neurograft.live import LiveSession
+    from neurograft import server
+    from neurograft.service import LiveApp
+    bundle = make_fixture_bundle(nodes_per_source=4)
+    path = tmp_path / 'session.pt'
+    session = LiveSession(bundle)
+    session.learning = False
+    session.save(path)
+    before = path.read_bytes()
+    apps = []
+    servers = []
+    real_start = threading.Thread.start
+
+    def capture_app(*args, **kwargs):
+        app = LiveApp(*args, **kwargs)
+        apps.append(app)
+        return app
+
+    class BoundServer:
+        server_address = ('127.0.0.1', 0)
+        closed = False
+
+        def serve_forever(self, **kwargs):
+            raise AssertionError('serving must not begin after a failed startup')
+
+        def server_close(self):
+            self.closed = True
+
+    def bind(*args, **kwargs):
+        candidate = BoundServer()
+        servers.append(candidate)
+        return candidate
+
+    def delayed_mirror_failure(self):
+        if self.name == 'neurograft-learning':
+            return real_start(self)
+        # Longer than the autosave period: an incorrectly started worker can
+        # overwrite the existing checkpoint even though startup ultimately fails.
+        time.sleep(1.2)
+        raise RuntimeError('injected delayed mirror start failure')
+
+    monkeypatch.setattr(server, 'LiveApp', capture_app)
+    monkeypatch.setattr(server, 'create_server', bind)
+    monkeypatch.setattr(threading.Thread, 'start', delayed_mirror_failure)
+    with pytest.raises(RuntimeError, match='delayed mirror start failure'):
+        server.serve_live(bundle, path, port=0, interval=.05, autosave=1)
+    assert apps[0].session.steps == 0
+    assert path.read_bytes() == before
+    assert apps[0].closed and apps[0].lease.handle.closed
+    assert all(candidate.closed for candidate in servers)
+
+
+def test_live_http_rejects_mutations_until_startup_is_ready(tmp_path):
+    from neurograft.fixtures import make_fixture_bundle
+    from neurograft.server import create_server
+    from neurograft.service import LiveApp
+    app = LiveApp(make_fixture_bundle(nodes_per_source=4), tmp_path / 'session.pt', background=False)
+    ready = threading.Event()
+    server = None
+    try:
+        server = create_server(app, port=0, ready=ready)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        url = f'http://127.0.0.1:{server.server_address[1]}'
+        status, result = request(url + '/api/control', {'action': 'pause'})
+        assert status == 503 and result['error']
+        assert app.session.running is True
+        assert not (tmp_path / 'session.pt').exists()
+        ready.set()
+        assert request(url + '/api/control', {'action': 'pause'})[0] == 200
+        assert app.session.running is False
+    finally:
+        if server is not None:
+            server.shutdown()
+            server.server_close()
+        app.close()
+
+
+def test_startup_rejection_consumes_bounded_json_before_sending_close_response():
+    """Closing with an unread request body can erase the response via TCP reset."""
+    import io
+    from types import SimpleNamespace
+    from neurograft.server import create_server
+    ready = threading.Event()
+    server = create_server(SimpleNamespace(), port=0, ready=ready)
+    try:
+        handler = server.RequestHandlerClass.__new__(server.RequestHandlerClass)
+        body = b'{"action":"pause"}'
+        handler.headers = {'Content-Type': 'application/json', 'Content-Length': str(len(body))}
+        handler.rfile = io.BytesIO(body)
+        handler.path = '/api/control'
+        handler.origin_ok = lambda: True
+        sent = []
+        handler.send_data = lambda code, payload: sent.append((code, handler.rfile.tell()))
+        handler.do_POST()
+        assert sent == [(503, len(body))]
+    finally:
+        server.server_close()
+
+
+@pytest.mark.parametrize('error_type', [BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError])
+def test_response_write_handles_only_normal_client_disconnects(monkeypatch, error_type):
+    from types import SimpleNamespace
+    from neurograft import server
+    # Capture the real handler class without opening a socket: its only mocked
+    # boundary is the cancelled client's response stream.
+    monkeypatch.setattr(server, 'LiveHTTPServer',
+                        lambda address, handler: SimpleNamespace(RequestHandlerClass=handler))
+    handler_type = server.create_server(None, port=0).RequestHandlerClass
+    handler = object.__new__(handler_type)
+    handler.send_response = lambda *args: None
+    handler.send_header = lambda *args: None
+    handler.end_headers = lambda: None
+
+    class FailedClient:
+        def write(self, payload):
+            raise error_type('injected response write failure')
+
+    handler.wfile = FailedClient()
+    expectation = pytest.raises(OSError) if error_type is OSError else contextlib.nullcontext()
+    with expectation:
+        handler.send_data(200, {'ok': True})
 

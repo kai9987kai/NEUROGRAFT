@@ -102,6 +102,7 @@ function updateControls() {
   $('chat-send').disabled = unavailable || !$('chat-input').value.trim();
   document.querySelectorAll('.example-chip').forEach((el) => { el.disabled = unavailable; });
   if (session && !writeInFlight) $('learning-toggle').checked = Boolean(session.learning);
+  if (session && !writeInFlight) $('navigation-mode').value = session.navigation?.mode || 'policy';
   $('evaluate-btn').disabled = unavailable || evaluationInFlight;
   $('export-evaluation-btn').disabled = !evaluationReport;
 }
@@ -335,7 +336,7 @@ function renderSession() {
   renderBioelectricAndAgencyTelemetry(telemetry);
   renderEcologicalTelemetry(telemetry);
   renderLoss(); renderChat(); renderFacts(); renderPersistence();
-  renderEvaluation();
+  renderEvaluation(); renderNavigation();
   $('service-error').hidden = !session.runtime?.last_error;
   $('service-error-message').textContent = session.runtime?.last_error ? `Live service paused after an error: ${session.runtime.last_error}. Review the session before resuming.` : '';
   $('evidence-scope').textContent = session.evidence_scope || 'Experimental synthetic navigation. Online supervised adaptation; policy match is recent teacher agreement.';
@@ -727,6 +728,32 @@ function validCheckpointName() {
   return name;
 }
 
+function renderNavigation() {
+  if (!session) return;
+  const nav = session.navigation || { mode: 'policy' };
+  const map = nav.map || {};
+  const size = map.size || session.world.size;
+  const probability = nav.teacher_probability ?? session.teacher_probability;
+  const label = { policy: 'Raw policy', masked_policy: 'Legal-action mask', observed_map: 'Observed-map planner' }[nav.mode] || nav.mode;
+  const readout = nav.readout === 'context_residual' ? 'all-source residual readout' : 'human-source readout';
+  $('navigation-status').textContent = `${label} · ${readout} · teacher actions ${probability > 0 ? `${Math.round(probability * 100)}% configured` : 'OFF'} · ${(map.reason || 'no map decision yet').replaceAll('_', ' ')}`;
+  $('navigation-map-note').textContent = `${map.known_free || 0} observed free cells · ${map.visited || 0} visited · ${map.frontiers || 0} frontier cells. Last executed action source: ${session.last_action_source || 'none'}. Switching modes starts fresh navigation memory.`;
+  const svg = $('observed-map'); svg.replaceChildren(); svg.setAttribute('viewBox', `0 0 ${size * 10} ${size * 10}`);
+  const add = (tag, attributes) => {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value);
+    svg.append(el); return el;
+  };
+  for (const [cells, color] of [[map.blocked_cells || [], '#536273'], [map.free_cells || [], '#164d50'], [map.visited_cells || [], '#3ab49c']]) {
+    for (const [x, z] of cells) add('rect', { x: x * 10 + 1, y: z * 10 + 1, width: 8, height: 8, fill: color });
+  }
+  if (map.path?.length > 1) add('polyline', { points: map.path.map(({ x, z }) => `${x * 10 + 5},${z * 10 + 5}`).join(' '), fill: 'none', stroke: '#c2fff0', 'stroke-width': 1.3 });
+  const goal = session.world.goal;
+  add('circle', { cx: goal.x * 10 + 5, cy: goal.z * 10 + 5, r: 3, fill: '#ffc36b' });
+  const agent = session.world.agent;
+  add('circle', { cx: agent.x * 10 + 5, cy: agent.z * 10 + 5, r: 3.5, fill: '#ecffff' });
+}
+
 function renderEvaluation() {
   const stale = Boolean(evaluationReport && session && (evaluationReport.model_hash !== session.model_hash || evaluationReport.graph_hash !== session.graph_hash));
   $('evaluate-btn').textContent = evaluationInFlight ? 'Evaluating…' : 'Evaluate frozen policy';
@@ -743,16 +770,16 @@ function renderEvaluation() {
   $('evaluation-snapshot').title = `Model SHA-256: ${report.model_hash}\nGraph SHA-256: ${report.graph_hash}\nProtocol: ${report.protocol_id}`;
   if (renderedEvaluation === report) return;
   renderedEvaluation = report;
-  const names = { policy: 'Full policy', no_graft: 'Without grafts', no_recurrence: 'Without recurrence', random: 'Random actions', shortest_path: 'Shortest-path oracle' };
+  const names = { policy: 'Raw policy', no_graft: 'Without grafts', no_recurrence: 'Without recurrence', random: 'Random actions', shortest_path: 'Shortest-path oracle', masked_policy: 'Policy + legal mask', observed_map: 'Observed map + policy', map_without_policy: 'Observed map only' };
   const body = $('evaluation-table-body');
   body.replaceChildren();
   const percent = (value) => Number.isFinite(value) ? `${formatNumber(value * 100, 1)}%` : '—';
-  for (const key of ['policy', 'no_graft', 'no_recurrence', 'random', 'shortest_path']) {
+  for (const key of ['policy', 'masked_policy', 'observed_map', 'map_without_policy', 'no_graft', 'no_recurrence', 'random', 'shortest_path']) {
     const summary = report.variants?.[key]?.summary;
     if (!summary) continue;
     const row = document.createElement('tr');
     const label = document.createElement('th'); label.scope = 'row'; label.textContent = names[key]; row.append(label);
-    const values = [formatNumber(summary.episodes), percent(summary.success_rate), formatNumber(summary.spl, 3), percent(summary.collision_rate), formatNumber(summary.mean_steps, 1), percent(summary.teacher_agreement)];
+    const values = [formatNumber(summary.episodes), percent(summary.success_rate), formatNumber(summary.spl, 3), percent(summary.collision_rate), formatNumber(summary.mean_steps, 1), percent(summary.teacher_agreement), percent(summary.proposed_wall_rate), percent(summary.policy_override_rate)];
     for (const value of values) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }
     body.append(row);
   }
@@ -772,7 +799,7 @@ async function evaluatePolicy(event) {
   if (seedText.length < 1 || seedText.length > 16 || seedText.some((value) => !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value))) || new Set(seedText.map(Number)).size !== seedText.length) {
     showError('Enter 1–16 distinct, comma-separated nonnegative integers up to 9007199254740991.'); return;
   }
-  const payload = { seeds: seedText.map(Number), size: Number($('evaluation-size').value), preset: $('evaluation-preset').value, max_steps: Number($('evaluation-steps').value) };
+  const payload = { seeds: seedText.map(Number), size: Number($('evaluation-size').value), preset: $('evaluation-preset').value, max_steps: Number($('evaluation-steps').value), include_controllers: $('evaluation-controllers').checked };
   evaluationInFlight = true; evaluationStarted = Date.now(); evaluationError = '';
   updateControls(); renderEvaluation();
   try {
@@ -819,6 +846,7 @@ function bindControls() {
     if (res) showToast(`Executed 16-step evolution burst (step ${res.steps}, ${res.updates} updates).`);
   });
   $('learning-toggle').addEventListener('change', (event) => control({ action: 'learning', enabled: event.target.checked }));
+  $('navigation-mode').addEventListener('change', (event) => control({ action: 'navigation', mode: event.target.value }));
   ['blue', 'amber', 'rose'].forEach((color) => $(`goal-${color}`).addEventListener('click', () => control({ action: 'goal', color })));
   document.querySelectorAll('.world-size-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const size = Number(btn.dataset.worldSize);
@@ -855,7 +883,7 @@ function bindControls() {
   $('camera-reset').addEventListener('click', resetCamera);
   $('fullscreen-btn').addEventListener('click', toggleFullscreen);
   document.addEventListener('keydown', (event) => {
-    if (event.target.closest('input:not([type="checkbox"]), textarea, [contenteditable="true"]') || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.target.closest('input:not([type="checkbox"]), textarea, select, [contenteditable="true"]') || event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key.toLowerCase() === 'f') { event.preventDefault(); toggleFullscreen(); return; }
     const keyActions = { ArrowUp: 0, w: 0, W: 0, ArrowRight: 1, d: 1, D: 1, ArrowDown: 2, s: 2, S: 2, ArrowLeft: 3, a: 3, A: 3 };
     const direction = keyActions[event.key];
@@ -1255,6 +1283,7 @@ window.render_game_to_text = () => JSON.stringify({
   goals_reached: session?.goals_reached ?? null, episodes: session?.episodes ?? null,
   last_loss: session?.last_loss ?? null, policy_accuracy: session?.policy_accuracy ?? null,
   last_action: session?.last_action ?? null, last_action_source: session?.last_action_source ?? null,
+  navigation: session?.navigation ?? null,
   backend: session?.backend || 'local-memory-and-control', facts: session?.facts || {},
   latest_chat: session?.chat?.slice(-2) || [], checkpoints: session?.checkpoints?.map((entry) => entry.name) || [],
   last_saved: session?.last_saved ?? null, error: $('error-banner').hidden ? null : $('error-message').textContent,

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "files": {
+    "candidate.pt": "042144f5d2bd3fbb576c969bf1f4e6a2b61491169e78cffb03da5bef7e0fe48e",
+    "config.json": "b9604dc500d4ab03e33e6b22e7d4f01b5aa98761846a4eb9078a4d30dd05ba9f",
+    "frozen-input.pt": "e4f38ea64336b29635bbcdfc8778c6392adc6271e3b3e99ffba1f633c50de776",
+    "progress.json": "94af6433417b08ab76efbeae63e342e397c75233c6ed17e71570945cd7f967f8",
+    "report.html": "8e13193b761a85662be4e527aa2b8d37e94a8c20ca4b6caa2ea7937f15e22d93",
+    "report.json": "7d95d5b077597cd83e2e40184cf7384bbef5aed575600187c95c69fad1a32059",
+    "source.bundle.json": "ea97f769a7857e359a0bf4e26d5461bc8904a63674c2304ef5b3396df96034a8",
+    "status.json": "fafc44fa44fae2f38be8257647e9f811fa288429f20ee783d59d847f949e5075"
+  }
+}

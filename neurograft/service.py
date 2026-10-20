@@ -70,13 +70,28 @@ class LiveApp:
             from .live import LiveSession
             self.session = (LiveSession.load(self.state_path, bundle) if self.state_path.exists()
                             else LiveSession(bundle, config))
+            self.last_autosave = time.monotonic()
+            if background:
+                self.start_background()
         except BaseException:
             self.lease.close()
             raise
-        self.last_autosave = time.monotonic()
-        if background:
+
+    def start_background(self):
+        """Start the single worker after callers have acquired their other resources."""
+        with self.guard:
+            if self.closed:
+                raise RuntimeError('cannot start a closed live session')
+            if self.worker is not None:
+                if self.worker.is_alive():
+                    return
+                raise RuntimeError('live background worker is no longer running')
             self.worker = threading.Thread(target=self._loop, name='neurograft-learning', daemon=True)
-            self.worker.start()
+            try:
+                self.worker.start()
+            except BaseException:
+                self.worker = None
+                raise
 
     def _loop(self):
         while not self.stop_event.wait(self.interval):
@@ -137,14 +152,15 @@ class LiveApp:
 
     def evaluate(self, values):
         from .navigation_evaluation import NavigationEvalConfig, frozen_navigation_evaluation
-        if not isinstance(values, dict) or set(values) - {'seeds', 'size', 'preset', 'max_steps'}:
-            raise ValueError('evaluation accepts only seeds, size, preset and max_steps')
+        if not isinstance(values, dict) or set(values) - {'seeds', 'size', 'preset', 'max_steps', 'include_controllers'}:
+            raise ValueError('evaluation accepts only seeds, size, preset, max_steps and include_controllers')
         seeds = values.get('seeds', [10000, 10001, 10002])
         if not isinstance(seeds, list):
             raise ValueError('evaluation seeds must be a JSON array of integers')
         config = NavigationEvalConfig(seeds=tuple(seeds), size=values.get('size', 11),
                                       preset=values.get('preset', 'labyrinth'),
-                                      max_steps=values.get('max_steps', 48))
+                                      max_steps=values.get('max_steps', 48),
+                                      include_controllers=values.get('include_controllers', False))
         if not self.evaluation_guard.acquire(blocking=False):
             raise ConflictError('a frozen navigation evaluation is already running')
         try:
@@ -202,6 +218,11 @@ class LiveApp:
         elif action == 'learning':
             if not isinstance(values.get('enabled'), bool):
                 raise ValueError('enabled must be boolean')
+        elif action == 'navigation':
+            from .navigation_controller import MODES
+            mode = values.get('mode')
+            if not isinstance(mode, str) or mode not in MODES:
+                raise ValueError('invalid navigation mode')
         elif action not in ('pause', 'resume', 'goal'):
             raise ValueError('unknown control action')
         with self.guard, self.session.lock:
@@ -212,6 +233,8 @@ class LiveApp:
                 self.session.running = True
             elif action == 'learning':
                 self.session.learning = values['enabled']
+            elif action == 'navigation':
+                self.session.set_navigation_mode(mode)
             elif action == 'boost':
                 self.session.tick(steps=count)
             elif action == 'world':
@@ -235,7 +258,8 @@ class LiveApp:
                 self.save('default')
             return {**result, 'state': self.state()}
 
-    def close(self):
+    def close(self, *, save=True):
+        """Stop and release ownership; failed startup can roll back without saving."""
         if self.closed:
             return
         self.closed = True
@@ -244,6 +268,7 @@ class LiveApp:
             self.worker.join(10)
         try:
             with self.guard:
-                self.save('default')
+                if save:
+                    self.save('default')
         finally:
             self.lease.close()

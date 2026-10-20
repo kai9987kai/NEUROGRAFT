@@ -1,0 +1,180 @@
+{
+  "ok": true,
+  "artifacts_verified": 8,
+  "replay_verified": true,
+  "selected_model_hash": "cc507d705e24031c6d6437982cbc61a836aee2930a40dfc2b1301c1bdaaa3029",
+  "graph_hash": "e11df95be51a132ca1db6f5f8a104d4fefe98455623e0ca0fc1e89133bf92fd5",
+  "protocol_id": "efbab71345607ed7880121670676af782c15f919b74c57cec4f0a4e409382a72",
+  "promotion_performed": false,
+  "evidence_scope": "Local file integrity and checkpoint identities; hashes are not authenticity signatures. Replay, when requested, covers frozen trials in the current runtime, not training.",
+  "baseline_input_unchanged": true,
+  "baseline": {
+    "episodes": 4,
+    "success_rate": 0.0,
+    "spl": 0.0,
+    "collision_rate": 0.9375,
+    "mean_steps": 24.0,
+    "teacher_agreement": 0.0,
+    "mean_terminal_distance": 4.0
+  },
+  "candidate": {
+    "episodes": 4,
+    "success_rate": 0.0,
+    "spl": 0.0,
+    "collision_rate": 0.9166666666666666,
+    "mean_steps": 24.0,
+    "teacher_agreement": 0.07291666666666667,
+    "mean_terminal_distance": 2.5
+  },
+  "coverage": [
+    {
+      "size": 5,
+      "preset": "chambers",
+      "worlds": 1
+    },
+    {
+      "size": 5,
+      "preset": "concentric",
+      "worlds": 1
+    },
+    {
+      "size": 5,
+      "preset": "corridors",
+      "worlds": 1
+    },
+    {
+      "size": 5,
+      "preset": "hierarchical",
+      "worlds": 1
+    },
+    {
+      "size": 5,
+      "preset": "labyrinth",
+      "worlds": 1
+    },
+    {
+      "size": 5,
+      "preset": "pillars",
+      "worlds": 1
+    },
+    {
+      "size": 7,
+      "preset": "chambers",
+      "worlds": 1
+    },
+    {
+      "size": 7,
+      "preset": "concentric",
+      "worlds": 1
+    },
+    {
+      "size": 7,
+      "preset": "corridors",
+      "worlds": 1
+    },
+    {
+      "size": 7,
+      "preset": "hierarchical",
+      "worlds": 1
+    },
+    {
+      "size": 7,
+      "preset": "labyrinth",
+      "worlds": 1
+    },
+    {
+      "size": 7,
+      "preset": "pillars",
+      "worlds": 1
+    },
+    {
+      "size": 9,
+      "preset": "chambers",
+      "worlds": 1
+    },
+    {
+      "size": 9,
+      "preset": "concentric",
+      "worlds": 1
+    },
+    {
+      "size": 9,
+      "preset": "corridors",
+      "worlds": 1
+    },
+    {
+      "size": 9,
+      "preset": "hierarchical",
+      "worlds": 1
+    },
+    {
+      "size": 9,
+      "preset": "labyrinth",
+      "worlds": 1
+    },
+    {
+      "size": 9,
+      "preset": "pillars",
+      "worlds": 1
+    },
+    {
+      "size": 11,
+      "preset": "chambers",
+      "worlds": 1
+    },
+    {
+      "size": 11,
+      "preset": "concentric",
+      "worlds": 1
+    },
+    {
+      "size": 11,
+      "preset": "corridors",
+      "worlds": 1
+    },
+    {
+      "size": 11,
+      "preset": "hierarchical",
+      "worlds": 1
+    },
+    {
+      "size": 11,
+      "preset": "labyrinth",
+      "worlds": 1
+    },
+    {
+      "size": 11,
+      "preset": "pillars",
+      "worlds": 1
+    }
+  ],
+  "replay": {
+    "strategy": "per-action-algorithm-r",
+    "capacity": 128,
+    "seen_total": 362,
+    "retained_total": 128,
+    "action_quotas": {
+      "north": 32,
+      "east": 32,
+      "south": 32,
+      "west": 32
+    },
+    "action_counts": {
+      "north": 32,
+      "east": 32,
+      "south": 32,
+      "west": 32
+    },
+    "seen_action_counts": {
+      "north": 72,
+      "east": 101,
+      "south": 111,
+      "west": 78
+    },
+    "retained_worlds": 44,
+    "retained_rounds": [
+      1,
+      2
+    ]
+  }
+}

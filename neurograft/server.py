@@ -6,6 +6,7 @@ from importlib.resources import files
 import json
 from urllib.parse import unquote, urlsplit
 
+from . import __version__
 from .service import ConflictError, LiveApp
 
 
@@ -23,12 +24,12 @@ class LiveHTTPServer(ThreadingHTTPServer):
     allow_reuse_address = True
 
 
-def create_server(app: LiveApp, host='127.0.0.1', port=8768):
+def create_server(app: LiveApp, host='127.0.0.1', port=8768, *, ready=None):
     if host not in ('127.0.0.1', 'localhost'):
         raise ValueError('live service binds only to loopback')
 
     class Handler(BaseHTTPRequestHandler):
-        server_version = 'NEUROGRAFT/0.5'
+        server_version = f'NEUROGRAFT/{__version__}'
 
         def log_message(self, format, *args):
             return  # Keep continuous polling quiet; errors are returned visibly.
@@ -46,7 +47,10 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768):
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'")
             self.end_headers()
-            self.wfile.write(raw)
+            try:
+                self.wfile.write(raw)
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                return  # Reloads and closed browser tabs can cancel in-flight polls.
 
         def origin_ok(self):
             port = self.server.server_address[1]
@@ -108,6 +112,12 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768):
                 payload = json.loads(self.rfile.read(length).decode('utf-8'), parse_constant=reject_constant)
                 if not isinstance(payload, dict):
                     raise ValueError('JSON body must be an object')
+                # Consume the bounded request before closing on a startup
+                # rejection. Unread body bytes can cause a TCP reset that hides
+                # the 503 response from the client (RFC 9112 section 9.6).
+                if ready is not None and not ready.is_set():
+                    self.send_data(503, {'error': 'live session startup is not complete'})
+                    return
                 path = unquote(urlsplit(self.path).path)
                 if path == '/api/control':
                     result = app.control(payload)
@@ -137,30 +147,56 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768):
 
 def serve_live(bundle, state_path, port=8768, interval=.2, autosave=5):
     import threading
-    app = LiveApp(bundle, state_path, interval=interval, autosave=autosave)
-    app.control({'action': 'resume'})
-    app.control({'action': 'learning', 'enabled': True})
-    app.save('default')
+    app = None
     server = None
     mirror = None
+    mirror_thread = None
+    started = False
+    ready = threading.Event()
     try:
-        server = create_server(app, port=port)
+        # Binding must succeed before a worker can advance or persist the session.
+        app = LiveApp(bundle, state_path, interval=interval, autosave=autosave, background=False)
+        server = create_server(app, port=port, ready=ready)
         if port != 8767:
             try:
-                mirror = create_server(app, port=8767)
-                threading.Thread(target=mirror.serve_forever, kwargs={'poll_interval': .2}, daemon=True).start()
-                print('NEUROGRAFT Live (Web Preview mirror): http://127.0.0.1:8767/index.html', flush=True)
+                mirror = create_server(app, port=8767, ready=ready)
             except OSError:
                 mirror = None
+        # Restored running/learning flags are authoritative. New sessions already
+        # default to both enabled; only new sessions need an initial checkpoint.
+        if not app.state_path.exists():
+            app.save('default')
+        if mirror is not None:
+            mirror_thread = threading.Thread(target=mirror.serve_forever,
+                                             kwargs={'poll_interval': .2}, daemon=True)
+            mirror_thread.start()
+        # No fallible setup may follow worker startup before the transaction
+        # commits: even a delayed mirror failure must leave saved state intact.
+        app.start_background()
+        started = True
+        ready.set()
+        if mirror is not None:
+            print('NEUROGRAFT Live (Web Preview mirror): http://127.0.0.1:8767/index.html', flush=True)
         print(f'NEUROGRAFT Live: http://127.0.0.1:{server.server_address[1]}/', flush=True)
         print(f'Session: {app.state_path} | autosave every {autosave:g}s | Ctrl+C saves and stops.', flush=True)
         server.serve_forever(poll_interval=.2)
     except KeyboardInterrupt:
-        print('\nSaving full live state and stopping.', flush=True)
+        print('\nSaving full live state and stopping.' if started
+              else '\nStartup interrupted; the session was not advanced.', flush=True)
     finally:
-        if mirror is not None:
-            mirror.shutdown()
-            mirror.server_close()
-        if server is not None:
-            server.server_close()
-        app.close()
+        ready.clear()
+        try:
+            if mirror is not None:
+                try:
+                    if mirror_thread is not None and mirror_thread.is_alive():
+                        mirror.shutdown()
+                        mirror_thread.join(3)
+                finally:
+                    mirror.server_close()
+        finally:
+            try:
+                if server is not None:
+                    server.server_close()
+            finally:
+                if app is not None:
+                    app.close(save=started)

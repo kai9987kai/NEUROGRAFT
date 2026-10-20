@@ -26,6 +26,7 @@ class DynamicsConfig:
     hidden_dim: int = 12
     output_dim: int = 2
     top_k: int = 2
+    readout: str = "human"
 
     def __post_init__(self) -> None:
         for name in ("input_dim", "hidden_dim", "output_dim"):
@@ -34,6 +35,8 @@ class DynamicsConfig:
                 raise ValueError(f"{name} must be a positive integer")
         if isinstance(self.top_k, bool) or not isinstance(self.top_k, int) or not 0 <= self.top_k <= 3:
             raise ValueError("top_k must be an integer from 0 through 3 cross-source senders")
+        if type(self.readout) is not str or self.readout not in ("human", "context_residual"):
+            raise ValueError("readout must be 'human' or 'context_residual'")
 
 
 @dataclass(frozen=True)
@@ -163,9 +166,10 @@ class _SourceEncoder(nn.Module):
 class GraphCircuit(nn.Module):
     """Four separate recurrent modules with an explicit synthetic routing overlay.
 
-Only the human module is read by ``policy``. Other sources can influence policy
-output through the graft, while ``context`` exposes all four pooled modules to
-optional adapters. Flags switch computation; they never remove parameters.
+The legacy ``policy`` reads the human module. Other sources can influence that
+head through the graft. The optional zero-initialized ``context_residual`` head
+adds a direct readout from all four pooled modules. ``context`` also exposes
+these pooled modules to adapters. Inference flags never remove parameters.
     """
 
     def __init__(self, bundle: GraphBundle, config: DynamicsConfig | None = None) -> None:
@@ -187,6 +191,14 @@ optional adapters. Flags switch computation; they never remove parameters.
         self.graft_gates = nn.Parameter(torch.zeros(4, hidden_dim))
         self.policy = nn.Linear(hidden_dim, self.config.output_dim)
         self.register_buffer("self_route_mask", torch.eye(4, dtype=torch.bool))
+        self.context_policy = None
+        if self.config.readout == "context_residual":
+            # Appending a zero residual must preserve legacy initialization and
+            # the caller's RNG stream, including subsequent observer modules.
+            with torch.random.fork_rng(devices=[]):
+                self.context_policy = nn.Linear(self.context_dim, self.config.output_dim)
+            nn.init.zeros_(self.context_policy.weight)
+            nn.init.zeros_(self.context_policy.bias)
 
     def initial_state(self, batch_size: int) -> tuple[Tensor, ...]:
         if isinstance(batch_size, bool) or not isinstance(batch_size, int) or batch_size <= 0:
@@ -243,6 +255,7 @@ optional adapters. Flags switch computation; they never remove parameters.
         recurrence: bool = True,
         liquid_alpha: Sequence[float] | None = None,
         ablate_source: int | None = None,
+        context_enabled: bool = True,
     ) -> CircuitOutput:
         self._validate_observations(observations)
         if state is not None:
@@ -256,7 +269,13 @@ optional adapters. Flags switch computation; they never remove parameters.
                 (1.0 - float(alpha)) * prev + float(alpha) * cur
                 for alpha, prev, cur in zip(liquid_alpha, previous, local)
             )
-        if ablate_source == 3:
+        if self.context_policy is not None and ablate_source is not None and 0 <= ablate_source < 4:
+            # A direct readout requires a complete source-input lesion. Zero
+            # local states before routing so keys and queries cannot leak it.
+            local = tuple(torch.zeros_like(states) if index == ablate_source else states
+                          for index, states in enumerate(local))
+        elif ablate_source == 3:
+            # Keep legacy intervention behavior exact for existing archives.
             local = (*local[:3], torch.zeros_like(local[3]))
         pooled = torch.stack([states.mean(dim=1) for states in local], dim=1)
         if graft_enabled:
@@ -271,10 +290,20 @@ optional adapters. Flags switch computation; they never remove parameters.
             routes = pooled.new_zeros(observations.shape[0], 4, 5)
             routes[..., 4] = 1
         final_pooled = torch.stack([states.mean(dim=1) for states in state_out], dim=1)
+        if self.context_policy is not None and ablate_source is not None and 0 <= ablate_source < 4:
+            # Incoming grafts can reconstruct a lesioned module from other
+            # sources; exclude that module from both readout paths as well.
+            source_mask = torch.ones_like(final_pooled)
+            source_mask[:, ablate_source] = 0
+            final_pooled = final_pooled * source_mask
+        context = final_pooled.flatten(start_dim=1)
+        logits = self.policy(final_pooled[:, 3])
+        if self.context_policy is not None and context_enabled:
+            logits = logits + self.context_policy(context)
         return CircuitOutput(
-            logits=self.policy(final_pooled[:, 3]),
+            logits=logits,
             state=state_out,
-            context=final_pooled.flatten(start_dim=1),
+            context=context,
             routes=routes,
         )
 
@@ -285,6 +314,7 @@ optional adapters. Flags switch computation; they never remove parameters.
         recurrence: bool = True,
         liquid_alpha: Sequence[float] | None = None,
         ablate_source: int | None = None,
+        context_enabled: bool = True,
     ) -> CircuitOutput:
         if not isinstance(sequence, Tensor) or sequence.ndim != 4 or sequence.shape[1] <= 0:
             raise ValueError("sequence must have shape [batch,positive time,4,input_dim]")
@@ -297,6 +327,7 @@ optional adapters. Flags switch computation; they never remove parameters.
                 recurrence=recurrence,
                 liquid_alpha=liquid_alpha,
                 ablate_source=ablate_source,
+                context_enabled=context_enabled,
             )
             state = output.state
         return output

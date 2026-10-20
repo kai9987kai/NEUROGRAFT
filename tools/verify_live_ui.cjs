@@ -29,6 +29,7 @@ const assert = require('node:assert/strict');
     await page.waitForFunction(() => typeof window.render_game_to_text === 'function'
       && JSON.parse(window.render_game_to_text()).steps >= 8, null, { timeout: 15000 });
     log('Startup passed; stepping once');
+    assert.match(await page.locator('#experiment-scope').innerText(), /do not feed the policy/);
     await page.locator('#step-btn').click();
     await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).steps === 9);
     await page.locator('label[for="learning-toggle"]').click();
@@ -68,16 +69,51 @@ const assert = require('node:assert/strict');
     await page.locator('#evaluation-heading').scrollIntoViewIfNeeded();
     await page.screenshot({ path: path.join(out, 'live-evaluation-desktop.png') });
     await page.locator('.evaluation-panel').screenshot({ path: path.join(out, 'live-evaluation-panel.png') });
-    log('Desktop screenshot saved; checking mobile layout');
+    log('Legacy checks passed; verifying observed-map controls and persistence');
+    await page.locator('label[for="learning-toggle"]').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).learning === false);
+    await page.locator('#navigation-mode').selectOption('observed_map');
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation?.mode === 'observed_map');
+    for (let i = 0; i < 3; i++) {
+      const steps = JSON.parse(await page.evaluate(() => window.render_game_to_text())).steps;
+      await page.locator('#step-btn').click();
+      await page.waitForFunction((value) => JSON.parse(window.render_game_to_text()).steps === value + 1, steps);
+    }
+    const mapped = (await (await page.request.get(url + '/api/state')).json()).navigation;
+    assert.equal(mapped.teacher_probability, 0);
+    assert(mapped.map.visited > 0);
+    assert(await page.locator('#observed-map rect').count() > 0);
+    await page.locator('#navigation-heading').scrollIntoViewIfNeeded();
+    await page.locator('.navigation-panel').screenshot({ path: path.join(out, 'observed-map-desktop.png') });
+    await page.locator('#save-name').fill('navigation-check');
+    await page.locator('#save-btn').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).checkpoints.includes('navigation-check'));
+    await page.locator('#navigation-mode').selectOption('policy');
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'policy');
+    await page.locator('#load-btn').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'observed_map');
+    const restoredMap = (await (await page.request.get(url + '/api/state')).json()).navigation;
+    assert.deepEqual(restoredMap, mapped);
+    await page.locator('#evaluation-controllers').check();
+    await page.locator('#evaluate-btn').click();
+    await page.waitForFunction(() => document.querySelectorAll('#evaluation-table-body tr').length === 8, null, { timeout: 45000 });
+    const extended = await (await page.request.get(url + '/api/evaluation')).json();
+    assert.equal(extended.variants.observed_map.summary.success_rate, 1);
+    assert.equal(extended.variants.observed_map.summary.collision_rate, 0);
+    assert.equal(extended.config.include_controllers, true);
+    await page.locator('.evaluation-panel').screenshot({ path: path.join(out, 'controller-comparison.png') });
+    log('Map mode, observed-only SVG, checkpoint restoration and eight-way comparison passed; checking mobile layout');
     const screenshotScope = await page.locator('#evaluation-results').boundingBox();
     assert(screenshotScope && screenshotScope.width > 0);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).steps >= 10
-      && document.querySelectorAll('#evaluation-table-body tr').length === 5);
+      && document.querySelectorAll('#evaluation-table-body tr').length === 8
+      && JSON.parse(window.render_game_to_text()).navigation.mode === 'observed_map');
     await page.locator('#evaluation-heading').scrollIntoViewIfNeeded();
     await page.screenshot({ path: path.join(out, 'live-evaluation-mobile.png') });
     await page.locator('.evaluation-panel').screenshot({ path: path.join(out, 'live-evaluation-mobile-panel.png') });
+    await page.locator('.navigation-panel').screenshot({ path: path.join(out, 'observed-map-mobile.png') });
     const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
     if (horizontalOverflow) {
       const overflow = await page.evaluate(() => ({ viewport: innerWidth, width: document.documentElement.scrollWidth,
@@ -90,7 +126,8 @@ const assert = require('node:assert/strict');
     assert.equal(horizontalOverflow, false, 'mobile page must not overflow horizontally');
     assert.deepEqual(errors, []);
     const receipt = { ok: true, page_errors: errors, tested: ['startup', 'step', 'learning toggle',
-      'hierarchical preset', 'frozen matched trials', 'JSON export', 'stale weight notice', 'mobile startup', 'mobile layout'],
+      'hierarchical preset', 'frozen matched trials', 'JSON export', 'stale weight notice', 'observed-map mode',
+      'observed-only SVG', 'exact map save/load', 'eight-way controller comparison', 'mobile startup', 'mobile layout'],
       oracle: report.variants.shortest_path.summary, evaluated_model: report.model_hash,
       protocol_id: report.protocol_id, renderer: JSON.parse(await page.evaluate(() => window.render_game_to_text())).renderer };
     assert.equal(receipt.renderer, 'three-webgl');
@@ -106,7 +143,7 @@ const assert = require('node:assert/strict');
     log('Closing isolated browser');
     let closeTimer;
     try {
-      await Promise.race([browser.close(), new Promise((_, reject) => { closeTimer = setTimeout(() => reject(new Error('isolated browser close exceeded 10s')), 10000); })]);
+      await Promise.race([browser.close(), new Promise((_, reject) => { closeTimer = setTimeout(() => reject(new Error('isolated browser close exceeded 60s')), 60000); })]);
     } finally { clearTimeout(closeTimer); }
     log('Browser closed');
   }

@@ -1,8 +1,8 @@
 """Bounded, frozen navigation rollouts with matched inference-time controls.
 
-Only GraphCircuit supplies policy actions. Auxiliary diagnostic substrates do not
-drive that policy and are deliberately excluded. No training or teacher mixing
-occurs here, and neither the live session nor global RNGs are advanced.
+GraphCircuit supplies raw policy actions. Optional controllers add explicitly
+labelled local masking/mapping. Diagnostic substrates remain excluded. No
+training or teacher mixing occurs, and live state and global RNGs do not advance.
 """
 from __future__ import annotations
 
@@ -24,8 +24,14 @@ class NavigationEvalConfig:
     size: int = 11
     preset: str = 'labyrinth'
     max_steps: int = 48
+    include_controllers: bool = False
+    include_readout_controls: bool = False
 
     def __post_init__(self):
+        if type(self.include_controllers) is not bool:
+            raise ValueError('include_controllers must be boolean')
+        if type(self.include_readout_controls) is not bool:
+            raise ValueError('include_readout_controls must be boolean')
         if (not isinstance(self.seeds, tuple) or not 1 <= len(self.seeds) <= 16
                 or any(type(seed) is not int or not 0 <= seed <= 2**63 - 1 for seed in self.seeds)
                 or len(set(self.seeds)) != len(self.seeds)):
@@ -43,6 +49,26 @@ def _json_hash(value):
                                      allow_nan=False).encode('utf-8')).hexdigest()
 
 
+def navigation_protocol(config, unroll):
+    """Canonical identity shared by evaluation and archived-evidence validation."""
+    settings = asdict(config)
+    settings['seeds'] = list(config.seeds)
+    if not config.include_controllers:
+        settings.pop('include_controllers')
+    if not config.include_readout_controls:
+        settings.pop('include_readout_controls')
+    protocol = {'schema_version': 3 if config.include_readout_controls else 2 if config.include_controllers else 1,
+                'config': settings, 'unroll': unroll,
+                'variants': ['policy', 'no_graft', 'no_recurrence', 'random', 'shortest_path'],
+                'success_rule': 'first arrival at initial goal', 'path_length': 'successful cell moves'}
+    if config.include_controllers:
+        protocol['variants'] += ['masked_policy', 'observed_map', 'map_without_policy']
+        protocol['controller'] = 'observed-frontier-v1; local walls; policy prior only breaks ties'
+    if config.include_readout_controls:
+        protocol['variants'].append('no_context')
+    return protocol
+
+
 def _episode(model, unroll, config, seed, variant):
     world = NavigationWorld(seed=seed, size=config.size, preset=config.preset)
     initial_hash = _json_hash(world.to_dict())
@@ -55,9 +81,18 @@ def _episode(model, unroll, config, seed, variant):
     collisions = moved = matches = 0
     success = False
     reward = 0.0
+    trace = []
+    proposed_walls = overrides = 0
+    navigator = None
+    if variant in ('observed_map', 'map_without_policy'):
+        from .navigation_controller import ObservedMapNavigator
+        navigator = ObservedMapNavigator(config.size)
     for _ in range(config.max_steps):
         expert = world.expert_action()
-        history.append(world.observe())
+        observation = world.observe()
+        history.append(observation)
+        raw_action = None
+        reason = variant
         if variant == 'shortest_path':
             action = expert
         elif variant == 'random':
@@ -65,11 +100,31 @@ def _episode(model, unroll, config, seed, variant):
         else:
             padding = [[[0.0] * 4 for _ in range(4)] for _ in range(unroll - len(history))]
             sequence = torch.tensor([padding + list(history)], dtype=model.policy.weight.dtype)
-            output = model(sequence, graft_enabled=variant != 'no_graft',
-                           recurrence=variant != 'no_recurrence')
+            model_controls = {'graft_enabled': variant != 'no_graft',
+                              'recurrence': variant != 'no_recurrence'}
+            if variant == 'no_context':
+                model_controls['context_enabled'] = False
+            output = model(sequence, **model_controls)
             if not torch.isfinite(output.logits).all():
                 raise ValueError('frozen policy produced nonfinite logits')
-            action = int(output.logits.argmax(-1))
+            raw_action = int(output.logits.argmax(-1))
+            action = raw_action
+            logits = output.logits[0].tolist()
+            if variant == 'masked_policy':
+                from .navigation_controller import legal_action
+                action = legal_action(observation, logits)
+                reason = 'legal_action_mask'
+            elif navigator is not None:
+                action = navigator.choose(observation, logits, use_policy=variant == 'observed_map')
+                reason = navigator.snapshot()['reason']
+        if config.include_controllers:
+            proposed_walls += raw_action is not None and bool(observation[2][raw_action])
+            overrides += raw_action is not None and action != raw_action
+            info = navigator.snapshot() if navigator is not None else {}
+            trace.append({'position': dict(world.snapshot()['agent']), 'action': action,
+                          'policy_action': raw_action, 'reason': reason,
+                          'known_free': info.get('known_free', 0),
+                          'visited': info.get('visited', 0), 'frontiers': info.get('frontiers', 0)})
         matches += action == expert
         actions.append(action)
         previous = world._agent
@@ -80,7 +135,7 @@ def _episode(model, unroll, config, seed, variant):
         if result['goal_reached']:
             success = True
             break
-    return {
+    episode = {
         'seed': seed, 'initial_world_hash': initial_hash, 'start': start, 'goal': goal,
         'shortest_distance': shortest, 'steps': len(actions), 'path_length': moved,
         'success': success, 'spl': shortest / max(shortest, moved) if success else 0.0,
@@ -88,12 +143,17 @@ def _episode(model, unroll, config, seed, variant):
         'terminal_distance': 0 if success else len(world.shortest_path()) - 1,
         'total_reward': reward, 'actions': actions,
     }
+    if config.include_controllers:
+        episode.update({'controller_trace': trace, 'proposed_wall_actions': proposed_walls,
+                        'policy_overrides': overrides, 'policy_proposals': sum(t['policy_action'] is not None for t in trace),
+                        'policy_prior_used': variant != 'map_without_policy' and raw_action is not None})
+    return episode
 
 
 def _summary(episodes):
     count = len(episodes)
     steps = sum(item['steps'] for item in episodes)
-    return {
+    summary = {
         'episodes': count,
         'success_rate': sum(item['success'] for item in episodes) / count,
         'spl': sum(item['spl'] for item in episodes) / count,
@@ -102,6 +162,11 @@ def _summary(episodes):
         'teacher_agreement': sum(item['teacher_agreement'] * item['steps'] for item in episodes) / steps,
         'mean_terminal_distance': sum(item['terminal_distance'] for item in episodes) / count,
     }
+    if 'controller_trace' in episodes[0]:
+        proposals = sum(item['policy_proposals'] for item in episodes)
+        summary.update({'proposed_wall_rate': sum(item['proposed_wall_actions'] for item in episodes) / proposals if proposals else None,
+                        'policy_override_rate': sum(item['policy_overrides'] for item in episodes) / proposals if proposals else None})
+    return summary
 
 
 def frozen_navigation_evaluation(session, config=None):
@@ -126,11 +191,8 @@ def frozen_navigation_evaluation(session, config=None):
         graph_hash = session.bundle.digest()
         unroll = session.config.unroll
         checkpoint_steps, checkpoint_updates = session.steps, session.updates
-    settings = asdict(config)
-    settings['seeds'] = list(config.seeds)
-    protocol = {'schema_version': 1, 'config': settings, 'unroll': unroll,
-                'variants': ['policy', 'no_graft', 'no_recurrence', 'random', 'shortest_path'],
-                'success_rule': 'first arrival at initial goal', 'path_length': 'successful cell moves'}
+    protocol = navigation_protocol(config, unroll)
+    settings = protocol['config']
     variants = {}
     with torch.inference_mode():
         for variant in protocol['variants']:
@@ -140,18 +202,26 @@ def frozen_navigation_evaluation(session, config=None):
     effects = {
         name: {metric + '_delta': baseline[metric] - variants[name]['summary'][metric]
                for metric in ('success_rate', 'spl')}
-        for name in ('no_graft', 'no_recurrence', 'random')
+        for name in ('no_graft', 'no_recurrence', 'random') + (('no_context',) if config.include_readout_controls else ())
     }
     return {
-        'schema_version': 1, 'protocol_id': _json_hash(protocol), 'config': settings,
+        'schema_version': protocol['schema_version'], 'protocol_id': _json_hash(protocol), 'config': settings,
         'inference_unroll': unroll, 'graph_hash': graph_hash, 'model_hash': model_hash,
         'checkpoint_steps': checkpoint_steps, 'checkpoint_updates': checkpoint_updates,
         'teacher_assistance': 0, 'learning': False, 'variants': variants, 'paired_effects': effects,
-        'evidence_scope': ('Frozen synthetic grid navigation; no teacher assistance or training. '
+        'evidence_scope': (('Extended controller comparison: masked_policy filters adjacent walls; observed_map adds symbolic '
+                           'episodic mapping/planning from the same local sensors and known grid size. map_without_policy '
+                           'removes the learned tie-break prior. These are engineered assistance, not raw neural gains. '
+                           'Zero collisions follow legal filtering. No controller receives the full obstacle map or teacher action. '
+                           if config.include_controllers else '') + 'Frozen synthetic grid navigation; no teacher assistance or training. '
                            'No-graft and no-recurrence are inference-time interventions on identical weights, '
                            'not separately trained baselines. Random is seeded; shortest_path has full-map access. '
                            'Declared seeds are not proof of unseen training worlds. SPL counts successful cell moves; '
                            'collisions and attempted steps are separate. Teacher agreement uses one deterministic '
-                           'shortest-path tie-break. No biological advantage or pretrained language capability established.'),
+                           'shortest-path tie-break. No biological advantage or pretrained language capability established.'
+                           + (' Readout control: no_graft retains the direct all-source readout in context_residual mode. '
+                              'no_context bypasses only the context residual readout when present; legacy human readout '
+                              'is unchanged. This is an inference-time intervention on identical weights, not a training '
+                              'comparison or evidence of learning.' if config.include_readout_controls else '')),
         'metric_reference': 'https://arxiv.org/abs/1807.06757',
     }

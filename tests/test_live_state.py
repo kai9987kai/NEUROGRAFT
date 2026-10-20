@@ -163,6 +163,7 @@ def test_legacy_checkpoint_reports_missing_auxiliary_state(tmp_path):
     live.tick(4)
     payload = copy.deepcopy(live._payload())
     payload.pop("auxiliary", None)
+    payload.pop("navigation", None)
     payload["version"] = 1
     path = tmp_path / "legacy.pt"
     torch.save({"payload": payload, "sha256": _checkpoint_digest(payload)}, path)

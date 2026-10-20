@@ -1,0 +1,5 @@
+{
+  "status": "INTERRUPTED",
+  "completed_runs": 0,
+  "reason": "Stopped before completing the first child run to apply the Windows HTML newline fix. Partial evidence retained; replaced by the separate -final study."
+}

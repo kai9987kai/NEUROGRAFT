@@ -79,3 +79,48 @@ def test_corrupt_replay_is_rejected_without_mutation():
     live.replay[-1]["observations"][-1][0][0] = float("nan")
     with pytest.raises(ValueError, match="observation"):
         _api()(live)
+
+
+@pytest.mark.parametrize('mutation', ['model', 'replay'])
+def test_diagnostics_use_one_frozen_capture_when_live_state_changes_after_unlock(mutation):
+    live = _session()
+    live.tick(4)
+    live.model.train()
+    live.model.encoders[0].eval()
+    modes_before = [module.training for module in live.model.modules()]
+    expected = _api()(live)
+    python_before, torch_before = random.getstate(), torch.get_rng_state().clone()
+    original_lock = live.lock
+
+    class ChangeAfterCapture:
+        held = False
+
+        def __enter__(self):
+            original_lock.acquire()
+            self.held = True
+
+        def __exit__(self, *exc):
+            self.held = False
+            original_lock.release()
+            if mutation == 'model':
+                with torch.no_grad():
+                    live.model.policy.bias.add_(100)
+            else:
+                live.replay[-1]['observations'][-1][3][2] = 0.987
+
+    lock = ChangeAfterCapture()
+    live.lock = lock
+
+    def require_probe_outside_lock(module, args):
+        assert not lock.held, 'diagnostic inference must release the live-session lock'
+
+    hook = live.model.register_forward_pre_hook(require_probe_outside_lock)
+    try:
+        actual = _api()(live)
+    finally:
+        hook.remove()
+        live.lock = original_lock
+    assert actual == expected
+    assert [module.training for module in live.model.modules()] == modes_before
+    assert random.getstate() == python_before
+    assert torch.equal(torch.get_rng_state(), torch_before)

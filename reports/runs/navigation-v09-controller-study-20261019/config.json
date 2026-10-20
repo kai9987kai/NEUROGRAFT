@@ -1,0 +1,19 @@
+{
+  "sizes": [
+    7,
+    11
+  ],
+  "presets": [
+    "labyrinth",
+    "chambers",
+    "corridors",
+    "pillars",
+    "concentric",
+    "hierarchical"
+  ],
+  "seeds": [
+    41000,
+    41001
+  ],
+  "max_steps": 96
+}

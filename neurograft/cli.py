@@ -93,6 +93,8 @@ def parser():
     nav.add_argument("--size", type=int, default=11)
     nav.add_argument("--preset", default="labyrinth")
     nav.add_argument("--max-steps", type=int, default=48)
+    nav.add_argument('--include-controllers', action='store_true', help='compare legal masking and observed-map planning against raw policy and controls')
+    nav.add_argument('--include-readout-controls', action='store_true', help='compare the same weights with the optional context residual readout bypassed')
     curriculum = commands.add_parser('train-navigation', help='train an isolated navigation candidate and compare frozen trials')
     curriculum.add_argument('--bundle', required=True)
     curriculum.add_argument('--checkpoint', required=True, help='captured baseline checkpoint; never overwritten')
@@ -104,6 +106,20 @@ def parser():
     curriculum.add_argument('--seed', type=int, default=None)
     curriculum.add_argument('--learning-rate', '--lr', dest='learning_rate', type=float, default=None)
     curriculum.add_argument('--init', choices=('fresh', 'checkpoint'), default=None)
+    verify = commands.add_parser('verify-navigation', help='verify an archived navigation experiment and optionally replay frozen trials')
+    verify.add_argument('run', help='completed experiment directory')
+    verify.add_argument('--replay', action='store_true', help='rerun baseline and candidate frozen trials in this runtime')
+    study = commands.add_parser('study-navigation', help='archive a fixed-weight controller comparison across arena sizes and topologies')
+    study.add_argument('--bundle', required=True)
+    study.add_argument('--checkpoint', required=True)
+    study.add_argument('--out', required=True, help='new study directory; existing evidence is never overwritten')
+    study.add_argument('--sizes', default='7,11')
+    study.add_argument('--presets', default='labyrinth,chambers,corridors,pillars,concentric,hierarchical')
+    study.add_argument('--seeds', default='41000,41001')
+    study.add_argument('--max-steps', type=int, default=96)
+    verify_study = commands.add_parser('verify-navigation-study', help='verify archived controller study integrity and optionally replay every condition')
+    verify_study.add_argument('run', help='completed study directory')
+    verify_study.add_argument('--replay', action='store_true')
     report = commands.add_parser("report", help="create a standalone local HTML experiment report")
     report.add_argument("report")
     report.add_argument("--out", required=True)
@@ -172,7 +188,9 @@ def main(argv=None):
             if destination.exists():
                 raise ValueError(f"output already exists: {destination}; choose a new path")
             config = NavigationEvalConfig(seeds=tuple(int(s) for s in args.seeds.split(',')),
-                                          size=args.size, preset=args.preset, max_steps=args.max_steps)
+                                          size=args.size, preset=args.preset, max_steps=args.max_steps,
+                                          include_controllers=args.include_controllers,
+                                          include_readout_controls=args.include_readout_controls)
             bundle = _bundle(args.bundle)
             if sum(len(g.nodes) for g in bundle.graphs) > 2000 or sum(len(g.edges) for g in bundle.graphs) > 50000:
                 raise ValueError("navigation evaluation cap is 2,000 nodes and 50,000 observations")
@@ -207,6 +225,24 @@ def main(argv=None):
                     values[name] = value
             config = CurriculumConfig(**values)
             _print(run_navigation_training(_bundle(args.bundle), args.checkpoint, args.out, config))
+        elif args.command == 'verify-navigation':
+            from .navigation_artifacts import verify_navigation_run
+            _print(verify_navigation_run(args.run, replay=args.replay))
+        elif args.command == 'study-navigation':
+            from .navigation_study import StudyConfig, run_navigation_study
+            config = StudyConfig(sizes=tuple(int(value) for value in args.sizes.split(',')),
+                                 presets=tuple(args.presets.split(',')),
+                                 seeds=tuple(int(value) for value in args.seeds.split(',')),
+                                 max_steps=args.max_steps)
+            result = run_navigation_study(_bundle(args.bundle), args.checkpoint, args.out, config)
+            _print({'study_id': result['study_id'], 'model_hash': result['model_hash'],
+                    'graph_hash': result['graph_hash'], 'directory': str(Path(args.out).resolve()),
+                    'conditions': len(result['conditions']), 'promotion_performed': False,
+                    'variants': {name: value['summary'] for name, value in result['variants'].items()},
+                    'evidence_scope': result['evidence_scope']})
+        elif args.command == 'verify-navigation-study':
+            from .navigation_study import verify_navigation_study
+            _print(verify_navigation_study(args.run, replay=args.replay))
         elif args.command == "report":
             from .report import write_html_report
             result = json.loads(Path(args.report).read_text(encoding="utf-8"))

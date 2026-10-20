@@ -1,0 +1,251 @@
+{
+  "schema": "navigation-controller-study-v1",
+  "config": {
+    "sizes": [
+      7,
+      11
+    ],
+    "presets": [
+      "labyrinth",
+      "chambers",
+      "corridors",
+      "pillars",
+      "concentric",
+      "hierarchical"
+    ],
+    "seeds": [
+      41000,
+      41001
+    ],
+    "max_steps": 96
+  },
+  "inference_unroll": 4,
+  "condition_protocol_ids": [
+    "b5e69313995dcddbd0cf17d4447a810fa1628bb7a5d989f83ef513e86456558d",
+    "121d2455e4baec983ac3dd2593240fa16698a303c5c07117da6a95b2ec4c47f1",
+    "648ecab3f19e312266d55c1ae3ff3bf9dcb722ad30eb87ace1e33155d627a0b2",
+    "eac14ddae319291d0e957a7d32a88a4d2d0254dd5352c57529330efbecdfc2b2",
+    "2a245c1d2aa41da85f8ab4895bb858901b4a4f68e3aee02a5a2c10bf52b570a4",
+    "f5084b3e4bffa7c0b487da9e469b836f5dc76ea13ff76f3d86bf115823074973",
+    "82c55a72fd9b588c7e3c103d14efdc86f08c8fb6b1a66cc1d20814490962e9c4",
+    "61aa10deca7bbba302a419b5a0ac7f322aae2e7f34587b2627847140150ad528",
+    "833a97998f5150fc124f11e1391cf471f206e28f5e3d9638fe5b36c4c78fd44e",
+    "a51c10ace252b72984bd572a5f8c1935c059846c2221a82f0c307eda4c1a9407",
+    "eb16c0e61944478dc9f00466886ce1e962dcb4d1daa0d355854ea9828e8e4388",
+    "ae434c2c9f66465bec82546e7583acb85677768924b7f68ce8709fa65c04a9ab"
+  ],
+  "study_id": "43bf5285c2c918603bb6f8f463520637ccfd746c53a84596e6e05782e0d76034",
+  "conditions": [
+    {
+      "index": 0,
+      "file": "trial_000.json",
+      "size": 7,
+      "preset": "labyrinth",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 7,
+        "preset": "labyrinth",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "b5e69313995dcddbd0cf17d4447a810fa1628bb7a5d989f83ef513e86456558d"
+    },
+    {
+      "index": 1,
+      "file": "trial_001.json",
+      "size": 7,
+      "preset": "chambers",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 7,
+        "preset": "chambers",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "121d2455e4baec983ac3dd2593240fa16698a303c5c07117da6a95b2ec4c47f1"
+    },
+    {
+      "index": 2,
+      "file": "trial_002.json",
+      "size": 7,
+      "preset": "corridors",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 7,
+        "preset": "corridors",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "648ecab3f19e312266d55c1ae3ff3bf9dcb722ad30eb87ace1e33155d627a0b2"
+    },
+    {
+      "index": 3,
+      "file": "trial_003.json",
+      "size": 7,
+      "preset": "pillars",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 7,
+        "preset": "pillars",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "eac14ddae319291d0e957a7d32a88a4d2d0254dd5352c57529330efbecdfc2b2"
+    },
+    {
+      "index": 4,
+      "file": "trial_004.json",
+      "size": 7,
+      "preset": "concentric",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 7,
+        "preset": "concentric",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "2a245c1d2aa41da85f8ab4895bb858901b4a4f68e3aee02a5a2c10bf52b570a4"
+    },
+    {
+      "index": 5,
+      "file": "trial_005.json",
+      "size": 7,
+      "preset": "hierarchical",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 7,
+        "preset": "hierarchical",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "f5084b3e4bffa7c0b487da9e469b836f5dc76ea13ff76f3d86bf115823074973"
+    },
+    {
+      "index": 6,
+      "file": "trial_006.json",
+      "size": 11,
+      "preset": "labyrinth",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 11,
+        "preset": "labyrinth",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "82c55a72fd9b588c7e3c103d14efdc86f08c8fb6b1a66cc1d20814490962e9c4"
+    },
+    {
+      "index": 7,
+      "file": "trial_007.json",
+      "size": 11,
+      "preset": "chambers",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 11,
+        "preset": "chambers",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "61aa10deca7bbba302a419b5a0ac7f322aae2e7f34587b2627847140150ad528"
+    },
+    {
+      "index": 8,
+      "file": "trial_008.json",
+      "size": 11,
+      "preset": "corridors",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 11,
+        "preset": "corridors",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "833a97998f5150fc124f11e1391cf471f206e28f5e3d9638fe5b36c4c78fd44e"
+    },
+    {
+      "index": 9,
+      "file": "trial_009.json",
+      "size": 11,
+      "preset": "pillars",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 11,
+        "preset": "pillars",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "a51c10ace252b72984bd572a5f8c1935c059846c2221a82f0c307eda4c1a9407"
+    },
+    {
+      "index": 10,
+      "file": "trial_010.json",
+      "size": 11,
+      "preset": "concentric",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 11,
+        "preset": "concentric",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "eb16c0e61944478dc9f00466886ce1e962dcb4d1daa0d355854ea9828e8e4388"
+    },
+    {
+      "index": 11,
+      "file": "trial_011.json",
+      "size": 11,
+      "preset": "hierarchical",
+      "config": {
+        "seeds": [
+          41000,
+          41001
+        ],
+        "size": 11,
+        "preset": "hierarchical",
+        "max_steps": 96,
+        "include_controllers": true
+      },
+      "protocol_id": "ae434c2c9f66465bec82546e7583acb85677768924b7f68ce8709fa65c04a9ab"
+    }
+  ],
+  "model_hash": "cc507d705e24031c6d6437982cbc61a836aee2930a40dfc2b1301c1bdaaa3029",
+  "graph_hash": "e11df95be51a132ca1db6f5f8a104d4fefe98455623e0ca0fc1e89133bf92fd5",
+  "checkpoint_steps": 0,
+  "checkpoint_updates": 0,
+  "learning": false,
+  "teacher_assistance": 0,
+  "promotion_performed": false
+}

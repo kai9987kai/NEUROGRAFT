@@ -1,6 +1,7 @@
 """Pure inspection diagnostics for live navigation replay and routing states."""
 from __future__ import annotations
 
+import copy
 import math
 from typing import Any
 
@@ -10,11 +11,17 @@ from .graphs import SOURCE_KEYS
 
 
 def navigation_diagnostics(live) -> dict[str, Any]:
-    """Inspect replay buffer, human routing mass and policy distributions without mutating live state."""
+    """Capture replay and weights together, then probe outside the live lock.
+
+    The diagnostic describes the captured instant even when online updates
+    continue. Neither the live model's module modes nor nested replay values
+    are changed or consulted after capture.
+    """
     with live.lock:
-        replay = list(live.replay)
+        replay = copy.deepcopy(list(live.replay))
         world_size = live.world.size
         world_preset = getattr(live.world, "preset", "labyrinth")
+        model = copy.deepcopy(live.model) if replay else None
         # Validate replay observations
         for sample in replay:
             obs = sample.get("observations")
@@ -63,10 +70,12 @@ def navigation_diagnostics(live) -> dict[str, Any]:
     else:
         rep_indices = [round(i * (n - 1) / 31) for i in range(32)]
 
-    # Compute human routing under torch.no_grad() without mutating global RNGs
-    seq_tensor = torch.tensor([item["observations"] for item in replay], dtype=torch.float32)
-    with torch.no_grad():
-        out = live.model(seq_tensor)
+    # Only the detached copy is switched to evaluation mode; probes leave
+    # global RNGs and the original model's possibly mixed module modes alone.
+    model.eval().requires_grad_(False)
+    seq_tensor = torch.tensor([item["observations"] for item in replay], dtype=model.policy.weight.dtype)
+    with torch.inference_mode():
+        out = model(seq_tensor)
 
     # Routes received by human module: index 3
     # out.routes has shape [batch, 4, 5]

@@ -17,7 +17,61 @@ The working package includes typed sparse graphs, CSV and human-matrix importers
 
 **Current evidence:** the circuit implementation runs and trains locally. The OpenWorm source has been acquired and normalized with explicit filtering receipts. Female fly, male fly, and human inputs in the included demonstration are **synthetic fixtures**. Qwen interface tests use tiny **randomly initialized** models from the actual Transformers implementations. A pretrained Qwen checkpoint has not been loaded or trained. No biological-connectome advantage is established.
 
-## Navigation curriculum (v0.6)
+## Learned navigation experiments (v0.10)
+
+The optional `context_residual` readout gives the policy a learned residual over all four encoded sources. It starts at zero, preserving the original common weights and initial logits. Existing checkpoints load with their original `human` readout. The live Navigation panel identifies the checkpoint's readout; loading an experimental candidate is an explicit separate step.
+
+The curriculum adds `rotation_augmentation`, `collection_policy: "expert"` and `include_readout_controls`. Clockwise quarter turns transform coordinates, headings, wall directions and action labels together while retaining zero padding. Expert-only collection permits matched readout/augmentation comparisons; the existing mixed teacher/learner collection remains the default. A new `no_context` frozen intervention bypasses the residual. In a residual model, `no_graft` still permits direct all-source readout, so it is not a human-source-only control.
+
+These are testable engineering hypotheses informed by [navigation symmetry research](https://arxiv.org/abs/2309.13043v2), [practical symmetry representations](https://arxiv.org/abs/2505.13431) and [limits of privileged-teacher distillation](https://arxiv.org/html/2412.00985v3). Augmentation does not guarantee architectural equivariance, and a richer readout cannot reveal unseen walls. Full-map fixed-tie labels, short observation windows and expert-only distribution shift remain limits. See the [research and experiment design](docs/v10-learning-design.md).
+
+Run the four-arm, three-seed study in a **new** directory. It declares every configuration before training, retains all arms and compares common-weight, original-data and base-minibatch hashes. Each seed changes both initialization and training-world offset; comparisons are matched within that seed. The residual has additional parameters, so this is not a parameter-matched topology comparison.
+
+```powershell
+python tools/study_navigation_readouts.py --bundle reports/runs/navigation-v08-smoke-20261019/experiment/source.bundle.json --checkpoint reports/runs/navigation-v08-smoke-20261019/experiment/candidate.pt --out reports/runs/new-v10-study
+python tools/study_navigation_readouts.py --verify reports/runs/new-v10-study --replay
+```
+
+Plain verification checks sealed child archives, declared schedules/budgets, matched exposure receipts and derived aggregates. `--replay` additionally reruns the frozen evaluations; it does not repeat training. Candidate exports remain paused, with learning disabled and no automatic promotion.
+
+Measured results, validation receipts and experimental limits are recorded in the [v0.10 build report](docs/v10-build-report.md).
+
+## Observation-only navigation (v0.9)
+
+The live workspace now offers three explicit action-selection modes: the original **raw policy** with its configured guidance, **policy with legal-action masking**, and **observed map with policy tie-breaking**. Choose a mode in the Navigation controller panel. Mask/map modes bypass teacher actions; online imitation labels can still train the model if learning is enabled. The chat commands `navigation` and `why` identify the active controller.
+
+The map planner sees public arena size, current position, known goal and adjacent-wall sensors. It remembers observed cells, commits to an unexplored frontier and routes only through known free cells. The browser shows that partial map separately from the full 3D arena. Unknown cells stay dark. This is symbolic engineering with noiseless grid observations, not learned visual SLAM or evidence of stronger raw neural navigation.
+
+Compare eight frozen controls on matched worlds: raw policy, no grafts, no recurrence, random, privileged full-map oracle, legal masking, observed map plus policy prior, and observed map without that prior:
+
+```powershell
+python -m neurograft evaluate-live --bundle data/imported/mixed.bundle.json --checkpoint data/live/session.pt --seeds 41000,41001 --size 11 --max-steps 96 --include-controllers --out reports/new-controller-trials.json
+python -m neurograft study-navigation --bundle data/imported/mixed.bundle.json --checkpoint data/live/session.pt --out reports/runs/new-controller-study
+python -m neurograft verify-navigation-study reports/runs/new-controller-study --replay
+```
+
+The study defaults to sizes 7/11, all six topologies and two declared seeds (24 scenarios), with a 96-step horizon. It freezes input bytes, declares the protocol before evaluating, and exports each condition, aggregate JSON/HTML and a file manifest. It trains and promotes nothing. Proposed-wall and override rates reveal what legal filtering changes; the map-only control isolates the learned prior. These correlated synthetic scenarios are exploratory.
+
+New v3 live checkpoints preserve controller mode and exact observed-map state. v1/v2 checkpoints remain readable in raw-policy mode with empty navigation memory; existing v2 model/observer state is retained. Default legacy five-way evaluation configuration, hashes and recorded outputs remain unchanged, and v0.8 archives still replay exactly. See the [v0.9 design and verification scope](docs/v09-navigation-design.md).
+
+The local fixed-weight study reached **24/24 goals with observed-map navigation**, versus **18/24 with masking** and **0/24 with raw policy**. The map-only control also reached 24/24, so these results do not establish a learned-policy gain. See the [build report](docs/v09-build-report.md) and [complete comparison](reports/runs/navigation-v09-controller-study-20261019/report.html).
+
+## Auditable navigation curriculum (v0.8)
+
+Training now cycles through the Cartesian product of configured world sizes and topologies. A finite per-action reservoir retains expert-labelled visits across rounds instead of discarding all but the newest samples. Per-round receipts record scenario coverage, teacher/learner actions, retained replay samples and imitation loss. Configuration checks bound collection, optimizer updates and evaluation seeds before a run starts. This finite-memory dataset aggregation approach is informed by [Ross et al.](https://proceedings.mlr.press/v15/ross11a.html); it is not a replication of their full-data algorithm or a guarantee of improved navigation.
+
+Each new experiment archives the exact baseline bytes and source bundle, `config.json`, `progress.json`, `report.json`, a standalone HTML report, candidate checkpoint and a SHA-256 manifest. Verify it without needing the original source paths:
+
+```powershell
+python -m neurograft verify-navigation reports/runs/my-new-run
+python -m neurograft verify-navigation reports/runs/my-new-run --replay
+```
+
+The second command reruns both frozen test evaluations in the current runtime. Hash checks detect changed files; they are not authenticity signatures. Old runs without the complete archive are retained as legacy evidence and cannot pass this new verifier. Candidate files are paused inference exports with fresh live optimizer state, not resumable curriculum checkpoints. Test performance does not trigger automatic promotion.
+
+Live startup now binds its port before starting learning, preserves restored pause/learning settings, and releases resources without saving on startup failure. Environmental overlays (substrates, plume, antennae, optic clearance, gate permeability and circadian lighting) are deterministic diagnostic approximations. They do not alter collision physics or enter the policy's four-by-four observation.
+
+See the [v0.8 build report](docs/v08-build-report.md) and [complete smoke experiment](reports/runs/navigation-v08-smoke-20261019/experiment/report.html). That small candidate still reached **0/4** test goals; the upgrade verifies broader sampling and auditable execution, not useful autonomous navigation.
 
 An isolated curriculum training protocol (`python -m neurograft train-navigation`) designed to train and benchmark candidate navigation policies without mutating the live session or overwriting captured baselines.
 

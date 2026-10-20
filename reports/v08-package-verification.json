@@ -1,0 +1,16 @@
+{
+  "wheel": "neurograft-0.8.0-py3-none-any.whl",
+  "sha256": "65e7970d534d2258da444681a1e63fb3143db26a60eaff34fe8e425c854e89a1",
+  "source_files_equal": 40,
+  "readme_metadata_equal": true,
+  "isolated_package_replay": {
+    "ok": true,
+    "artifacts_verified": 8,
+    "replay_verified": true,
+    "selected_model_hash": "cc507d705e24031c6d6437982cbc61a836aee2930a40dfc2b1301c1bdaaa3029",
+    "graph_hash": "e11df95be51a132ca1db6f5f8a104d4fefe98455623e0ca0fc1e89133bf92fd5",
+    "protocol_id": "efbab71345607ed7880121670676af782c15f919b74c57cec4f0a4e409382a72",
+    "promotion_performed": false,
+    "evidence_scope": "Local file integrity and checkpoint identities; hashes are not authenticity signatures. Replay, when requested, covers frozen trials in the current runtime, not training."
+  }
+}

@@ -13,7 +13,7 @@
   <header class="app-header">
     <a class="brand" href="/" aria-label="Neurograft live laboratory">
       <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M10 29V11l20 18V11"/><circle cx="10" cy="11" r="3"/><circle cx="30" cy="29" r="3"/></svg>
-      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.9</span></span></span>
+      <span>NEUROGRAFT<span class="brand-sub">LIVE LABORATORY <span class="version">/ 0.12</span></span></span>
     </a>
     <div class="header-note">Four source graphs. One evolving circuit.</div>
     <button type="button" class="pill research-trigger" popovertarget="research-popover">📚 2024–2026 Research Basis</button>
@@ -36,7 +36,7 @@
         <div class="session-title"><span class="eyebrow">EXPERIMENT 01</span><h1>Learn the way through.</h1><p>Continuous multi-chamber navigation with supervised route guidance &amp; neuromodulated telemetry.</p></div>
         <div class="session-actions">
           <span class="run-state" id="run-state">Awaiting session</span>
-          <div class="button-row"><button type="button" class="button primary" id="pause-btn" data-write disabled><span aria-hidden="true">Ⅱ</span> Pause</button><button type="button" class="button primary" id="resume-btn" data-write hidden disabled><span aria-hidden="true">▶</span> Resume</button><button type="button" class="button" id="step-btn" data-write disabled title="Advance one server step">Step <span aria-hidden="true">→</span></button><button type="button" class="button" id="boost-btn" data-write disabled title="Run an immediate 16-step online evolution burst">⚡ Boost ×16</button></div>
+          <div class="button-row"><button type="button" class="button primary" id="pause-btn" data-write disabled><span aria-hidden="true">Ⅱ</span> Pause</button><button type="button" class="button primary" id="resume-btn" data-write hidden disabled><span aria-hidden="true">▶</span> Resume</button><button type="button" class="button" id="step-btn" data-write disabled title="Advance one server step">Step <span aria-hidden="true">→</span></button><button type="button" class="button" id="boost-btn" data-write disabled title="Run an immediate 16-step online evolution burst">⚡ Boost ×16</button><button type="button" class="button" id="replay-btn" data-write disabled title="Trigger hippocampal Sharp-Wave Ripple (SWR) offline memory replay">🧠 SWR Replay</button></div>
           <label class="toggle-label" for="learning-toggle"><input id="learning-toggle" type="checkbox" data-write disabled><span class="toggle-track"></span><span>Online learning <b id="learning-label">—</b></span></label>
         </div>
       </section>
@@ -72,7 +72,7 @@
         <div class="panel-heading compact"><div><span class="eyebrow">LOCAL SENSORS · EPISODIC MEMORY</span><h2 id="navigation-heading">Navigation controller</h2></div></div>
         <div class="navigation-layout"><div>
           <label for="navigation-mode">Action selection</label>
-          <select id="navigation-mode" data-write disabled><option value="policy">Raw policy + configured guidance</option><option value="masked_policy">Policy with legal-action mask</option><option value="observed_map">Observed map + policy tie-break</option><option value="cx_steer">Synthetic goal/heading steering + policy</option></select>
+          <select id="navigation-mode" data-write disabled><option value="policy">Raw policy + configured guidance</option><option value="masked_policy">Policy with legal-action mask</option><option value="observed_map">Observed map + policy tie-break</option><option value="cx_steer">Synthetic goal/heading steering + policy</option><option value="sr_steer">Successor Representation (SR) predictive map + policy</option></select>
           <p id="navigation-status" class="evaluation-status" role="status">Waiting for a session.</p>
           <p class="evaluation-note">Mask, map and steering modes bypass teacher actions. Mapping uses current position, known goal, adjacent walls and public arena size. Steering adds a hand-selected goal/heading cosine prior with a legal wall mask. Gains here belong to engineered assistance; raw neural performance is measured separately.</p>
           <p id="navigation-map-note" class="evaluation-note"></p>

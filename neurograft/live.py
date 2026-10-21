@@ -37,7 +37,7 @@ from .dynamics import DynamicsConfig, GraphCircuit
 from .environment import NavigationWorld
 from .graphs import GraphBundle
 from .memory import TriTierMemory
-from .navigation_controller import ALL_MODES, MODES, ObservedMapNavigator, legal_action, cx_steering_action
+from .navigation_controller import ALL_MODES, MODES, ObservedMapNavigator, legal_action, cx_steering_action, sr_steering_action
 from . import live_state
 from .phase_plane import PhasePlaneEngine
 from .self_model import ConnectomeForwardSelfModel, SelfModelConfig
@@ -424,6 +424,15 @@ class LiveSession:
                     controlled_action = legal_action(observation, output.logits[0].tolist())
                 elif self.navigation_mode == 'cx_steer':
                     controlled_action = cx_steering_action(observation, output.logits[0].tolist())
+                elif self.navigation_mode == 'sr_steer':
+                    current_pos = (self.world._agent[0], self.world._agent[1])
+                    goal_pos = (self.world._goal[0], self.world._goal[1])
+                    controlled_action = sr_steering_action(
+                        observation, output.logits[0].tolist(),
+                        topological_graph=self.memory.topological_graph,
+                        current_pos=current_pos,
+                        goal_pos=goal_pos,
+                    )
                 if manual_action is not None:
                     action, source = manual_action, "manual"
                 elif controlled_action is not None:
@@ -491,6 +500,8 @@ class LiveSession:
                 self._prev_latent = cur_latent
                 self._prev_action = action
 
+                if result["goal_reached"] and self.memory.lesion_mode not in ("erased", "memory_free"):
+                    self.memory.trigger_swr_replay(max_sweeps=2, horizon=10)
                 if result["episode_done"]:
                     self._reset_inference()
                     self._prev_latent = None
@@ -713,6 +724,8 @@ class LiveSession:
                                    **({'predictive_head': True} if self.config.predictive_head else {}),
                                    **({'reason': 'Synthetic goal/heading prior + legal walls'}
                                       if self.navigation_mode == 'cx_steer' else {}),
+                                   **({'reason': 'Successor Representation (SR) predictive map + policy'}
+                                      if self.navigation_mode == 'sr_steer' else {}),
                                    "teacher_probability": self.config.teacher_probability if self.navigation_mode == 'policy' else 0.0,
                                    "map": self.navigator.snapshot()},
                     "sources": {key: dict(value) for key, value in self._sources.items()},
@@ -770,6 +783,11 @@ class LiveSession:
                 env_info = self.world.environment_telemetry()
                 reply = (f"Switched {self.world.size}×{self.world.size} arena to {preset} topology "
                          f"(detour index {env_info['detour_index']:.2f}×, {len(env_info['choke_points'])} path choke points).")
+            elif lower in ("replay", "swr", "consolidate", "consolidate memory", "offline replay"):
+                swr_res = self.memory.trigger_swr_replay()
+                reply = (f"Executed hippocampal Sharp-Wave Ripple (SWR) replay: {swr_res['sweeps']} sweeps, "
+                         f"{swr_res['replayed_edges']} transitions replayed, "
+                         f"value convergence delta = {swr_res['value_delta']:.4f}.")
             elif lower in ("neurons", "top neurons", "what neurons are firing", "firing"):
                 info = self.telemetry()
                 parts = []
@@ -1214,7 +1232,7 @@ class LiveSession:
                     raise ValueError('checkpoint navigation position disagrees with the executed transition')
             action_sources = (None, "manual", "policy", "teacher")
             if version >= 3:
-                action_sources += ('masked_policy', 'observed_map', 'cx_steer')
+                action_sources += ('masked_policy', 'observed_map', 'cx_steer', 'sr_steer')
             if payload["last_action_source"] not in action_sources:
                 raise ValueError("invalid action source")
             facts = payload["facts"]

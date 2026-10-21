@@ -1,0 +1,14 @@
+{
+  "wheel": "neurograft-0.12.0-py3-none-any.whl",
+  "sha256": "0216fa2345cb3ff9a45806e5e36d45031d9c5da8eb59ae57671eb75cff568d2f",
+  "source_files_equal": 48,
+  "readme_metadata_equal": true,
+  "isolated_package_verification": {
+    "ok": true,
+    "schema": "hippocampal-sr-swr-replay-v1",
+    "tests_passed": 744,
+    "zero_failures": true,
+    "live_checkpoint_preserved": true,
+    "evidence_scope": "Hippocampal-Entorhinal Successor Representation (SR), Normalized Graph Laplacian spatial harmonics, and Hippocampal Sharp-Wave Ripple (SWR) prioritized offline replay engine. All 744 tests passed cleanly; live session state preserved."
+  }
+}

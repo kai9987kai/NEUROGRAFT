@@ -206,6 +206,8 @@ class LiveApp:
                 direction = _bounded_int(values.get('direction'), 'direction', 0, 3)
         elif action == 'boost':
             count = _bounded_int(values.get('steps', 16), 'steps', 1, 64)
+        elif action == 'replay':
+            sweeps = _bounded_int(values.get('sweeps', 4), 'sweeps', 1, 16)
         elif action == 'world':
             from .environment import NavigationWorld
             wsize = _bounded_int(values.get('size', 15), 'size', 5, 31)
@@ -224,7 +226,7 @@ class LiveApp:
             mode = values.get('mode')
             if not isinstance(mode, str) or mode not in ALL_MODES:
                 raise ValueError('invalid navigation mode')
-        elif action not in ('pause', 'resume', 'goal'):
+        elif action not in ('pause', 'resume', 'goal', 'replay'):
             raise ValueError('unknown control action')
         with self.guard, self.session.lock:
             if action == 'pause':
@@ -248,6 +250,9 @@ class LiveApp:
                 self.session.tick(steps=count, manual_action=direction if action == 'move' else None)
             elif action == 'goal':
                 self.session.set_goal(color=values.get('color'), x=values.get('x'), z=values.get('z'))
+            elif action == 'replay':
+                replay_summary = self.session.memory.trigger_swr_replay(max_sweeps=sweeps)
+                return {**self.state(), 'replay': replay_summary}
             return self.state()
 
     def chat(self, message):

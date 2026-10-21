@@ -850,6 +850,13 @@ function bindControls() {
     const res = await control({ action: 'boost', steps: 16 });
     if (res) showToast(`Executed 16-step evolution burst (step ${res.steps}, ${res.updates} updates).`);
   });
+  if ($('replay-btn')) $('replay-btn').addEventListener('click', async () => {
+    const res = await control({ action: 'replay', sweeps: 4 });
+    if (res && res.replay) {
+      showToast(`Hippocampal SWR replay: ${res.replay.sweeps} sweeps, ${res.replay.replayed_edges} edges, ΔV=${res.replay.value_delta.toFixed(4)}`);
+    }
+  });
+
   $('learning-toggle').addEventListener('change', (event) => control({ action: 'learning', enabled: event.target.checked }));
   $('navigation-mode').addEventListener('change', (event) => control({ action: 'navigation', mode: event.target.value }));
   ['blue', 'amber', 'rose'].forEach((color) => $(`goal-${color}`).addEventListener('click', () => control({ action: 'goal', color })));

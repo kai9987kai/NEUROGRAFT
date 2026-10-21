@@ -12,7 +12,7 @@ import math
 
 
 MODES = ('policy', 'masked_policy', 'observed_map')
-ALL_MODES = ('policy', 'masked_policy', 'observed_map', 'cx_steer')
+ALL_MODES = ('policy', 'masked_policy', 'observed_map', 'cx_steer', 'sr_steer')
 _ACTIONS = ((0, -1), (1, 0), (0, 1), (-1, 0))
 _REASONS = frozenset({'uninitialized', 'known_goal', 'frontier', 'at_goal', 'explored_fallback'})
 _MAX_VISITS = 2**53 - 1
@@ -74,6 +74,35 @@ def cx_steering_action(observation, logits, steering_weight: float = 1.5) -> int
     from .compass import CXPFLSteering
     steer_engine = CXPFLSteering(steering_weight=steering_weight)
     return steer_engine.steer(heading, goal_dx, goal_dz, walls, logits)
+
+
+def sr_steering_action(
+    observation,
+    logits,
+    topological_graph=None,
+    current_pos=None,
+    goal_pos=None,
+    sr_weight: float = 1.2,
+    epistemic_weight: float = 0.25,
+) -> int:
+    """Combine learned policy logits with Successor Representation (SR) predictive values
+
+    and epistemic exploration bonuses over experienced topological nodes.
+    Local walls are deterministically masked.
+    """
+    legal = _inputs(observation, logits)
+    if topological_graph is None or current_pos is None or goal_pos is None or not topological_graph.nodes:
+        return legal_action(observation, logits)
+
+    sr_scores = topological_graph.successor_action_values(
+        current_pos, goal_pos, epistemic_weight=epistemic_weight
+    )
+
+    def combined_score(action):
+        sr_val = sr_scores.get(action, 0.0)
+        return (logits[action] + sr_weight * sr_val, -action)
+
+    return max(legal, key=combined_score)
 
 
 def _neighbor(cell, action):

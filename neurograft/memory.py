@@ -58,6 +58,7 @@ class TopologicalMemoryGraph:
         self.adjacency: dict[tuple[int, int], set[tuple[int, int]]] = {}
         self.total_transitions: int = 0
         self.reward_totals: dict[tuple[int, int], float] = {}
+        self.estimated_values: dict[tuple[int, int], float] = {}
 
     @classmethod
     def _position(cls, value, *, bounded=True) -> tuple[int, int]:
@@ -166,6 +167,219 @@ class TopologicalMemoryGraph:
                 visited.add(curr)
                 queue.extend(self.adjacency.get(curr, set()) - visited)
         return len(visited) / len(self.nodes)
+
+    def compute_successor_representation(
+        self, discount: float = 0.9
+    ) -> tuple[list[tuple[int, int]], dict[tuple[int, int], dict[tuple[int, int], float]]]:
+        """Compute the Successor Representation (SR) matrix M = (I - gamma * T)^(-1).
+
+        M(u, v) represents the expected discounted future visitation count of node v
+        starting from node u under empirical policy transition dynamics.
+        """
+        discount = self._number(discount, "discount")
+        if not 0.0 <= discount < 1.0:
+            raise ValueError("discount must be in [0, 1)")
+        sorted_nodes = sorted(self.nodes)
+        n = len(sorted_nodes)
+        if n == 0:
+            return [], {}
+        if n == 1:
+            node = sorted_nodes[0]
+            val = 1.0 / (1.0 - discount) if discount < 1.0 else 1.0
+            return [node], {node: {node: val}}
+
+        node_to_idx = {node: idx for idx, node in enumerate(sorted_nodes)}
+        import torch
+
+        T = torch.zeros((n, n), dtype=torch.float64)
+        for u in sorted_nodes:
+            u_idx = node_to_idx[u]
+            active_actions = [a for a in range(len(self.ACTIONS)) if (u, a) in self.transitions]
+            if not active_actions:
+                T[u_idx, u_idx] = 1.0
+                continue
+            prob_per_action = 1.0 / len(active_actions)
+            for a in active_actions:
+                counts = self.transitions[(u, a)]
+                tot = sum(counts.values())
+                if tot > 0:
+                    for v, cnt in counts.items():
+                        if v in node_to_idx:
+                            v_idx = node_to_idx[v]
+                            T[u_idx, v_idx] += prob_per_action * (cnt / tot)
+            row_sum = T[u_idx].sum()
+            if row_sum > 0:
+                T[u_idx] /= row_sum
+            else:
+                T[u_idx, u_idx] = 1.0
+
+        I = torch.eye(n, dtype=torch.float64)
+        try:
+            M = torch.linalg.inv(I - discount * T)
+        except RuntimeError:
+            M = I
+
+        sr_dict: dict[tuple[int, int], dict[tuple[int, int], float]] = {}
+        for i, u in enumerate(sorted_nodes):
+            sr_dict[u] = {}
+            for j, v in enumerate(sorted_nodes):
+                sr_dict[u][v] = float(M[i, j].item())
+
+        return sorted_nodes, sr_dict
+
+    def successor_action_values(
+        self,
+        current_pos: tuple[int, int],
+        goal_pos: tuple[int, int],
+        discount: float = 0.9,
+        epistemic_weight: float = 0.2,
+    ) -> dict[int, float]:
+        """Compute expected successor values toward goal_pos and epistemic exploration
+
+        bonuses for each cardinal action from current_pos.
+        """
+        current_pos = self._position(current_pos, bounded=False)
+        goal_pos = self._position(goal_pos, bounded=False)
+        discount = self._number(discount, "discount")
+        epistemic_weight = self._number(epistemic_weight, "epistemic weight")
+
+        scores: dict[int, float] = {a: 0.0 for a in range(len(self.ACTIONS))}
+        if not self.nodes or current_pos not in self.nodes:
+            return scores
+
+        _, sr_dict = self.compute_successor_representation(discount=discount)
+
+        target_node = goal_pos
+        if target_node not in self.nodes:
+            target_node = min(
+                self.nodes,
+                key=lambda n: (abs(n[0] - goal_pos[0]) + abs(n[1] - goal_pos[1]), n),
+            )
+
+        for a in range(len(self.ACTIONS)):
+            key = (current_pos, a)
+            counts = self.transitions.get(key, {})
+            tot = sum(counts.values())
+            if tot > 0:
+                q_sr = sum(
+                    (cnt / tot) * sr_dict.get(v, {}).get(target_node, 0.0)
+                    for v, cnt in counts.items()
+                )
+                novelty = 1.0 / math.sqrt(tot + 1)
+                scores[a] = float(q_sr + epistemic_weight * novelty)
+            else:
+                dx, dz = self.ACTIONS[a]
+                cand = (current_pos[0] + dx, current_pos[1] + dz)
+                if cand in self.nodes:
+                    cand_sr = sr_dict.get(cand, {}).get(target_node, 0.0)
+                    scores[a] = float(cand_sr + epistemic_weight * 1.0)
+                else:
+                    scores[a] = float(epistemic_weight * 1.5)
+
+        return scores
+
+    def graph_laplacian_modes(self, k: int = 4) -> dict[str, Any]:
+        """Extract multiscale spatial harmonics (grid cell basis) via normalized Laplacian."""
+        sorted_nodes = sorted(self.nodes)
+        n = len(sorted_nodes)
+        if n < 2:
+            return {"num_nodes": n, "eigenvalues": [], "modes": {}}
+
+        node_to_idx = {node: idx for idx, node in enumerate(sorted_nodes)}
+        import torch
+
+        A = torch.zeros((n, n), dtype=torch.float64)
+        for u in sorted_nodes:
+            u_idx = node_to_idx[u]
+            for v in self.adjacency.get(u, set()):
+                if v in node_to_idx:
+                    v_idx = node_to_idx[v]
+                    A[u_idx, v_idx] = 1.0
+                    A[v_idx, u_idx] = 1.0
+
+        deg = A.sum(dim=1)
+        deg_inv_sqrt = torch.diag(1.0 / torch.sqrt(torch.clamp(deg, min=1e-8)))
+        L = torch.eye(n, dtype=torch.float64) - deg_inv_sqrt @ A @ deg_inv_sqrt
+
+        try:
+            evals, evecs = torch.linalg.eigh(L)
+            num_k = min(k, n)
+            eigenvalues = [round(float(val.item()), 4) for val in evals[:num_k]]
+            modes = {}
+            for m_idx in range(num_k):
+                modes[f"mode_{m_idx}"] = {
+                    f"{node[0]},{node[1]}": round(float(evecs[i, m_idx].item()), 4)
+                    for i, node in enumerate(sorted_nodes)
+                }
+            return {"num_nodes": n, "eigenvalues": eigenvalues, "modes": modes}
+        except RuntimeError:
+            return {"num_nodes": n, "eigenvalues": [], "modes": {}}
+
+    def trigger_swr_replay(
+        self,
+        seed_nodes: Sequence[tuple[int, int]] | None = None,
+        max_sweeps: int = 4,
+        horizon: int = 8,
+        discount: float = 0.9,
+    ) -> dict[str, Any]:
+        """Perform Sharp-Wave Ripple (SWR) prioritized reverse sweeps across experienced transitions.
+
+        Propagates value updates backwards from reward/frontier locations, simulating
+        offline hippocampal replay during pauses or goal events.
+        """
+        max_sweeps = int(self._number(max_sweeps, "max_sweeps"))
+        horizon = int(self._number(horizon, "horizon"))
+        discount = self._number(discount, "discount")
+        if not 0.0 <= discount <= 1.0:
+            raise ValueError("discount must be in [0, 1]")
+
+        if not self.nodes:
+            return {"sweeps": 0, "replayed_edges": 0, "value_delta": 0.0, "trajectories": []}
+
+        reverse_adj: dict[tuple[int, int], list[tuple[tuple[int, int], int]]] = {}
+        for (u, a), counts in self.transitions.items():
+            for v in counts:
+                reverse_adj.setdefault(v, []).append((u, a))
+
+        if seed_nodes:
+            candidates = [self._position(s, bounded=False) for s in seed_nodes if s in self.nodes]
+        else:
+            candidates = [n for n in self.nodes if self.reward_totals.get(n, 0.0) > 0]
+        if not candidates:
+            candidates = sorted(self.nodes)
+
+        replayed_edges = 0
+        total_delta = 0.0
+        trajectories = []
+
+        values = {n: float(self.reward_totals.get(n, 0.0)) for n in self.nodes}
+
+        for sweep_idx in range(min(max_sweeps, len(candidates))):
+            curr = candidates[sweep_idx % len(candidates)]
+            traj = [curr]
+            for _ in range(horizon):
+                preds = reverse_adj.get(curr, [])
+                if not preds:
+                    break
+                u, a = max(preds, key=lambda item: self.transitions.get(item, {}).get(curr, 0))
+                old_val = values[u]
+                r_step = self.reward_totals.get(curr, 0.0) / max(1, self.total_transitions)
+                new_val = max(old_val, r_step + discount * values[curr])
+                delta = abs(new_val - old_val)
+                values[u] = new_val
+                total_delta += delta
+                replayed_edges += 1
+                traj.append(u)
+                curr = u
+            trajectories.append([list(p) for p in traj])
+
+        self.estimated_values = values
+        return {
+            "sweeps": min(max_sweeps, len(candidates)),
+            "replayed_edges": replayed_edges,
+            "value_delta": round(total_delta, 5),
+            "trajectories": trajectories,
+        }
 
     def to_state(self) -> dict[str, Any]:
         """Return a detached, canonical, versioned continuation state."""
@@ -419,6 +633,24 @@ class TriTierMemory:
             "mapped_cells": mapped_count,
             "mode": self.lesion_mode,
         }
+
+    def trigger_swr_replay(
+        self, max_sweeps: int = 4, horizon: int = 8, discount: float = 0.9
+    ) -> dict[str, Any]:
+        """Trigger hippocampal Sharp-Wave Ripple (SWR) replay over episodic transitions."""
+        if self.lesion_mode in ("erased", "memory_free"):
+            return {"sweeps": 0, "replayed_edges": 0, "value_delta": 0.0, "trajectories": []}
+        seeds = [
+            tuple(int(round(coord)) for coord in item.state[:2])
+            for item in self.episodes
+            if item.reward > 0 and len(item.state) >= 2
+        ]
+        return self.topological_graph.trigger_swr_replay(
+            seed_nodes=seeds if seeds else None,
+            max_sweeps=max_sweeps,
+            horizon=horizon,
+            discount=discount,
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {

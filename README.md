@@ -17,6 +17,17 @@ The working package includes typed sparse graphs, CSV and human-matrix importers
 
 **Current evidence:** the circuit implementation runs and trains locally. The OpenWorm source has been acquired and normalized with explicit filtering receipts. Female fly, male fly, and human inputs in the included demonstration are **synthetic fixtures**. Qwen interface tests use tiny **randomly initialized** models from the actual Transformers implementations. A pretrained Qwen checkpoint has not been loaded or trained. No biological-connectome advantage is established.
 
+## Hippocampal Successor Representation & SWR Replay (v0.12)
+
+v0.12 introduces computational models of mammalian hippocampal and entorhinal cortex dynamics for zero-shot predictive navigation and memory consolidation:
+- **Hippocampal-Entorhinal Successor Representation (SR)**: Decouples environmental transition topology from instantaneous task goals via $M = (I - \gamma T)^{-1}$. Evaluates zero-shot policy re-planning on experienced transitions without privileged full-map access.
+- **Entorhinal Grid Cell Basis (Normalized Graph Laplacian Harmonics)**: Computes the spectral eigen-decomposition of the normalized graph Laplacian $L = I - D^{-1/2} A D^{-1/2}$ over experienced transitions, extracting multiscale spatial frequency harmonics that serve as a synthetic grid-cell coordinate system across arbitrary arena topologies.
+- **Hippocampal Sharp-Wave Ripple (SWR) Offline Replay Engine**: Executes reverse prioritized Bellman value propagation sweeps ($V(u) \leftarrow \max_a [R + \gamma \sum_v P(v \mid u, a) V(v)]$) during pauses, goal reach events, or explicit user/REST triggers (`/api/control` action `'replay'`, chat command `replay`).
+- **Active Inference & Epistemic Uncertainty Controller (`sr_steer`)**: Integrates raw circuit logits, SR predictive value gradients, and count-based epistemic novelty bonuses ($\mathcal{U}(u, a) \propto 1 / \sqrt{N(u, a) + 1}$) with deterministic wall collision masking.
+- **Interactive Laboratory Controls & Telemetry**: Exposed `'sr_steer'` in Web UI selector, added interactive `🧠 SWR Replay` button in live session bar, wired `/api/control` action `'replay'`, and added natural language commands (`replay`, `swr`, `consolidate`) to the live chat interface.
+
+See [v12 Successor Representation Design](docs/v12-successor-representation-design.md) and [v12 Build Report](docs/v12-build-report.md).
+
 ## Predictive recovery experiments (v0.11)
 
 The optional action-conditioned head predicts the next observation while an auxiliary loss trains shared representations. Training now rotates executed actions and next-observation targets with their histories, excludes goal/reset boundaries, and reports policy and prediction losses separately. A fixed 50% teacher/learner collection mode supplies recovery examples. This is one-step auxiliary prediction, with no imagined planning or pretrained world model.

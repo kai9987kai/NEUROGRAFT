@@ -124,12 +124,90 @@ const assert = require('node:assert/strict');
       log(`Mobile overflow ${JSON.stringify(overflow)}`);
     }
     assert.equal(horizontalOverflow, false, 'mobile page must not overflow horizontally');
+    log('Original thirteen checks passed; verifying synthetic steering and continuation');
+    await page.setViewportSize({ width: 1440, height: 1100 });
+    await page.locator('#navigation-mode').selectOption('cx_steer');
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'cx_steer');
+    for (let i = 0; i < 2; i++) {
+      const steps = JSON.parse(await page.evaluate(() => window.render_game_to_text())).steps;
+      await page.locator('#step-btn').click();
+      await page.waitForFunction(value => JSON.parse(window.render_game_to_text()).steps === value + 1, steps);
+    }
+    const steeringState = await (await page.request.get(url + '/api/state')).json();
+    assert.equal(steeringState.running, false);
+    assert.equal(steeringState.learning, false);
+    assert.equal(steeringState.navigation.teacher_probability, 0);
+    assert.equal(steeringState.last_action_source, 'cx_steer');
+    assert.match(await page.locator('#navigation-status').innerText(), /Synthetic goal\/heading steering/);
+    assert.match(await page.locator('#navigation-map-note').innerText(), /engineered cosine heuristic/);
+    await page.locator('#navigation-heading').scrollIntoViewIfNeeded();
+    await page.locator('.navigation-panel').screenshot({ path: path.join(out, 'steering-desktop.png') });
+    await page.locator('#save-name').fill('steering-check');
+    await page.locator('#save-btn').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).checkpoints.includes('steering-check'));
+    await page.locator('#navigation-mode').selectOption('policy');
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'policy');
+    await page.locator('#load-btn').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'cx_steer');
+    const restoredSteering = await (await page.request.get(url + '/api/state')).json();
+    assert.deepEqual(restoredSteering.navigation, steeringState.navigation);
+    assert.equal(restoredSteering.last_action_source, 'cx_steer');
+    assert.equal(restoredSteering.steps, steeringState.steps);
+    assert.equal(restoredSteering.model_hash, steeringState.model_hash);
+    log('Steering action/source and named checkpoint continuation passed; starting ten-way comparison');
+    await page.locator('#evaluation-controllers').check();
+    await page.locator('#evaluation-steering').check();
+    await page.locator('#evaluation-seeds').fill('10000,10001');
+    await page.locator('#evaluation-size').fill('5');
+    await page.locator('#evaluation-preset').selectOption('concentric');
+    await page.locator('#evaluation-steps').fill('16');
+    await page.locator('#evaluate-btn').click();
+    await page.waitForFunction(() => document.querySelectorAll('#evaluation-table-body tr').length === 10, null, { timeout: 45000 });
+    const steeringReport = await (await page.request.get(url + '/api/evaluation')).json();
+    assert.equal(steeringReport.schema_version, 4);
+    assert.equal(Object.keys(steeringReport.variants).length, 10);
+    assert.equal(steeringReport.config.include_steering_controls, true);
+    assert.equal(steeringReport.variants.cx_steer.summary.collision_rate, 0);
+    assert.equal(steeringReport.variants.cx_without_policy.summary.collision_rate, 0);
+    assert(steeringReport.variants.cx_without_policy.episodes.every(episode => episode.policy_prior_used === false));
+    const frozenSteering = await (await page.request.get(url + '/api/state')).json();
+    assert.equal(frozenSteering.steps, restoredSteering.steps);
+    assert.equal(frozenSteering.updates, restoredSteering.updates);
+    assert.equal(frozenSteering.model_hash, restoredSteering.model_hash);
+    assert.equal(frozenSteering.running, false);
+    assert.equal(frozenSteering.learning, false);
+    await fs.writeFile(path.join(out, 'browser-steering-evaluation.json'), JSON.stringify(steeringReport, null, 2));
+    await page.locator('.evaluation-panel').screenshot({ path: path.join(out, 'steering-comparison-desktop.png') });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2), false,
+      'desktop steering controls must not overflow horizontally');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => typeof window.render_game_to_text === 'function'
+      && JSON.parse(window.render_game_to_text()).navigation?.mode === 'cx_steer'
+      && document.querySelectorAll('#evaluation-table-body tr').length === 10);
+    assert.equal(await page.locator('#navigation-mode').inputValue(), 'cx_steer');
+    assert.match(await page.locator('#navigation-status').innerText(), /Synthetic goal\/heading steering/);
+    await page.locator('.navigation-panel').screenshot({ path: path.join(out, 'steering-mobile.png') });
+    await page.locator('.evaluation-panel').screenshot({ path: path.join(out, 'steering-comparison-mobile.png') });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2), false,
+      'mobile steering controls and evaluation must not overflow horizontally');
+    const mobilePanel = await page.locator('.evaluation-panel').boundingBox();
+    assert(mobilePanel && mobilePanel.x >= 0 && mobilePanel.x + mobilePanel.width <= 392);
+    const finalState = JSON.parse(await page.evaluate(() => window.render_game_to_text()));
+    assert.equal(finalState.running, false);
+    assert.equal(finalState.learning, false);
     assert.deepEqual(errors, []);
     const receipt = { ok: true, page_errors: errors, tested: ['startup', 'step', 'learning toggle',
       'hierarchical preset', 'frozen matched trials', 'JSON export', 'stale weight notice', 'observed-map mode',
-      'observed-only SVG', 'exact map save/load', 'eight-way controller comparison', 'mobile startup', 'mobile layout'],
+      'observed-only SVG', 'exact map save/load', 'eight-way controller comparison', 'mobile startup', 'mobile layout',
+      'synthetic steering mode', 'steering teacher bypass and action source', 'exact steering save/load',
+      'ten-way steering comparison', 'desktop steering layout', 'mobile steering layout'],
       oracle: report.variants.shortest_path.summary, evaluated_model: report.model_hash,
-      protocol_id: report.protocol_id, renderer: JSON.parse(await page.evaluate(() => window.render_game_to_text())).renderer };
+      protocol_id: report.protocol_id, steering_protocol_id: steeringReport.protocol_id,
+      steering_evaluation: { schema_version: steeringReport.schema_version, variants: Object.keys(steeringReport.variants) },
+      final_state: { running: finalState.running, learning: finalState.learning, mode: finalState.navigation.mode,
+        last_action_source: finalState.last_action_source },
+      renderer: finalState.renderer };
     assert.equal(receipt.renderer, 'three-webgl');
     await fs.writeFile(path.join(out, 'browser-verification.json'), JSON.stringify(receipt, null, 2));
     log('Desktop and mobile verification passed');

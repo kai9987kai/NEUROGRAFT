@@ -1,0 +1,46 @@
+F..FFFFF                                                                 [100%]
+================================== FAILURES ===================================
+_____ test_invalid_or_inactive_predictive_objective_is_rejected[values0] ______
+tests\test_predictive_training_integrity.py:18: in test_invalid_or_inactive_predictive_objective_is_rejected
+    with pytest.raises(ValueError, match='predictive'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_____ test_invalid_or_inactive_predictive_objective_is_rejected[values3] ______
+tests\test_predictive_training_integrity.py:18: in test_invalid_or_inactive_predictive_objective_is_rejected
+    with pytest.raises(ValueError, match='predictive'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_ test_predictive_batch_rotates_executed_action_and_next_observation_together _
+tests\test_predictive_training_integrity.py:28: in test_predictive_batch_rotates_executed_action_and_next_observation_together
+    seq, labels, executed, targets, valid = training._prepare_navigation_batch(
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'neurograft.navigation_training' has no attribute '_prepare_navigation_batch'. Did you mean: '_rotate_navigation_batch'?
+___ test_legacy_expert_collection_preserves_historical_minibatch_rng_stream ___
+tests\test_predictive_training_integrity.py:50: in test_legacy_expert_collection_preserves_historical_minibatch_rng_stream
+    assert receipt['training']['batch_sha256'] == '02e428f84068bbfbd7224ce89674fe150bdc46c2109fff62569c4ca233cde020'
+E   AssertionError: assert '7263203d2864...8de982afcba05' == '02e428f84068...c4ca233cde020'
+E     
+E     - 02e428f84068bbfbd7224ce89674fe150bdc46c2109fff62569c4ca233cde020
+E     + 7263203d2864e26b7d0f0a60b6eac39f45eaf4ce8659d8aebed8de982afcba05
+_ test_predictive_training_reports_separate_losses_and_excludes_goal_boundaries _
+tests\test_predictive_training_integrity.py:65: in test_predictive_training_reports_separate_losses_and_excludes_goal_boundaries
+    assert receipt['collection']['prediction_excluded_transitions'] == 6
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'prediction_excluded_transitions'
+___ test_checkpoint_initialization_rejects_predictor_architecture_mismatch ____
+tests\test_predictive_training_integrity.py:80: in test_checkpoint_initialization_rejects_predictor_architecture_mismatch
+    run_navigation_training(bundle, source, tmp_path / 'run', CurriculumConfig(
+neurograft\navigation_training.py:494: in run_navigation_training
+    candidate_session.model.load_state_dict(best_state_dict)
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:2639: in load_state_dict
+    raise RuntimeError(
+E   RuntimeError: Error(s) in loading state_dict for GraphCircuit:
+E   	Missing key(s) in state_dict: "predictor.0.weight", "predictor.0.bias", "predictor.2.weight", "predictor.2.bias".
+=========================== short test summary info ===========================
+FAILED tests/test_predictive_training_integrity.py::test_invalid_or_inactive_predictive_objective_is_rejected[values0]
+FAILED tests/test_predictive_training_integrity.py::test_invalid_or_inactive_predictive_objective_is_rejected[values3]
+FAILED tests/test_predictive_training_integrity.py::test_predictive_batch_rotates_executed_action_and_next_observation_together
+FAILED tests/test_predictive_training_integrity.py::test_legacy_expert_collection_preserves_historical_minibatch_rng_stream
+FAILED tests/test_predictive_training_integrity.py::test_predictive_training_reports_separate_losses_and_excludes_goal_boundaries
+FAILED tests/test_predictive_training_integrity.py::test_checkpoint_initialization_rejects_predictor_architecture_mismatch
+6 failed, 2 passed in 16.50s

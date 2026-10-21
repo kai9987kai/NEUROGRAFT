@@ -37,7 +37,7 @@ from .dynamics import DynamicsConfig, GraphCircuit
 from .environment import NavigationWorld
 from .graphs import GraphBundle
 from .memory import TriTierMemory
-from .navigation_controller import MODES, ObservedMapNavigator, legal_action
+from .navigation_controller import ALL_MODES, MODES, ObservedMapNavigator, legal_action, cx_steering_action
 from . import live_state
 from .phase_plane import PhasePlaneEngine
 from .self_model import ConnectomeForwardSelfModel, SelfModelConfig
@@ -132,6 +132,7 @@ class LiveConfig:
     teacher_probability: float = 0.45
     threads: int = 2
     readout: str = "human"
+    predictive_head: bool = False
 
     def __post_init__(self):
         for name, low, high in (("seed", 0, 2**63 - 1), ("hidden_dim", 2, 32), ("batch_size", 1, 16),
@@ -144,6 +145,8 @@ class LiveConfig:
             raise ValueError("replay_capacity must cover batch_size")
         if type(self.readout) is not str or self.readout not in ("human", "context_residual"):
             raise ValueError("readout must be 'human' or 'context_residual'")
+        if type(self.predictive_head) is not bool:
+            raise ValueError("predictive_head must be a boolean")
 
 
 class LiveSession:
@@ -162,12 +165,12 @@ class LiveSession:
             with torch.random.fork_rng(devices=[]):
                 torch.manual_seed(self.config.seed)
                 self.model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4,
-                                                                 readout=self.config.readout))
+                                                                 readout=self.config.readout, predictive_head=self.config.predictive_head))
                 self.consolidation = ConnectomeConsolidationStack(
                     ConsolidationConfig(hidden_size=self.config.hidden_dim, shared_dim=32, latent_experts=4, latent_top_k=2)
                 )
                 self.anchor_model = GraphCircuit(bundle, DynamicsConfig(hidden_dim=self.config.hidden_dim, output_dim=4,
-                                                                        readout=self.config.readout))
+                                                                        readout=self.config.readout, predictive_head=self.config.predictive_head))
                 self.anchor_model.load_state_dict(self.model.state_dict())
                 self.anchor_model.eval()
                 self.stp = TsodyksMarkramSubstrate([len(g.nodes) for g in bundle.graphs], STPConfig(dt=0.20))
@@ -329,8 +332,8 @@ class LiveSession:
         Opt-in controllers read observations and never mix shortest-path teacher
         actions. Supervised replay labels can still be collected while learning.
         """
-        if type(mode) is not str or mode not in MODES:
-            raise ValueError('navigation mode must be one of: ' + ', '.join(MODES))
+        if type(mode) is not str or mode not in ALL_MODES:
+            raise ValueError('navigation mode must be one of: ' + ', '.join(ALL_MODES))
         with self.lock:
             self.navigation_mode = mode
             self._reset_inference()
@@ -358,6 +361,7 @@ class LiveSession:
             new_world.episode_steps = 0
             new_world.last_reward = 0.0
             self.world = new_world
+            self.memory.reset_spatial()
             self._reset_inference()
             return self.snapshot()
 
@@ -418,6 +422,8 @@ class LiveSession:
                     controlled_action = self.navigator.choose(observation, output.logits[0].tolist())
                 elif self.navigation_mode == 'masked_policy':
                     controlled_action = legal_action(observation, output.logits[0].tolist())
+                elif self.navigation_mode == 'cx_steer':
+                    controlled_action = cx_steering_action(observation, output.logits[0].tolist())
                 if manual_action is not None:
                     action, source = manual_action, "manual"
                 elif controlled_action is not None:
@@ -428,6 +434,7 @@ class LiveSession:
                     assisted = self.rng.random() < self.config.teacher_probability
                     action, source = (expert, "teacher") if assisted else (policy_action, "policy")
                 previous_direction = self.world.direction
+                transition_start = tuple(self.world._agent)
                 result = self.world.step(action)
                 self.steps += 1
                 self.last_action, self.last_action_source = action, source
@@ -450,6 +457,10 @@ class LiveSession:
                     reward=float(result["reward"]),
                     state_features=flat_obs,
                     surprise=surprise,
+                    # Timeout resets teleport internally; their physical endpoint
+                    # is unavailable, so do not mistake the reset pose for an edge.
+                    transition_start=(transition_start if not (
+                        result["episode_done"] and not result["goal_reached"]) else None),
                 )
 
                 # Nonlinear dynamical systems phase-plane audit
@@ -602,6 +613,10 @@ class LiveSession:
             mem_context = memory_probe.retrieve_context(flat_obs)
             mem_context["mode"] = self.memory.lesion_mode
             mem_context["role"] = "observer_only; retrieval does not drive the navigation policy"
+            mem_context["topological"] = {
+                **self.memory.topological_graph.to_dict(),
+                "role": "observer_only; empirical experienced edges do not drive the navigation policy",
+            }
             dist_to_goal = math.hypot(goal_pt[0] - agent_pt[0], goal_pt[1] - agent_pt[1])
             max_dist = max(1.0, math.hypot(self.world.size, self.world.size))
             phase_audit = copy.deepcopy(self._phase_summary) if self._phase_summary is not None else copy.deepcopy(self.phase_plane).audit(
@@ -695,6 +710,9 @@ class LiveSession:
                     "teacher_probability": self.config.teacher_probability, "world": world,
                     "navigation": {"mode": self.navigation_mode,
                                    "readout": self.config.readout,
+                                   **({'predictive_head': True} if self.config.predictive_head else {}),
+                                   **({'reason': 'Synthetic goal/heading prior + legal walls'}
+                                      if self.navigation_mode == 'cx_steer' else {}),
                                    "teacher_probability": self.config.teacher_probability if self.navigation_mode == 'policy' else 0.0,
                                    "map": self.navigator.snapshot()},
                     "sources": {key: dict(value) for key, value in self._sources.items()},
@@ -1124,7 +1142,7 @@ class LiveSession:
             if version >= 3:
                 navigation = payload['navigation']
                 if (type(navigation) is not dict or set(navigation) != {'mode', 'navigator'}
-                        or type(navigation['mode']) is not str or navigation['mode'] not in MODES):
+                        or type(navigation['mode']) is not str or navigation['mode'] not in ALL_MODES):
                     raise ValueError('invalid checkpoint navigation fields or mode')
                 navigation_mode = navigation['mode']
                 navigator = ObservedMapNavigator.from_dict(navigation['navigator'])
@@ -1196,7 +1214,7 @@ class LiveSession:
                     raise ValueError('checkpoint navigation position disagrees with the executed transition')
             action_sources = (None, "manual", "policy", "teacher")
             if version >= 3:
-                action_sources += ('masked_policy', 'observed_map')
+                action_sources += ('masked_policy', 'observed_map', 'cx_steer')
             if payload["last_action_source"] not in action_sources:
                 raise ValueError("invalid action source")
             facts = payload["facts"]

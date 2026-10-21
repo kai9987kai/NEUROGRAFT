@@ -26,12 +26,15 @@ class NavigationEvalConfig:
     max_steps: int = 48
     include_controllers: bool = False
     include_readout_controls: bool = False
+    include_steering_controls: bool = False
 
     def __post_init__(self):
         if type(self.include_controllers) is not bool:
             raise ValueError('include_controllers must be boolean')
         if type(self.include_readout_controls) is not bool:
             raise ValueError('include_readout_controls must be boolean')
+        if type(self.include_steering_controls) is not bool:
+            raise ValueError('include_steering_controls must be boolean')
         if (not isinstance(self.seeds, tuple) or not 1 <= len(self.seeds) <= 16
                 or any(type(seed) is not int or not 0 <= seed <= 2**63 - 1 for seed in self.seeds)
                 or len(set(self.seeds)) != len(self.seeds)):
@@ -57,7 +60,9 @@ def navigation_protocol(config, unroll):
         settings.pop('include_controllers')
     if not config.include_readout_controls:
         settings.pop('include_readout_controls')
-    protocol = {'schema_version': 3 if config.include_readout_controls else 2 if config.include_controllers else 1,
+    if not config.include_steering_controls:
+        settings.pop('include_steering_controls')
+    protocol = {'schema_version': 4 if config.include_steering_controls else 3 if config.include_readout_controls else 2 if config.include_controllers else 1,
                 'config': settings, 'unroll': unroll,
                 'variants': ['policy', 'no_graft', 'no_recurrence', 'random', 'shortest_path'],
                 'success_rule': 'first arrival at initial goal', 'path_length': 'successful cell moves'}
@@ -66,6 +71,11 @@ def navigation_protocol(config, unroll):
         protocol['controller'] = 'observed-frontier-v1; local walls; policy prior only breaks ties'
     if config.include_readout_controls:
         protocol['variants'].append('no_context')
+    if config.include_steering_controls:
+        protocol['variants'] += ['cx_steer', 'cx_without_policy']
+        protocol['steering'] = ('synthetic-goal-heading-v1; observed heading and goal displacement; '
+                                'legal walls; weights 1.5/1.0; cosine mixture 0.65/0.35; '
+                                'cx_without_policy uses zero logits')
     return protocol
 
 
@@ -114,10 +124,14 @@ def _episode(model, unroll, config, seed, variant):
                 from .navigation_controller import legal_action
                 action = legal_action(observation, logits)
                 reason = 'legal_action_mask'
+            elif variant in ('cx_steer', 'cx_without_policy'):
+                from .navigation_controller import cx_steering_action
+                action = cx_steering_action(observation, logits if variant == 'cx_steer' else [0.] * 4)
+                reason = 'cx_goal_heading_prior' if variant == 'cx_steer' else 'cx_goal_heading_without_policy'
             elif navigator is not None:
                 action = navigator.choose(observation, logits, use_policy=variant == 'observed_map')
                 reason = navigator.snapshot()['reason']
-        if config.include_controllers:
+        if config.include_controllers or config.include_steering_controls:
             proposed_walls += raw_action is not None and bool(observation[2][raw_action])
             overrides += raw_action is not None and action != raw_action
             info = navigator.snapshot() if navigator is not None else {}
@@ -143,10 +157,10 @@ def _episode(model, unroll, config, seed, variant):
         'terminal_distance': 0 if success else len(world.shortest_path()) - 1,
         'total_reward': reward, 'actions': actions,
     }
-    if config.include_controllers:
+    if config.include_controllers or config.include_steering_controls:
         episode.update({'controller_trace': trace, 'proposed_wall_actions': proposed_walls,
                         'policy_overrides': overrides, 'policy_proposals': sum(t['policy_action'] is not None for t in trace),
-                        'policy_prior_used': variant != 'map_without_policy' and raw_action is not None})
+                        'policy_prior_used': variant not in ('map_without_policy', 'cx_without_policy') and raw_action is not None})
     return episode
 
 
@@ -222,6 +236,12 @@ def frozen_navigation_evaluation(session, config=None):
                            + (' Readout control: no_graft retains the direct all-source readout in context_residual mode. '
                               'no_context bypasses only the context residual readout when present; legacy human readout '
                               'is unchanged. This is an inference-time intervention on identical weights, not a training '
-                              'comparison or evidence of learning.' if config.include_readout_controls else '')),
+                              'comparison or evidence of learning.' if config.include_readout_controls else '')
+                           + (' Steering controls add engineered assistance: cx_steer adds a hand-selected goal/heading '
+                              'cosine prior and legal wall mask to learned logits; cx_without_policy uses zero learned '
+                              'logits for action selection. Heading is read directly from observations, not the diagnostic '
+                              'ring attractor. These are inference-time interventions, not a cell-specific PFL circuit '
+                              'reconstruction, learned biological mechanism or separately trained comparison.'
+                              if config.include_steering_controls else '')),
         'metric_reference': 'https://arxiv.org/abs/1807.06757',
     }

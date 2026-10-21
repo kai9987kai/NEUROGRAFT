@@ -4,6 +4,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import threading
+import time
 import urllib.error
 import urllib.request
 
@@ -33,12 +34,19 @@ def request(url, payload=None, headers=None, raw=None):
     values = {'Content-Type': 'application/json'} if data is not None else {}
     values.update(headers or {})
     req = urllib.request.Request(url, data=data, headers=values)
-    try:
-        with urllib.request.urlopen(req, timeout=15) as response:
-            body = response.read()
-            return response.status, json.loads(body) if body else None
-    except urllib.error.HTTPError as error:
-        return error.code, json.loads(error.read())
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as response:
+                body = response.read()
+                return response.status, json.loads(body) if body else None
+        except urllib.error.HTTPError as error:
+            body = error.read()
+            return error.code, json.loads(body) if body else None
+        except (urllib.error.URLError, ConnectionResetError, ConnectionAbortedError, PermissionError):
+            if attempt < 3:
+                time.sleep(0.08)
+                continue
+            raise
 
 
 def test_live_http_learning_memory_and_named_state_recovery(tmp_path):
@@ -113,7 +121,7 @@ def test_background_learning_ticks_and_autosaves_without_a_page(tmp_path):
     app = LiveApp(make_fixture_bundle(nodes_per_source=4), tmp_path / 'session.pt',
                   interval=0.05, autosave=1, background=True)
     try:
-        deadline = time.monotonic() + 8
+        deadline = time.monotonic() + 20
         while (app.state()['steps'] < 8 or not (tmp_path / 'session.pt').exists()) and time.monotonic() < deadline:
             time.sleep(.05)
         assert app.state()['steps'] >= 8

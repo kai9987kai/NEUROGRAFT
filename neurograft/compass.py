@@ -170,3 +170,105 @@ class CXRingCompass:
             compass.state = [float(v) for v in wedges]
             compass._normalize()
         return compass
+
+
+class CXPFLSteering:
+    """Synthetic CX-inspired goal/heading cosine steering heuristic.
+
+    The class name is retained for compatibility. This hand-selected mixture
+    takes a supplied heading, goal displacement and local wall sensors. It is
+    not a reconstruction of PFL cell classes or a fitted biological circuit;
+    the 0.65/0.35 mixture and angular-error gain are engineering choices.
+    """
+
+    ACTION_ANGLES = (-math.pi / 2.0, 0.0, math.pi / 2.0, math.pi)
+
+    def __init__(self, steering_weight: float = 1.5, gain_scale: float = 1.0) -> None:
+        self.steering_weight = self._number(steering_weight, 'steering_weight')
+        self.gain_scale = self._number(gain_scale, 'gain_scale')
+        if self.steering_weight < 0:
+            raise ValueError('steering_weight must be nonnegative')
+        if self.gain_scale < 0:
+            raise ValueError('gain_scale must be nonnegative')
+
+    @staticmethod
+    def _number(value: float, name: str) -> float:
+        if type(value) not in (int, float):
+            raise ValueError(f'{name} must be a finite number')
+        try:
+            result = float(value)
+        except OverflowError as exc:
+            raise ValueError(f'{name} must be a finite number') from exc
+        if not math.isfinite(result):
+            raise ValueError(f'{name} must be a finite number')
+        return result
+
+    @classmethod
+    def _walls(cls, walls: Sequence[int | float]) -> list[float]:
+        if not isinstance(walls, (list, tuple)) or len(walls) != 4:
+            raise ValueError('walls must contain four exact zero or one values')
+        values = [cls._number(wall, 'walls') for wall in walls]
+        if any(wall not in (0, 1) for wall in values):
+            raise ValueError('walls must contain four exact zero or one values')
+        if all(values):
+            raise ValueError('observation has no legal actions')
+        return values
+
+    def compute_steering_prior(
+        self,
+        heading: float,
+        goal_dx: float,
+        goal_dz: float,
+        walls: Sequence[int | float] | None = None,
+    ) -> list[float]:
+        """Score four cardinal actions, retaining legal masking at zero goal."""
+        heading = self._number(heading, 'heading')
+        goal_dx = self._number(goal_dx, 'goal_dx')
+        goal_dz = self._number(goal_dz, 'goal_dz')
+        checked_walls = self._walls(walls) if walls is not None else [0.] * 4
+        dist = math.hypot(goal_dx, goal_dz)
+        if dist < 1e-6:
+            return [-1e6 if wall else 0. for wall in checked_walls]
+        goal_angle = math.atan2(goal_dz, goal_dx)
+        heading_error = math.atan2(math.sin(goal_angle - heading), math.cos(goal_angle - heading))
+
+        error_gain = 1.0 + self.gain_scale * (abs(heading_error) / math.pi)
+
+        prior = []
+        for action_idx, action_angle in enumerate(self.ACTION_ANGLES):
+            if checked_walls[action_idx]:
+                prior.append(-1e6)
+                continue
+            # Alignment between action direction and goal direction
+            diff = math.atan2(math.sin(action_angle - goal_angle), math.cos(action_angle - goal_angle))
+            goal_alignment = math.cos(diff)
+            # Alignment between action direction and current heading
+            head_diff = math.atan2(math.sin(action_angle - heading), math.cos(action_angle - heading))
+            heading_alignment = math.cos(head_diff)
+
+            # Combined steering score
+            score = self.steering_weight * error_gain * (0.65 * goal_alignment + 0.35 * heading_alignment)
+            if not math.isfinite(score):
+                raise ValueError('steering parameters produce nonfinite scores')
+            prior.append(score)
+        return prior
+
+    def steer(
+        self,
+        heading: float,
+        goal_dx: float,
+        goal_dz: float,
+        walls: Sequence[int | float],
+        policy_logits: Sequence[float],
+    ) -> int:
+        """Combine learned logits with the heuristic; only legal actions compete."""
+        checked_walls = self._walls(walls)
+        if not isinstance(policy_logits, (list, tuple)) or len(policy_logits) != 4:
+            raise ValueError('policy_logits must contain four finite numbers')
+        logits = [self._number(value, 'policy_logits') for value in policy_logits]
+        prior = self.compute_steering_prior(heading, goal_dx, goal_dz, checked_walls)
+        scores = [logit + bias for logit, bias in zip(logits, prior)]
+        if not all(math.isfinite(score) for score in scores):
+            raise ValueError('steering parameters produce nonfinite scores')
+        legal = [i for i, wall in enumerate(checked_walls) if not wall]
+        return int(max(legal, key=lambda i: (scores[i], -i)))

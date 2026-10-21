@@ -1,0 +1,71 @@
+EEEEFF                                                                   [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_four_arms_are_predeclared_and_share_data_within_each_auxiliary_pair _
+tests\test_predictive_recovery_study.py:29: in archived_study
+    tool = study_module()
+           ^^^^^^^^^^^^^^
+tests\test_predictive_recovery_study.py:16: in study_module
+    assert path.is_file(), 'the predictive recovery study driver is missing'
+E   AssertionError: the predictive recovery study driver is missing
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = WindowsPath('C:/Users/kai99/Desktop/New folder (5)/tools/study_predictive_recovery.py').is_file
+_ ERROR at setup of test_resealed_false_aggregate_or_probe_metrics_are_rejected[aggregate.json] _
+tests\test_predictive_recovery_study.py:29: in archived_study
+    tool = study_module()
+           ^^^^^^^^^^^^^^
+tests\test_predictive_recovery_study.py:16: in study_module
+    assert path.is_file(), 'the predictive recovery study driver is missing'
+E   AssertionError: the predictive recovery study driver is missing
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = WindowsPath('C:/Users/kai99/Desktop/New folder (5)/tools/study_predictive_recovery.py').is_file
+_ ERROR at setup of test_resealed_false_aggregate_or_probe_metrics_are_rejected[prediction-probes.json] _
+tests\test_predictive_recovery_study.py:29: in archived_study
+    tool = study_module()
+           ^^^^^^^^^^^^^^
+tests\test_predictive_recovery_study.py:16: in study_module
+    assert path.is_file(), 'the predictive recovery study driver is missing'
+E   AssertionError: the predictive recovery study driver is missing
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = WindowsPath('C:/Users/kai99/Desktop/New folder (5)/tools/study_predictive_recovery.py').is_file
+____ ERROR at setup of test_resealed_mismatched_auxiliary_pair_is_rejected ____
+tests\test_predictive_recovery_study.py:29: in archived_study
+    tool = study_module()
+           ^^^^^^^^^^^^^^
+tests\test_predictive_recovery_study.py:16: in study_module
+    assert path.is_file(), 'the predictive recovery study driver is missing'
+E   AssertionError: the predictive recovery study driver is missing
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = WindowsPath('C:/Users/kai99/Desktop/New folder (5)/tools/study_predictive_recovery.py').is_file
+================================== FAILURES ===================================
+________ test_probe_kinematics_respects_walls_and_sets_action_heading _________
+tests\test_predictive_recovery_study.py:118: in test_probe_kinematics_respects_walls_and_sets_action_heading
+    tool = study_module()
+           ^^^^^^^^^^^^^^
+tests\test_predictive_recovery_study.py:16: in study_module
+    assert path.is_file(), 'the predictive recovery study driver is missing'
+E   AssertionError: the predictive recovery study driver is missing
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = WindowsPath('C:/Users/kai99/Desktop/New folder (5)/tools/study_predictive_recovery.py').is_file
+______ test_study_bounds_reject_multiple_rounds_and_more_than_two_seeds _______
+tests\test_predictive_recovery_study.py:130: in test_study_bounds_reject_multiple_rounds_and_more_than_two_seeds
+    tool = study_module()
+           ^^^^^^^^^^^^^^
+tests\test_predictive_recovery_study.py:16: in study_module
+    assert path.is_file(), 'the predictive recovery study driver is missing'
+E   AssertionError: the predictive recovery study driver is missing
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = WindowsPath('C:/Users/kai99/Desktop/New folder (5)/tools/study_predictive_recovery.py').is_file
+=========================== short test summary info ===========================
+ERROR tests/test_predictive_recovery_study.py::test_four_arms_are_predeclared_and_share_data_within_each_auxiliary_pair
+ERROR tests/test_predictive_recovery_study.py::test_resealed_false_aggregate_or_probe_metrics_are_rejected[aggregate.json]
+ERROR tests/test_predictive_recovery_study.py::test_resealed_false_aggregate_or_probe_metrics_are_rejected[prediction-probes.json]
+ERROR tests/test_predictive_recovery_study.py::test_resealed_mismatched_auxiliary_pair_is_rejected
+FAILED tests/test_predictive_recovery_study.py::test_probe_kinematics_respects_walls_and_sets_action_heading
+FAILED tests/test_predictive_recovery_study.py::test_study_bounds_reject_multiple_rounds_and_more_than_two_seeds
+2 failed, 4 errors in 8.93s

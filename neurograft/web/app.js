@@ -734,10 +734,14 @@ function renderNavigation() {
   const map = nav.map || {};
   const size = map.size || session.world.size;
   const probability = nav.teacher_probability ?? session.teacher_probability;
-  const label = { policy: 'Raw policy', masked_policy: 'Legal-action mask', observed_map: 'Observed-map planner' }[nav.mode] || nav.mode;
+  const label = { policy: 'Raw policy', masked_policy: 'Legal-action mask', observed_map: 'Observed-map planner', cx_steer: 'Synthetic goal/heading steering' }[nav.mode] || nav.mode;
   const readout = nav.readout === 'context_residual' ? 'all-source residual readout' : 'human-source readout';
-  $('navigation-status').textContent = `${label} · ${readout} · teacher actions ${probability > 0 ? `${Math.round(probability * 100)}% configured` : 'OFF'} · ${(map.reason || 'no map decision yet').replaceAll('_', ' ')}`;
-  $('navigation-map-note').textContent = `${map.known_free || 0} observed free cells · ${map.visited || 0} visited · ${map.frontiers || 0} frontier cells. Last executed action source: ${session.last_action_source || 'none'}. Switching modes starts fresh navigation memory.`;
+  const prediction = nav.predictive_head ? ' · offline transition head enabled' : '';
+  const reason = nav.mode === 'cx_steer' ? 'goal/heading prior + legal walls' : (map.reason || 'no map decision yet').replaceAll('_', ' ');
+  $('navigation-status').textContent = `${label} · ${readout}${prediction} · teacher actions ${probability > 0 ? `${Math.round(probability * 100)}% configured` : 'OFF'} · ${reason}`;
+  $('navigation-map-note').textContent = nav.mode === 'cx_steer'
+    ? `Supplied heading and goal displacement drive an engineered cosine heuristic. This mode does not use the diagnostic ring attractor or reconstruct PFL cell classes. Last executed action source: ${session.last_action_source || 'none'}.`
+    : `${map.known_free || 0} observed free cells · ${map.visited || 0} visited · ${map.frontiers || 0} frontier cells. Last executed action source: ${session.last_action_source || 'none'}. Switching modes starts fresh navigation memory.`;
   const svg = $('observed-map'); svg.replaceChildren(); svg.setAttribute('viewBox', `0 0 ${size * 10} ${size * 10}`);
   const add = (tag, attributes) => {
     const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -770,11 +774,11 @@ function renderEvaluation() {
   $('evaluation-snapshot').title = `Model SHA-256: ${report.model_hash}\nGraph SHA-256: ${report.graph_hash}\nProtocol: ${report.protocol_id}`;
   if (renderedEvaluation === report) return;
   renderedEvaluation = report;
-  const names = { policy: 'Raw policy', no_graft: 'Without grafts', no_recurrence: 'Without recurrence', random: 'Random actions', shortest_path: 'Shortest-path oracle', masked_policy: 'Policy + legal mask', observed_map: 'Observed map + policy', map_without_policy: 'Observed map only' };
+  const names = { policy: 'Raw policy', no_graft: 'Without grafts', no_recurrence: 'Without recurrence', random: 'Random actions', shortest_path: 'Shortest-path oracle', masked_policy: 'Policy + legal mask', observed_map: 'Observed map + policy', map_without_policy: 'Observed map only', cx_steer: 'Synthetic steering + policy', cx_without_policy: 'Synthetic steering only', no_context: 'Without context readout' };
   const body = $('evaluation-table-body');
   body.replaceChildren();
   const percent = (value) => Number.isFinite(value) ? `${formatNumber(value * 100, 1)}%` : '—';
-  for (const key of ['policy', 'masked_policy', 'observed_map', 'map_without_policy', 'no_graft', 'no_recurrence', 'random', 'shortest_path']) {
+  for (const key of ['policy', 'masked_policy', 'observed_map', 'map_without_policy', 'cx_steer', 'cx_without_policy', 'no_graft', 'no_recurrence', 'no_context', 'random', 'shortest_path']) {
     const summary = report.variants?.[key]?.summary;
     if (!summary) continue;
     const row = document.createElement('tr');
@@ -800,6 +804,7 @@ async function evaluatePolicy(event) {
     showError('Enter 1–16 distinct, comma-separated nonnegative integers up to 9007199254740991.'); return;
   }
   const payload = { seeds: seedText.map(Number), size: Number($('evaluation-size').value), preset: $('evaluation-preset').value, max_steps: Number($('evaluation-steps').value), include_controllers: $('evaluation-controllers').checked };
+  if ($('evaluation-steering').checked) payload.include_steering_controls = true;
   evaluationInFlight = true; evaluationStarted = Date.now(); evaluationError = '';
   updateControls(); renderEvaluation();
   try {

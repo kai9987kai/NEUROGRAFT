@@ -16,7 +16,7 @@ import torch
 from .bioelectric import BioelectricConfig, BioelectricMorphogeneticSubstrate
 from .archaeology import ArchaeologyReport
 from .compass import CXRingCompass
-from .memory import LESION_MODES, TriTierMemory
+from .memory import LESION_MODES, TopologicalMemoryGraph, TriTierMemory
 from .phase_plane import PhasePlaneEngine
 from .stp import STPConfig, STPState, TsodyksMarkramSubstrate
 
@@ -157,6 +157,7 @@ def capture(session) -> dict[str, Any]:
         "training_modes": {name: getattr(session, name).training for name in
                            ("consolidation", "byte_bridge", "self_model")},
         "memory": memory,
+        "topological_memory": session.memory.topological_graph.to_state(),
         "compass": {"num_wedges": session.compass.num_wedges, "state": list(session.compass.state)},
         "phase_plane": session.phase_plane.to_dict(),
         "stp": {"config": asdict(session.stp.config), "u": list(session.stp_state.u), "r": list(session.stp_state.r)},
@@ -173,8 +174,18 @@ def capture(session) -> dict[str, Any]:
 
 def validate(session, state, steps):
     """Validate all auxiliary content before installing any base or observer state."""
-    _tree(state)
-    _keys(state, capture(session), "checkpoint")
+    # The optional experienced graph has its own bounded schema and permits exact
+    # integer counts up to 2**53-1, above the generic diagnostic-number limit.
+    if type(state) is not dict:
+        raise ValueError("invalid auxiliary checkpoint fields")
+    legacy_fields = set(capture(session)) - {"topological_memory"}
+    if set(state) not in (legacy_fields, legacy_fields | {"topological_memory"}):
+        raise ValueError("invalid auxiliary checkpoint fields")
+    _tree({key: value for key, value in state.items() if key != "topological_memory"})
+    graph = (TopologicalMemoryGraph.from_state(state["topological_memory"])
+             if "topological_memory" in state else TopologicalMemoryGraph())
+    if graph.total_transitions > steps:
+        raise ValueError("auxiliary topological transitions exceed session steps")
     if type(state["version"]) is not int or state["version"] != 1:
         raise ValueError("unsupported auxiliary state version")
     for name, module in (("anchor", session.anchor_model), ("consolidation", session.consolidation),
@@ -203,6 +214,8 @@ def validate(session, state, steps):
     if memory["lesion_mode"] not in LESION_MODES:
         raise ValueError("invalid auxiliary memory configuration")
     _integer(memory["total_recorded_steps"], 0, steps, "memory step count")
+    if graph.total_transitions > memory["total_recorded_steps"]:
+        raise ValueError("auxiliary topological transitions exceed memory steps")
     if type(memory["working_context"]) is not list or len(memory["working_context"]) != 8:
         raise ValueError("invalid auxiliary working context")
     for value in memory["working_context"]:
@@ -338,6 +351,8 @@ def install(session, state):
         getattr(session, name).train(mode)
     session.memory = TriTierMemory.from_dict(copy.deepcopy(state["memory"]))
     session.memory.last_predicted_state = copy.deepcopy(state["memory"]["last_predicted_state"])
+    session.memory.topological_graph = (TopologicalMemoryGraph.from_state(state["topological_memory"])
+                                        if "topological_memory" in state else TopologicalMemoryGraph())
     session.compass = CXRingCompass(state["compass"]["num_wedges"])
     session.compass.state = list(state["compass"]["state"])
     session.phase_plane = PhasePlaneEngine.from_dict(state["phase_plane"])

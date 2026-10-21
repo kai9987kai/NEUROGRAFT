@@ -1,0 +1,438 @@
+....FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF.....                                 [100%]
+================================== FAILURES ===================================
+______________ test_prediction_rejects_invalid_context[context0] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:223: in predict_transition
+    action_t = F.one_hot(torch.tensor([action], device=context.device), self.config.output_dim).to(context.dtype)
+                                                       ^^^^^^^^^^^^^^
+E   AttributeError: 'list' object has no attribute 'device'
+______________ test_prediction_rejects_invalid_context[context1] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Tensors must have same number of dimensions: got 1 and 2
+______________ test_prediction_rejects_invalid_context[context2] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 0 but got size 1 for tensor number 1 in the list.
+______________ test_prediction_rejects_invalid_context[context3] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:240: in predict_transition
+    pred_flat = self.predictor(inputs)
+                ^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\container.py:253: in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\linear.py:134: in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: mat1 and mat2 shapes cannot be multiplied (2x51 and 52x12)
+______________ test_prediction_rejects_invalid_context[context4] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:240: in predict_transition
+    pred_flat = self.predictor(inputs)
+                ^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\container.py:253: in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\linear.py:134: in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: mat1 and mat2 must have the same dtype, but got Long and Float
+______________ test_prediction_rejects_invalid_context[context5] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:240: in predict_transition
+    pred_flat = self.predictor(inputs)
+                ^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\container.py:253: in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\linear.py:134: in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: mat1 and mat2 must have the same dtype, but got Double and Float
+______________ test_prediction_rejects_invalid_context[context6] ______________
+tests\test_predictive_world_model.py:94: in test_prediction_rejects_invalid_context
+    with pytest.raises(ValueError, match="context"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+______________ test_prediction_rejects_invalid_context[context7] ______________
+tests\test_predictive_world_model.py:94: in test_prediction_rejects_invalid_context
+    with pytest.raises(ValueError, match="context"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+______________ test_prediction_rejects_invalid_context[context8] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Concatenating sparse tensors, but a dense tensor was found at position 1.
+______________ test_prediction_rejects_invalid_context[context9] ______________
+tests\test_predictive_world_model.py:95: in test_prediction_rejects_invalid_context
+    circuit.predict_transition(context, 1)
+neurograft\dynamics.py:240: in predict_transition
+    pred_flat = self.predictor(inputs)
+                ^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\container.py:253: in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\linear.py:134: in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims_common\wrappers.py:314: in _fn
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_decomp\decompositions.py:91: in inner
+    r = f(*tree_map(increase_prec, args), **tree_map(increase_prec, kwargs))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_decomp\decompositions.py:1531: in addmm
+    return out + beta * self
+           ^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims_common\wrappers.py:314: in _fn
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_compile.py:54: in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_dynamo\eval_frame.py:1263: in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims_common\wrappers.py:152: in _fn
+    result = fn(**bound.arguments)
+             ^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_refs\__init__.py:1220: in add
+    output = prims.add(a, b)
+             ^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_ops.py:865: in __call__
+    return self._op(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_library\fake_impl.py:111: in meta_kernel
+    return fake_impl_holder.kernel(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_library\utils.py:23: in __call__
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\library.py:1501: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_library\custom_ops.py:636: in fake_impl
+    return self._abstract_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims\__init__.py:420: in _prim_elementwise_meta
+    utils.check_same_device(*args_, allow_cpu_scalar_tensors=True)
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims_common\__init__.py:917: in check_same_device
+    raise RuntimeError(msg)
+E   RuntimeError: Tensor on device cpu is not on the expected device meta!
+_________ test_prediction_rejects_ambiguous_or_invalid_actions[True] __________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:223: in predict_transition
+    action_t = F.one_hot(torch.tensor([action], device=context.device), self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: one_hot is only applicable to index tensor of type LongTensor.
+_________ test_prediction_rejects_ambiguous_or_invalid_actions[False] _________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:223: in predict_transition
+    action_t = F.one_hot(torch.tensor([action], device=context.device), self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: one_hot is only applicable to index tensor of type LongTensor.
+__________ test_prediction_rejects_ambiguous_or_invalid_actions[-1] ___________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:223: in predict_transition
+    action_t = F.one_hot(torch.tensor([action], device=context.device), self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Class values must be non-negative.
+___________ test_prediction_rejects_ambiguous_or_invalid_actions[4] ___________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:223: in predict_transition
+    action_t = F.one_hot(torch.tensor([action], device=context.device), self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Class values must be smaller than num_classes.
+__________ test_prediction_rejects_ambiguous_or_invalid_actions[1.5] __________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:237: in predict_transition
+    if action_t.shape[0] == 1 and context.shape[0] > 1:
+       ^^^^^^^^^^^^^^^^^
+E   IndexError: tuple index out of range
+________ test_prediction_rejects_ambiguous_or_invalid_actions[action5] ________
+tests\test_predictive_world_model.py:116: in test_prediction_rejects_ambiguous_or_invalid_actions
+    with pytest.raises(ValueError, match="action"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_prediction_rejects_ambiguous_or_invalid_actions[action6] ________
+tests\test_predictive_world_model.py:116: in test_prediction_rejects_ambiguous_or_invalid_actions
+    with pytest.raises(ValueError, match="action"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_prediction_rejects_ambiguous_or_invalid_actions[action7] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:237: in predict_transition
+    if action_t.shape[0] == 1 and context.shape[0] > 1:
+       ^^^^^^^^^^^^^^^^^
+E   IndexError: tuple index out of range
+________ test_prediction_rejects_ambiguous_or_invalid_actions[action8] ________
+tests\test_predictive_world_model.py:116: in test_prediction_rejects_ambiguous_or_invalid_actions
+    with pytest.raises(ValueError, match="action"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_prediction_rejects_ambiguous_or_invalid_actions[action9] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 2 but got size 3 for tensor number 1 in the list.
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action10] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:240: in predict_transition
+    pred_flat = self.predictor(inputs)
+                ^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\container.py:253: in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1779: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\module.py:1790: in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\linear.py:134: in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: mat1 and mat2 shapes cannot be multiplied (2x49 and 52x12)
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action11] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Tensors must have same number of dimensions: got 2 and 1
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action12] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Tensors must have same number of dimensions: got 2 and 1
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action13] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Tensors must have same number of dimensions: got 2 and 1
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action14] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Tensors must have same number of dimensions: got 2 and 1
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action15] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:228: in predict_transition
+    action_t = F.one_hot(action, self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Class values must be non-negative.
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action16] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:228: in predict_transition
+    action_t = F.one_hot(action, self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Class values must be smaller than num_classes.
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action17] ________
+tests\test_predictive_world_model.py:116: in test_prediction_rejects_ambiguous_or_invalid_actions
+    with pytest.raises(ValueError, match="action"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action18] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:228: in predict_transition
+    action_t = F.one_hot(action, self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError: Could not run 'aten::min' with arguments from the 'SparseCPU' backend. This could be because the operator doesn't exist for this backend, or was omitted during the selective/custom build process (if using custom build). If you are a Facebook employee using PyTorch on mobile, please visit https://fburl.com/ptmfixes for possible resolutions. 'aten::min' is only available for these backends: [CPU, Meta, QuantizedCPU, BackendSelect, Python, FuncTorchDynamicLayerBackMode, Functionalize, Named, Conjugate, Negative, ZeroTensor, ADInplaceOrView, AutogradOther, AutogradCPU, AutogradCUDA, AutogradHIP, AutogradXLA, AutogradMPS, AutogradIPU, AutogradXPU, AutogradHPU, AutogradVE, AutogradLazy, AutogradMTIA, AutogradMAIA, AutogradPrivateUse1, AutogradPrivateUse2, AutogradPrivateUse3, AutogradMeta, AutogradNestedTensor, Tracer, AutocastCPU, AutocastMTIA, AutocastMAIA, AutocastXPU, AutocastMPS, AutocastCUDA, FuncTorchBatched, BatchedNestedTensor, FuncTorchVmapMode, Batched, VmapMode, FuncTorchGradWrapper, PythonTLSSnapshot, FuncTorchDynamicLayerFrontMode, PreDispatch, PythonDispatcher].
+E   
+E   CPU: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\build\aten\src\ATen\RegisterCPU_2.cpp:6628 [kernel]
+E   Meta: registered at C:\Users\kai99\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_meta_registrations.py:53 [kernel]
+E   QuantizedCPU: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\build\aten\src\ATen\RegisterQuantizedCPU_0.cpp:1971 [kernel]
+E   BackendSelect: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\core\BackendSelectFallbackKernel.cpp:3 [backend fallback]
+E   Python: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\core\PythonFallbackKernel.cpp:198 [backend fallback]
+E   FuncTorchDynamicLayerBackMode: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\functorch\DynamicLayer.cpp:477 [backend fallback]
+E   Functionalize: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\FunctionalizeFallbackKernel.cpp:384 [backend fallback]
+E   Named: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\core\NamedRegistrations.cpp:9 [kernel]
+E   Conjugate: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\ConjugateFallback.cpp:17 [backend fallback]
+E   Negative: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\native\NegateFallback.cpp:18 [backend fallback]
+E   ZeroTensor: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\ZeroTensorFallback.cpp:115 [backend fallback]
+E   ADInplaceOrView: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\core\VariableFallbackKernel.cpp:103 [backend fallback]
+E   AutogradOther: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradCPU: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradCUDA: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradHIP: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradXLA: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradMPS: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradIPU: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradXPU: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradHPU: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradVE: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradLazy: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradMTIA: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradMAIA: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradPrivateUse1: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradPrivateUse2: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradPrivateUse3: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradMeta: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   AutogradNestedTensor: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\VariableType_3.cpp:20155 [autograd kernel]
+E   Tracer: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\TraceType_3.cpp:15245 [kernel]
+E   AutocastCPU: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\autocast_mode.cpp:336 [backend fallback]
+E   AutocastMTIA: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\autocast_mode.cpp:480 [backend fallback]
+E   AutocastMAIA: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\autocast_mode.cpp:518 [backend fallback]
+E   AutocastXPU: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\autocast_mode.cpp:556 [backend fallback]
+E   AutocastMPS: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\autocast_mode.cpp:221 [backend fallback]
+E   AutocastCUDA: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\autocast_mode.cpp:177 [backend fallback]
+E   FuncTorchBatched: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\functorch\BatchRulesReduceOps.cpp:449 [kernel]
+E   BatchedNestedTensor: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\functorch\LegacyBatchingRegistrations.cpp:754 [backend fallback]
+E   FuncTorchVmapMode: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\functorch\VmapModeRegistrations.cpp:22 [backend fallback]
+E   Batched: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\LegacyBatchingRegistrations.cpp:1072 [backend fallback]
+E   VmapMode: fallthrough registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\VmapModeRegistrations.cpp:32 [backend fallback]
+E   FuncTorchGradWrapper: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\functorch\TensorWrapper.cpp:210 [backend fallback]
+E   PythonTLSSnapshot: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\core\PythonFallbackKernel.cpp:206 [backend fallback]
+E   FuncTorchDynamicLayerFrontMode: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\functorch\DynamicLayer.cpp:473 [backend fallback]
+E   PreDispatch: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\core\PythonFallbackKernel.cpp:210 [backend fallback]
+E   PythonDispatcher: registered at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\core\PythonFallbackKernel.cpp:202 [backend fallback]
+_______ test_prediction_rejects_ambiguous_or_invalid_actions[action19] ________
+tests\test_predictive_world_model.py:117: in test_prediction_rejects_ambiguous_or_invalid_actions
+    circuit.predict_transition(torch.zeros(2, 48), action)
+neurograft\dynamics.py:239: in predict_transition
+    inputs = torch.cat([context, action_t], dim=-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims_common\wrappers.py:314: in _fn
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_compile.py:54: in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_dynamo\eval_frame.py:1263: in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims_common\wrappers.py:152: in _fn
+    result = fn(**bound.arguments)
+             ^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_refs\__init__.py:2894: in cat
+    utils.check_same_device(*tensors, allow_cpu_scalar_tensors=False)
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_prims_common\__init__.py:917: in check_same_device
+    raise RuntimeError(msg)
+E   RuntimeError: Tensor on device meta is not on the expected device cpu!
+____ test_prediction_accepts_scalar_broadcast_and_batched_indices[dtype0] _____
+tests\test_predictive_world_model.py:127: in test_prediction_accepts_scalar_broadcast_and_batched_indices
+    batched = circuit.predict_transition(context, torch.tensor([2, 2], dtype=dtype))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+neurograft\dynamics.py:228: in predict_transition
+    action_t = F.one_hot(action, self.config.output_dim).to(context.dtype)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: one_hot is only applicable to index tensor of type LongTensor.
+=========================== short test summary info ===========================
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context0]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context1]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context2]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context3]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context4]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context5]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context6]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context7]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context8]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_invalid_context[context9]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[True]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[False]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[-1]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[4]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[1.5]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action5]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action6]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action7]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action8]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action9]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action10]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action11]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action12]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action13]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action14]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action15]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action16]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action17]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action18]
+FAILED tests/test_predictive_world_model.py::test_prediction_rejects_ambiguous_or_invalid_actions[action19]
+FAILED tests/test_predictive_world_model.py::test_prediction_accepts_scalar_broadcast_and_batched_indices[dtype0]
+31 failed, 9 passed in 14.96s

@@ -152,15 +152,16 @@ class LiveApp:
 
     def evaluate(self, values):
         from .navigation_evaluation import NavigationEvalConfig, frozen_navigation_evaluation
-        if not isinstance(values, dict) or set(values) - {'seeds', 'size', 'preset', 'max_steps', 'include_controllers'}:
-            raise ValueError('evaluation accepts only seeds, size, preset, max_steps and include_controllers')
+        if not isinstance(values, dict) or set(values) - {'seeds', 'size', 'preset', 'max_steps', 'include_controllers', 'include_steering_controls'}:
+            raise ValueError('evaluation accepts only seeds, size, preset, max_steps, include_controllers and include_steering_controls')
         seeds = values.get('seeds', [10000, 10001, 10002])
         if not isinstance(seeds, list):
             raise ValueError('evaluation seeds must be a JSON array of integers')
         config = NavigationEvalConfig(seeds=tuple(seeds), size=values.get('size', 11),
                                       preset=values.get('preset', 'labyrinth'),
                                       max_steps=values.get('max_steps', 48),
-                                      include_controllers=values.get('include_controllers', False))
+                                      include_controllers=values.get('include_controllers', False),
+                                      include_steering_controls=values.get('include_steering_controls', False))
         if not self.evaluation_guard.acquire(blocking=False):
             raise ConflictError('a frozen navigation evaluation is already running')
         try:
@@ -219,9 +220,9 @@ class LiveApp:
             if not isinstance(values.get('enabled'), bool):
                 raise ValueError('enabled must be boolean')
         elif action == 'navigation':
-            from .navigation_controller import MODES
+            from .navigation_controller import ALL_MODES, MODES
             mode = values.get('mode')
-            if not isinstance(mode, str) or mode not in MODES:
+            if not isinstance(mode, str) or mode not in ALL_MODES:
                 raise ValueError('invalid navigation mode')
         elif action not in ('pause', 'resume', 'goal'):
             raise ValueError('unknown control action')

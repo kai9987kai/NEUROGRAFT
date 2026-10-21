@@ -91,7 +91,9 @@ def _seeds(values):
 
 
 def _curriculum(values):
-    if type(values) is not dict or set(values) != {field.name for field in fields(CurriculumConfig)}:
+    complete = {field.name for field in fields(CurriculumConfig)}
+    historical = complete - {'predictive_head', 'predictive_weight'}
+    if type(values) is not dict or set(values) not in (complete, historical):
         raise ValueError('study plan must contain the complete curriculum config')
     copied = dict(values)
     for name in ('sizes', 'presets', 'validation_seeds', 'test_seeds'):
@@ -110,6 +112,7 @@ def _base_config(config, seeds):
         raise ValueError('config must be CurriculumConfig')
     return replace(config, init='fresh', collection_policy='expert', readout='human',
                    rotation_augmentation=False, include_readout_controls=True,
+                   predictive_head=False, predictive_weight=0.0,
                    seed=seeds[0], train_seed_start=seeds[0])
 
 
@@ -422,6 +425,15 @@ def verify_study(directory, replay=False):
         config = _base_config(_curriculum(plan['curriculum']), seeds)
         expected_plan = _plan(bundle, _safe_file(directory, 'frozen-input.pt'), config, seeds)
         expected_plan['evidence_scope'] = _recognized_scope(plan['evidence_scope'])
+        # Optional v0.11 defaults were absent from v0.10 declarations. Preserve
+        # those exact archived dictionaries, while rejecting non-default claims.
+        for name, default in (('predictive_head', False), ('predictive_weight', 0.0)):
+            for actual, expected in [(plan['curriculum'], expected_plan['curriculum']),
+                                     (plan['frozen_config'], expected_plan['frozen_config'])] + [
+                    (actual['config'], expected['config']) for actual, expected
+                    in zip(plan['runs'], expected_plan['runs'])]:
+                if name not in actual and expected.get(name) == default:
+                    expected.pop(name, None)
         if plan != expected_plan:
             raise ValueError('study plan config/frozen input identity mismatch')
         manifest = _json(_read(_safe_file(directory, 'manifest.json'), 65536))

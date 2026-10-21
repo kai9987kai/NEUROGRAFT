@@ -51,6 +51,8 @@ class CurriculumConfig:
     rotation_augmentation: bool = False
     collection_policy: str = 'mixed'
     include_readout_controls: bool = False
+    predictive_head: bool = False
+    predictive_weight: float = 0.0
 
     def __post_init__(self) -> None:
         if type(self.readout) is not str or self.readout not in ('human', 'context_residual'):
@@ -59,8 +61,15 @@ class CurriculumConfig:
             raise ValueError('rotation_augmentation must be boolean')
         if type(self.include_readout_controls) is not bool:
             raise ValueError('include_readout_controls must be boolean')
-        if type(self.collection_policy) is not str or self.collection_policy not in ('mixed', 'expert'):
-            raise ValueError("collection_policy must be 'mixed' or 'expert'")
+        if type(self.collection_policy) is not str or self.collection_policy not in ('mixed', 'expert', 'recovery'):
+            raise ValueError("collection_policy must be 'mixed', 'expert' or 'recovery'")
+        if type(self.predictive_head) is not bool:
+            raise ValueError('predictive_head must be boolean')
+        if (type(self.predictive_weight) not in (int, float)
+                or not math.isfinite(self.predictive_weight) or not 0.0 <= self.predictive_weight <= 10.0):
+            raise ValueError('predictive_weight must be a finite float in [0.0, 10.0]')
+        if not self.predictive_head and self.predictive_weight != 0:
+            raise ValueError('predictive_weight requires predictive_head=True')
         if self.train_seed_start == 0 and self.seed != 0:
             object.__setattr__(self, 'train_seed_start', self.seed)
         elif self.seed == 0 and self.train_seed_start != 0:
@@ -179,6 +188,25 @@ def _hash_sample(digest, value):
                              allow_nan=False).encode('utf-8') + b'\n')
 
 
+def _prepare_navigation_batch(batch, turns, dtype, predictive):
+    """Apply one common frame transform to observations, actions and targets."""
+    sequence = torch.tensor([sample['observations'] for sample in batch], dtype=dtype)
+    labels = torch.tensor([sample['action'] for sample in batch], dtype=torch.long)
+    sequence, labels = _rotate_navigation_batch(sequence, labels, turns)
+    if not predictive:
+        return sequence, labels, None, None, None
+    executed = torch.tensor([sample['executed_action'] for sample in batch], dtype=torch.long)
+    target = torch.tensor([sample['next_observation'] for sample in batch], dtype=dtype)
+    target, executed = _rotate_navigation_batch(target[:, None], executed, turns)
+    valid = torch.tensor([sample['transition_valid'] for sample in batch], dtype=torch.bool)
+    return sequence, labels, executed, target[:, 0], valid
+
+
+def _masked_prediction_loss(prediction, targets, valid):
+    """Omit boundary transitions rather than train on resets or report zero error."""
+    return F.mse_loss(prediction[valid], targets[valid]) if bool(valid.any()) else None
+
+
 def _world_schedule(config: CurriculumConfig, round_idx: int) -> list[dict[str, Any]]:
     """Cycle the Cartesian product, sizes fastest, independently of seed offset.
 
@@ -260,9 +288,13 @@ def _collect_round(
     model.config = replace(model.config, top_k=3 if warmup else 2)
 
     teacher_prob = (1.0 if config.collection_policy == 'expert' else
+                    0.5 if config.collection_policy == 'recovery' else
                     max(0.15, 1.0 - (round_idx - 1) / max(1, config.rounds)))
     collection_hash = hashlib.sha256()
     batch_hash = hashlib.sha256()
+    base_collection_hash = hashlib.sha256()
+    base_batch_hash = hashlib.sha256()
+    prediction_valid = prediction_excluded = 0
     augmentation_rng = random.Random(config.seed ^ (round_idx << 32) ^ 0x524F54415445)
     rotation_counts = [0] * 4
 
@@ -282,13 +314,9 @@ def _collect_round(
             history.append(obs)
             padding = [[[0.0] * 4 for _ in range(4)] for _ in range(unroll - len(history))]
             padded = padding + list(history)
-            sample = {'observations': padded, 'action': expert,
-                      'world_seed': world_seed, 'size': size,
-                      'preset': preset, 'round': round_idx}
-            replay_buffer.add(sample)
-            _hash_sample(collection_hash, sample)
-            counts[expert] += 1
 
+            # Preserve the historical draw even when probability is exactly 1.
+            # Its position determines all subsequent raw minibatch identities.
             if rng.random() < teacher_prob:
                 action = expert
                 teacher_steps += 1
@@ -299,37 +327,66 @@ def _collect_round(
                     seq_t = torch.tensor([padded], dtype=model.policy.weight.dtype)
                     action = int(model(seq_t).logits.argmax(-1))
             res = world.step(action)
+            next_obs = world.observe()
+
+            sample = {'observations': padded, 'action': expert,
+                      'world_seed': world_seed, 'size': size,
+                      'preset': preset, 'round': round_idx}
+            _hash_sample(base_collection_hash, sample)
+            if config.predictive_head:
+                sample['next_observation'] = next_obs
+                sample['executed_action'] = action
+                # Success changes the goal; timeout can also teleport the agent.
+                # Neither is a deterministic physical transition target.
+                sample['transition_valid'] = not res['episode_done']
+                prediction_valid += int(sample['transition_valid'])
+                prediction_excluded += int(not sample['transition_valid'])
+            replay_buffer.add(sample)
+            _hash_sample(collection_hash, sample)
+            counts[expert] += 1
             if res['goal_reached']:
                 break
 
-    losses = []
+    losses, prediction_losses, total_losses = [], [], []
+    valid_counts = []
     for _ in range(config.updates_per_round):
         batch = replay_buffer.balanced_batch(config.batch_size, rng)
         _hash_sample(batch_hash, batch)
-
-        seq = torch.tensor([s['observations'] for s in batch], dtype=model.policy.weight.dtype)
-        labels = torch.tensor([s['action'] for s in batch], dtype=torch.long)
+        _hash_sample(base_batch_hash, [{name: sample[name] for name in
+            ('observations', 'action', 'world_seed', 'size', 'preset', 'round')} for sample in batch])
         turns = [augmentation_rng.randrange(4) if config.rotation_augmentation else 0 for _ in batch]
         for turn in turns:
             rotation_counts[turn] += 1
-        if config.rotation_augmentation:
-            seq, labels = _rotate_navigation_batch(seq, labels, torch.tensor(turns, dtype=torch.long))
+        seq, labels, executed_actions, targets, valid = _prepare_navigation_batch(
+            batch, torch.tensor(turns, dtype=torch.long), model.policy.weight.dtype, config.predictive_head)
 
         optimizer.zero_grad(set_to_none=True)
         model.train()
-        out = model(seq)
+        out = model(seq, action=executed_actions) if config.predictive_head else model(seq)
         loss = F.cross_entropy(out.logits, labels)
-        if not torch.isfinite(loss):
+        total_loss = loss
+        pred_loss = None
+        count = int(valid.sum()) if valid is not None else 0
+        if config.predictive_head and count:
+            pred_loss = _masked_prediction_loss(out.predicted_obs, targets, valid)
+            if not torch.isfinite(pred_loss):
+                raise ValueError('prediction loss became nonfinite')
+            if config.predictive_weight > 0:
+                total_loss = loss + float(config.predictive_weight) * pred_loss
+        if not torch.isfinite(total_loss):
             model.eval()
             raise ValueError('training loss became nonfinite')
-        loss.backward()
+        total_loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
         optimizer.step()
         model.eval()
         losses.append(float(loss.detach()))
+        prediction_losses.append(float(pred_loss.detach()) if pred_loss is not None else None)
+        total_losses.append(float(total_loss.detach()))
+        valid_counts.append(count)
 
     condition_counts = Counter((item['size'], item['preset']) for item in schedule)
-    return {
+    receipt = {
         'collection': {
             'worlds': len(schedule), 'world_seeds': [item['seed'] for item in schedule],
             'condition_counts': [{'size': size, 'preset': preset, 'worlds': count}
@@ -347,6 +404,19 @@ def _collect_round(
             'batch_sha256': batch_hash.hexdigest(), 'rotation_counts': rotation_counts,
         },
     }
+    if config.predictive_head:
+        receipt['collection'].update({
+            'base_data_sha256': base_collection_hash.hexdigest(),
+            'prediction_valid_transitions': prediction_valid,
+            'prediction_excluded_transitions': prediction_excluded,
+        })
+        receipt['training'].update({'base_batch_sha256': base_batch_hash.hexdigest(),
+            'prediction': {'weight': config.predictive_weight, 'losses': prediction_losses,
+                           'total_losses': total_losses, 'valid_examples': sum(valid_counts),
+                           'valid_counts': valid_counts,
+                           'mean_mse': sum((loss or 0.0) * n for loss, n in zip(prediction_losses, valid_counts))
+                                       / sum(valid_counts) if sum(valid_counts) else None}})
+    return receipt
 
 
 def run_navigation_training(
@@ -399,19 +469,21 @@ def run_navigation_training(
         if config.init == 'checkpoint':
             if baseline_session.config.readout != config.readout:
                 raise ValueError('checkpoint readout must match curriculum readout; use fresh initialization to compare architectures')
+            if baseline_session.config.predictive_head != config.predictive_head:
+                raise ValueError('checkpoint predictive_head must match curriculum predictive_head')
             model = copy.deepcopy(baseline_session.model)
             model.config = replace(model.config, top_k=2)
         else:
             fresh_session = LiveSession(
                 bundle,
                 LiveConfig(seed=config.seed, hidden_dim=hidden_dim, batch_size=config.batch_size, unroll=unroll,
-                           readout=config.readout)
+                           readout=config.readout, predictive_head=config.predictive_head)
             )
             model = copy.deepcopy(fresh_session.model)
 
         initial_model_hash = _checkpoint_digest(model.state_dict())
         initial_common_model_hash = _checkpoint_digest({name: value for name, value in model.state_dict().items()
-                                                       if not name.startswith('context_policy.')})
+                                                       if not name.startswith('context_policy.') and not name.startswith('predictor.')})
         optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate, weight_decay=1e-4)
         replay_buffer = _ActionReservoir(config.replay_capacity, random.Random(config.seed ^ 0x5245504C4159))
 
@@ -453,7 +525,7 @@ def run_navigation_training(
         candidate_session = LiveSession(
             bundle,
             LiveConfig(seed=config.seed, hidden_dim=hidden_dim, batch_size=config.batch_size, unroll=unroll,
-                       readout=config.readout)
+                       readout=config.readout, predictive_head=config.predictive_head)
         )
         candidate_session.model.load_state_dict(best_state_dict)
         candidate_session.anchor_model.load_state_dict(best_state_dict)
@@ -481,6 +553,8 @@ def run_navigation_training(
                 'total': sum(parameter.numel() for parameter in model.parameters()),
                 'context_residual': sum(parameter.numel() for name, parameter in model.named_parameters()
                                         if name.startswith('context_policy.')),
+                'predictor': sum(parameter.numel() for name, parameter in model.named_parameters()
+                                 if name.startswith('predictor.')),
             },
             'baseline_model_hash': baseline_eval['model_hash'],
             'baseline': baseline_eval,

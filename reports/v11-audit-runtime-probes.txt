@@ -1,0 +1,33 @@
+{
+  "cx_checkpoint": "ValueError('invalid action source')",
+  "checkpoint_predictor_mismatch": "RuntimeError('Error(s) in loading state_dict for GraphCircuit:\\n\\tMissing key(s) in state_dict: \"predictor.0.weight\", \"predictor.0.bias\", \"predictor.2.weight\", \"predictor.2.bias\". ')",
+  "topology_roundtrip": {
+    "before": {
+      "num_nodes": 2,
+      "num_edges": 1,
+      "total_transitions": 1,
+      "nodes": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "after": {
+      "num_nodes": 0,
+      "num_edges": 0,
+      "total_transitions": 0,
+      "nodes": []
+    }
+  },
+  "legacy_expert_receipt_comparison": {
+    "collection_equal": true,
+    "batch_equal": false,
+    "legacy_batch": "92ec33b3acfafa90ae65cf999933d952f9af9045931e198daa83c72069f1396c",
+    "current_batch": "be3f7777f9681a1e27b216cd2dd405bb924165e40e00da521bc43df1751adc62"
+  }
+}

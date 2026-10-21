@@ -17,6 +17,21 @@ The working package includes typed sparse graphs, CSV and human-matrix importers
 
 **Current evidence:** the circuit implementation runs and trains locally. The OpenWorm source has been acquired and normalized with explicit filtering receipts. Female fly, male fly, and human inputs in the included demonstration are **synthetic fixtures**. Qwen interface tests use tiny **randomly initialized** models from the actual Transformers implementations. A pretrained Qwen checkpoint has not been loaded or trained. No biological-connectome advantage is established.
 
+## Predictive recovery experiments (v0.11)
+
+The optional action-conditioned head predicts the next observation while an auxiliary loss trains shared representations. Training now rotates executed actions and next-observation targets with their histories, excludes goal/reset boundaries, and reports policy and prediction losses separately. A fixed 50% teacher/learner collection mode supplies recovery examples. This is one-step auxiliary prediction, with no imagined planning or pretrained world model.
+
+Experienced spatial transitions are bounded, validated and saved with live checkpoints. They remain observer data rather than raw-policy inputs. The optional `cx_steer` controller is a synthetic goal/heading prior with legal-action masking, inspired by central-complex research. Its formula is an engineering choice; it reads observed headings directly. An opt-in `cx_without_policy` comparison separates that assistance from learned logits.
+
+The controlled pilot matches predictor architecture, initial weights and update budgets across loss-on/loss-off pairs. It reports raw navigation separately from held-out prediction errors, including persistence and local-kinematics baselines. Run from the source checkout into a new directory:
+
+```powershell
+python tools/study_predictive_recovery.py --bundle reports/runs/navigation-v10-readout-study-20261020-final/source.bundle.json --checkpoint reports/runs/navigation-v10-readout-study-20261020-final/runs/context_residual_plain/seed-0/candidate.pt --out reports/runs/new-v11-study
+python tools/study_predictive_recovery.py --verify reports/runs/new-v11-study --replay
+```
+
+Research, protocol and interpretation limits: [design](docs/v11-world-model-design.md). Measured results and current validation receipts: [build report](docs/v11-build-report.md). Existing live state and prior archives are preserved; experimental checkpoints are exported paused without automatic promotion.
+
 ## Learned navigation experiments (v0.10)
 
 The optional `context_residual` readout gives the policy a learned residual over all four encoded sources. It starts at zero, preserving the original common weights and initial logits. Existing checkpoints load with their original `human` readout. The live Navigation panel identifies the checkpoint's readout; loading an experimental candidate is an explicit separate step.

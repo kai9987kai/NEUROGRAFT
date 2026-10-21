@@ -1,0 +1,49 @@
+{
+  "rounds": 1,
+  "worlds_per_round": 24,
+  "updates_per_round": 256,
+  "batch_size": 16,
+  "sizes": [
+    7,
+    11
+  ],
+  "presets": [
+    "labyrinth",
+    "chambers",
+    "corridors",
+    "pillars",
+    "concentric",
+    "hierarchical"
+  ],
+  "init": "fresh",
+  "learning_rate": 0.005,
+  "validation_seeds": [
+    55000,
+    55001,
+    55002,
+    55003
+  ],
+  "test_seeds": [
+    65000,
+    65001,
+    65002,
+    65003,
+    65004,
+    65005,
+    65006,
+    65007
+  ],
+  "dense_warmup_rounds": 1,
+  "train_seed_start": 0,
+  "seed": 0,
+  "replay_capacity": 256,
+  "max_steps": 48,
+  "eval_size": 11,
+  "eval_preset": "labyrinth",
+  "readout": "context_residual",
+  "rotation_augmentation": false,
+  "collection_policy": "recovery",
+  "include_readout_controls": true,
+  "predictive_head": true,
+  "predictive_weight": 0.0
+}

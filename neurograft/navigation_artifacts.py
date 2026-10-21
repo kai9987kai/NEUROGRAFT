@@ -125,6 +125,8 @@ def verify_navigation_run(directory, replay=False):
             raise ValueError('candidate inference export must be paused with learning disabled')
         if candidate.config.readout != curriculum.readout:
             raise ValueError('candidate readout does not match declared curriculum')
+        if candidate.config.predictive_head != curriculum.predictive_head:
+            raise ValueError('candidate predictive_head does not match declared curriculum')
         eval_config = NavigationEvalConfig(seeds=curriculum.test_seeds, size=curriculum.eval_size,
                                           preset=curriculum.eval_preset, max_steps=curriculum.max_steps,
                                           include_readout_controls=curriculum.include_readout_controls)

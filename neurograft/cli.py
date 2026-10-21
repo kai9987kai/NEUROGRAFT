@@ -95,6 +95,7 @@ def parser():
     nav.add_argument("--max-steps", type=int, default=48)
     nav.add_argument('--include-controllers', action='store_true', help='compare legal masking and observed-map planning against raw policy and controls')
     nav.add_argument('--include-readout-controls', action='store_true', help='compare the same weights with the optional context residual readout bypassed')
+    nav.add_argument('--include-steering-controls', action='store_true', help='compare synthetic goal/heading steering with and without learned logits')
     curriculum = commands.add_parser('train-navigation', help='train an isolated navigation candidate and compare frozen trials')
     curriculum.add_argument('--bundle', required=True)
     curriculum.add_argument('--checkpoint', required=True, help='captured baseline checkpoint; never overwritten')
@@ -190,7 +191,8 @@ def main(argv=None):
             config = NavigationEvalConfig(seeds=tuple(int(s) for s in args.seeds.split(',')),
                                           size=args.size, preset=args.preset, max_steps=args.max_steps,
                                           include_controllers=args.include_controllers,
-                                          include_readout_controls=args.include_readout_controls)
+                                          include_readout_controls=args.include_readout_controls,
+                                          include_steering_controls=args.include_steering_controls)
             bundle = _bundle(args.bundle)
             if sum(len(g.nodes) for g in bundle.graphs) > 2000 or sum(len(g.edges) for g in bundle.graphs) > 50000:
                 raise ValueError("navigation evaluation cap is 2,000 nodes and 50,000 observations")

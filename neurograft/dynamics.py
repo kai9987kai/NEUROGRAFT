@@ -13,6 +13,7 @@ from typing import Sequence
 
 import torch
 from torch import Tensor, nn
+import torch.nn.functional as F
 
 from .graphs import SOURCE_KEYS, GraphBundle, SourceGraph
 
@@ -27,6 +28,7 @@ class DynamicsConfig:
     output_dim: int = 2
     top_k: int = 2
     readout: str = "human"
+    predictive_head: bool = False
 
     def __post_init__(self) -> None:
         for name in ("input_dim", "hidden_dim", "output_dim"):
@@ -37,6 +39,8 @@ class DynamicsConfig:
             raise ValueError("top_k must be an integer from 0 through 3 cross-source senders")
         if type(self.readout) is not str or self.readout not in ("human", "context_residual"):
             raise ValueError("readout must be 'human' or 'context_residual'")
+        if type(self.predictive_head) is not bool:
+            raise ValueError("predictive_head must be a boolean")
 
 
 @dataclass(frozen=True)
@@ -45,6 +49,7 @@ class CircuitOutput:
     state: tuple[Tensor, ...]
     context: Tensor
     routes: Tensor
+    predicted_obs: Tensor | None = None
 
 
 class SparseRelation(nn.Module):
@@ -199,6 +204,51 @@ these pooled modules to adapters. Inference flags never remove parameters.
                 self.context_policy = nn.Linear(self.context_dim, self.config.output_dim)
             nn.init.zeros_(self.context_policy.weight)
             nn.init.zeros_(self.context_policy.bias)
+        self.predictor = None
+        if self.config.predictive_head:
+            with torch.random.fork_rng(devices=[]):
+                self.predictor = nn.Sequential(
+                    nn.Linear(self.context_dim + self.config.output_dim, self.config.hidden_dim),
+                    nn.Tanh(),
+                    nn.Linear(self.config.hidden_dim, 4 * self.config.input_dim),
+                )
+            nn.init.zeros_(self.predictor[-1].weight)
+            nn.init.zeros_(self.predictor[-1].bias)
+
+    def predict_transition(self, context: Tensor, action: Tensor | int) -> Tensor:
+        """Predict next observations from a finite CPU context and action indices.
+
+        A Python integer applies the same action to the whole batch. Tensor
+        actions must contain exactly one int32/int64 class index per context;
+        floating vectors and one-hot inputs are deliberately unsupported.
+        """
+        if self.predictor is None:
+            raise ValueError("predictive_head is not enabled in this circuit configuration")
+        if (not isinstance(context, Tensor) or context.layout != torch.strided
+                or context.ndim != 2 or context.shape[0] <= 0
+                or context.shape[1] != self.context_dim):
+            raise ValueError("context must be a dense tensor with shape [positive batch,context_dim]")
+        if (context.device.type != "cpu" or context.device != self.policy.weight.device
+                or context.dtype != self.policy.weight.dtype):
+            raise ValueError("context must use the circuit parameter dtype and CPU device")
+        if not torch.isfinite(context).all():
+            raise ValueError("context must be finite")
+        if type(action) is int:
+            if not 0 <= action < self.config.output_dim:
+                raise ValueError("action index is outside the circuit output classes")
+            indices = torch.full((context.shape[0],), action, dtype=torch.int64, device=context.device)
+        elif (isinstance(action, Tensor) and action.layout == torch.strided
+              and action.device == context.device and action.dtype in (torch.int32, torch.int64)
+              and action.shape == (context.shape[0],)):
+            if ((action < 0) | (action >= self.config.output_dim)).any():
+                raise ValueError("action indices are outside the circuit output classes")
+            indices = action.to(dtype=torch.int64)
+        else:
+            raise ValueError("action must be an integer or a dense CPU int32/int64 tensor with shape [batch]")
+        action_t = F.one_hot(indices, self.config.output_dim).to(context.dtype)
+        inputs = torch.cat([context, action_t], dim=-1)
+        pred_flat = self.predictor(inputs)
+        return pred_flat.reshape(context.shape[0], 4, self.config.input_dim)
 
     def initial_state(self, batch_size: int) -> tuple[Tensor, ...]:
         if isinstance(batch_size, bool) or not isinstance(batch_size, int) or batch_size <= 0:
@@ -256,6 +306,7 @@ these pooled modules to adapters. Inference flags never remove parameters.
         liquid_alpha: Sequence[float] | None = None,
         ablate_source: int | None = None,
         context_enabled: bool = True,
+        action: Tensor | int | None = None,
     ) -> CircuitOutput:
         self._validate_observations(observations)
         if state is not None:
@@ -300,11 +351,15 @@ these pooled modules to adapters. Inference flags never remove parameters.
         logits = self.policy(final_pooled[:, 3])
         if self.context_policy is not None and context_enabled:
             logits = logits + self.context_policy(context)
+        predicted_obs = None
+        if action is not None and self.predictor is not None:
+            predicted_obs = self.predict_transition(context, action)
         return CircuitOutput(
             logits=logits,
             state=state_out,
             context=context,
             routes=routes,
+            predicted_obs=predicted_obs,
         )
 
     def forward(
@@ -315,11 +370,13 @@ these pooled modules to adapters. Inference flags never remove parameters.
         liquid_alpha: Sequence[float] | None = None,
         ablate_source: int | None = None,
         context_enabled: bool = True,
+        action: Tensor | int | None = None,
     ) -> CircuitOutput:
         if not isinstance(sequence, Tensor) or sequence.ndim != 4 or sequence.shape[1] <= 0:
             raise ValueError("sequence must have shape [batch,positive time,4,input_dim]")
         state = None
         for time in range(sequence.shape[1]):
+            is_final = (time == sequence.shape[1] - 1)
             output = self.step(
                 sequence[:, time],
                 state,
@@ -328,6 +385,7 @@ these pooled modules to adapters. Inference flags never remove parameters.
                 liquid_alpha=liquid_alpha,
                 ablate_source=ablate_source,
                 context_enabled=context_enabled,
+                action=action if is_final else None,
             )
             state = output.state
         return output

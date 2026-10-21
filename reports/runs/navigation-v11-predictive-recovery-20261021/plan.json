@@ -1,0 +1,1530 @@
+{
+  "schema": "predictive-recovery-study-v1",
+  "arms": [
+    {
+      "id": "expert_aux0",
+      "collection_policy": "expert",
+      "predictive_weight": 0.0
+    },
+    {
+      "id": "expert_aux05",
+      "collection_policy": "expert",
+      "predictive_weight": 0.5
+    },
+    {
+      "id": "recovery_aux0",
+      "collection_policy": "recovery",
+      "predictive_weight": 0.0
+    },
+    {
+      "id": "recovery_aux05",
+      "collection_policy": "recovery",
+      "predictive_weight": 0.5
+    }
+  ],
+  "initialization_seeds": [
+    0,
+    1000
+  ],
+  "curriculum": {
+    "rounds": 1,
+    "worlds_per_round": 24,
+    "updates_per_round": 256,
+    "batch_size": 16,
+    "sizes": [
+      7,
+      11
+    ],
+    "presets": [
+      "labyrinth",
+      "chambers",
+      "corridors",
+      "pillars",
+      "concentric",
+      "hierarchical"
+    ],
+    "init": "fresh",
+    "learning_rate": 0.005,
+    "validation_seeds": [
+      55000,
+      55001,
+      55002,
+      55003
+    ],
+    "test_seeds": [
+      65000,
+      65001,
+      65002,
+      65003,
+      65004,
+      65005,
+      65006,
+      65007
+    ],
+    "dense_warmup_rounds": 1,
+    "train_seed_start": 0,
+    "seed": 0,
+    "replay_capacity": 256,
+    "max_steps": 48,
+    "eval_size": 11,
+    "eval_preset": "labyrinth",
+    "readout": "context_residual",
+    "rotation_augmentation": false,
+    "collection_policy": "expert",
+    "include_readout_controls": true,
+    "predictive_head": true,
+    "predictive_weight": 0.0
+  },
+  "runs": [
+    {
+      "arm": "expert_aux0",
+      "seed": 0,
+      "directory": "runs/expert_aux0/seed-0",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 0,
+        "seed": 0,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "expert",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.0
+      },
+      "training_worlds": [
+        {
+          "seed": 0,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 2,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 3,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 4,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 5,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 6,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 7,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 8,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 9,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 10,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 11,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 12,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 13,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 14,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 15,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 16,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 17,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 18,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 19,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 20,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 21,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 22,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 23,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    },
+    {
+      "arm": "expert_aux0",
+      "seed": 1000,
+      "directory": "runs/expert_aux0/seed-1000",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 1000,
+        "seed": 1000,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "expert",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.0
+      },
+      "training_worlds": [
+        {
+          "seed": 1000,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1001,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1002,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1003,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1004,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1005,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1006,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1007,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1008,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1009,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1010,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1011,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1012,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1013,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1014,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1015,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1016,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1017,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1018,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1019,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1020,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1021,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1022,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1023,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    },
+    {
+      "arm": "expert_aux05",
+      "seed": 0,
+      "directory": "runs/expert_aux05/seed-0",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 0,
+        "seed": 0,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "expert",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.5
+      },
+      "training_worlds": [
+        {
+          "seed": 0,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 2,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 3,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 4,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 5,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 6,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 7,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 8,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 9,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 10,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 11,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 12,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 13,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 14,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 15,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 16,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 17,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 18,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 19,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 20,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 21,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 22,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 23,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    },
+    {
+      "arm": "expert_aux05",
+      "seed": 1000,
+      "directory": "runs/expert_aux05/seed-1000",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 1000,
+        "seed": 1000,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "expert",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.5
+      },
+      "training_worlds": [
+        {
+          "seed": 1000,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1001,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1002,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1003,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1004,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1005,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1006,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1007,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1008,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1009,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1010,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1011,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1012,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1013,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1014,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1015,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1016,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1017,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1018,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1019,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1020,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1021,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1022,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1023,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    },
+    {
+      "arm": "recovery_aux0",
+      "seed": 0,
+      "directory": "runs/recovery_aux0/seed-0",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 0,
+        "seed": 0,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "recovery",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.0
+      },
+      "training_worlds": [
+        {
+          "seed": 0,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 2,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 3,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 4,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 5,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 6,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 7,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 8,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 9,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 10,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 11,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 12,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 13,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 14,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 15,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 16,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 17,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 18,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 19,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 20,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 21,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 22,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 23,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    },
+    {
+      "arm": "recovery_aux0",
+      "seed": 1000,
+      "directory": "runs/recovery_aux0/seed-1000",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 1000,
+        "seed": 1000,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "recovery",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.0
+      },
+      "training_worlds": [
+        {
+          "seed": 1000,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1001,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1002,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1003,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1004,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1005,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1006,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1007,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1008,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1009,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1010,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1011,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1012,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1013,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1014,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1015,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1016,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1017,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1018,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1019,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1020,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1021,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1022,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1023,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    },
+    {
+      "arm": "recovery_aux05",
+      "seed": 0,
+      "directory": "runs/recovery_aux05/seed-0",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 0,
+        "seed": 0,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "recovery",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.5
+      },
+      "training_worlds": [
+        {
+          "seed": 0,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 2,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 3,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 4,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 5,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 6,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 7,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 8,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 9,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 10,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 11,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 12,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 13,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 14,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 15,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 16,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 17,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 18,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 19,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 20,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 21,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 22,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 23,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    },
+    {
+      "arm": "recovery_aux05",
+      "seed": 1000,
+      "directory": "runs/recovery_aux05/seed-1000",
+      "config": {
+        "rounds": 1,
+        "worlds_per_round": 24,
+        "updates_per_round": 256,
+        "batch_size": 16,
+        "sizes": [
+          7,
+          11
+        ],
+        "presets": [
+          "labyrinth",
+          "chambers",
+          "corridors",
+          "pillars",
+          "concentric",
+          "hierarchical"
+        ],
+        "init": "fresh",
+        "learning_rate": 0.005,
+        "validation_seeds": [
+          55000,
+          55001,
+          55002,
+          55003
+        ],
+        "test_seeds": [
+          65000,
+          65001,
+          65002,
+          65003,
+          65004,
+          65005,
+          65006,
+          65007
+        ],
+        "dense_warmup_rounds": 1,
+        "train_seed_start": 1000,
+        "seed": 1000,
+        "replay_capacity": 256,
+        "max_steps": 48,
+        "eval_size": 11,
+        "eval_preset": "labyrinth",
+        "readout": "context_residual",
+        "rotation_augmentation": false,
+        "collection_policy": "recovery",
+        "include_readout_controls": true,
+        "predictive_head": true,
+        "predictive_weight": 0.5
+      },
+      "training_worlds": [
+        {
+          "seed": 1000,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1001,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1002,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1003,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1004,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1005,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1006,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1007,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1008,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1009,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1010,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1011,
+          "size": 11,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1012,
+          "size": 7,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1013,
+          "size": 11,
+          "preset": "labyrinth"
+        },
+        {
+          "seed": 1014,
+          "size": 7,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1015,
+          "size": 11,
+          "preset": "chambers"
+        },
+        {
+          "seed": 1016,
+          "size": 7,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1017,
+          "size": 11,
+          "preset": "corridors"
+        },
+        {
+          "seed": 1018,
+          "size": 7,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1019,
+          "size": 11,
+          "preset": "pillars"
+        },
+        {
+          "seed": 1020,
+          "size": 7,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1021,
+          "size": 11,
+          "preset": "concentric"
+        },
+        {
+          "seed": 1022,
+          "size": 7,
+          "preset": "hierarchical"
+        },
+        {
+          "seed": 1023,
+          "size": 11,
+          "preset": "hierarchical"
+        }
+      ]
+    }
+  ],
+  "parameter_counts": {
+    "total": 5492,
+    "context_residual": 132,
+    "predictor": 440
+  },
+  "graph_hash": "e11df95be51a132ca1db6f5f8a104d4fefe98455623e0ca0fc1e89133bf92fd5",
+  "frozen_input_sha256": "fca91592d00989c6c088b7ae3d7290549f1435dd921abb1bb95d0c321b7d0dd6",
+  "frozen_model_hash": "ed3a9fa561c1510b6227e350a55ed59ba4f604b475dfbc2abc4acef82fd0e7ec",
+  "frozen_config": {
+    "seed": 0,
+    "hidden_dim": 8,
+    "learning_rate": 0.008,
+    "batch_size": 16,
+    "train_every": 1,
+    "unroll": 4,
+    "replay_capacity": 128,
+    "teacher_probability": 0.45,
+    "threads": 2,
+    "readout": "context_residual",
+    "predictive_head": false
+  },
+  "probe_config": {
+    "seeds": [
+      75000,
+      75001
+    ],
+    "size": 11,
+    "presets": [
+      "labyrinth",
+      "corridors"
+    ],
+    "transitions_per_condition": 64,
+    "unroll": 4,
+    "attempt_multiplier": 4
+  },
+  "probe_corpus_sha256": "1f915d6de612b8d3b3945f3f47813dc5c5d1fc6019d288cc00105a57c7d8a81c",
+  "prediction_baselines": "copy_current predicts the unchanged latest observation. kinematic uses the executed cardinal action, adjacent wall bits and declared grid size: move by 1/(size-1) only when unblocked, set heading to that action, keep goal coordinates and recompute goal displacement, advance episode clock by 1/256, predict nonterminal reward -0.1 for collision or -0.01 otherwise, and retain progress/constant features. Adjacent walls are copied because newly visible walls are unknown. Terminal transitions, including goal changes and episode resets, are excluded from every predictor and baseline score.",
+  "checkpoint_selection": "validation success_rate, spl, lower collision_rate; earlier round on ties",
+  "test_selection_performed": false,
+  "probe_selection_performed": false,
+  "promotion_performed": false,
+  "evidence_scope": "Synthetic CPU navigation experiment with identical context_residual/predictive-head architecture in all four arms. Auxiliary weights are 0 and 0.5; the zero-weight predictor remains untrained. One collection round precedes all optimizer updates, giving exactly matched trajectories and minibatches within each collection-policy/initialization pair. Expert and recovery exposures intentionally differ. Recovery is a 50/50 teacher/learner mixture, not DART noise injection. All arms and model seeds are retained; checkpoint selection uses validation policy success, SPL and collisions only, retaining round zero on ties. Neither held-out test outcomes nor prediction probes select a candidate or arm. Raw policy tests disable teachers and learning. Full-map expert labels are privileged; the student receives local observation windows. Held-out prediction probes use one common frozen random-action corpus, report all feature groups and compare learned prediction with persistence and an explicit kinematic baseline. Prediction is an auxiliary representation objective, not rollout planning. Eight default test scenarios repeated across two model seeds are correlated, not sixteen independent episodes; no episode-level significance or confidence interval is claimed. Test seeds are disjoint from this study training/validation schedule, not certified absent from earlier source training. No checkpoint promotion, biological validation or connectome advantage is established. Hashes are local integrity receipts, not authenticity signatures. Optional replay checks frozen evaluation and prediction records in this CPU/runtime; training is not replayed."
+}

@@ -1,0 +1,25 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+____ test_steering_checkpoint_continues_exactly_after_a_controller_action _____
+tests\test_v11_compatibility.py:19: in test_steering_checkpoint_continues_exactly_after_a_controller_action
+    restored = LiveSession.load(path, bundle)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+neurograft\live.py:1098: in load
+    candidate._restore_validated(payload)
+neurograft\live.py:1216: in _restore_validated
+    raise ValueError("invalid action source")
+E   ValueError: invalid action source
+______ test_existing_v10_study_still_verifies_without_rewriting_its_plan ______
+tests\test_v11_compatibility.py:38: in test_existing_v10_study_still_verifies_without_rewriting_its_plan
+    assert module.verify_study(directory)['ok']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\study_navigation_readouts.py:422: in verify_study
+    config = _base_config(_curriculum(plan['curriculum']), seeds)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\study_navigation_readouts.py:95: in _curriculum
+    raise ValueError('study plan must contain the complete curriculum config')
+E   ValueError: study plan must contain the complete curriculum config
+=========================== short test summary info ===========================
+FAILED tests/test_v11_compatibility.py::test_steering_checkpoint_continues_exactly_after_a_controller_action
+FAILED tests/test_v11_compatibility.py::test_existing_v10_study_still_verifies_without_rewriting_its_plan
+2 failed in 13.01s

@@ -1,0 +1,14 @@
+{
+  "wheel": "neurograft-0.11.0-py3-none-any.whl",
+  "sha256": "d8a3accb33616429f808ebd833429dd75591a3c6d7af9354ce1f0963f436d61c",
+  "source_files_equal": 48,
+  "readme_metadata_equal": true,
+  "isolated_package_verification": {
+    "ok": true,
+    "schema": "world-model-cx-pfl-study-v1",
+    "tests_passed": 732,
+    "zero_failures": true,
+    "live_checkpoint_preserved": true,
+    "evidence_scope": "Drosophila Central Complex PFL vector steering, connectome predictive world model forward head, and topological cognitive graph memory. 732 tests passed cleanly; live session state preserved."
+  }
+}

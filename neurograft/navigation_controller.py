@@ -12,6 +12,7 @@ import math
 
 
 MODES = ('policy', 'masked_policy', 'observed_map')
+ALL_MODES = ('policy', 'masked_policy', 'observed_map', 'cx_steer')
 _ACTIONS = ((0, -1), (1, 0), (0, 1), (-1, 0))
 _REASONS = frozenset({'uninitialized', 'known_goal', 'frontier', 'at_goal', 'explored_fallback'})
 _MAX_VISITS = 2**53 - 1
@@ -55,6 +56,24 @@ def legal_action(observation, logits) -> int:
     """
     legal = _inputs(observation, logits)
     return max(legal, key=lambda action: (logits[action], -action))
+
+
+def cx_steering_action(observation, logits, steering_weight: float = 1.5) -> int:
+    """Add a synthetic CX-inspired goal/heading prior to learned policy logits.
+
+    Heading and goal displacement come directly from the observation, not the
+    diagnostic ring attractor. Local walls are masked exactly as in legal_action.
+    This engineered assistance is not a cell-specific circuit reconstruction.
+    """
+    _inputs(observation, logits)
+    head_dx, head_dz = observation[0][2], observation[0][3]
+    heading = math.atan2(head_dz, head_dx)
+    goal_dx, goal_dz = observation[1][2], observation[1][3]
+    walls = observation[2]
+
+    from .compass import CXPFLSteering
+    steer_engine = CXPFLSteering(steering_weight=steering_weight)
+    return steer_engine.steer(heading, goal_dx, goal_dz, walls, logits)
 
 
 def _neighbor(cell, action):

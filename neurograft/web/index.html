@@ -72,9 +72,9 @@
         <div class="panel-heading compact"><div><span class="eyebrow">LOCAL SENSORS · EPISODIC MEMORY</span><h2 id="navigation-heading">Navigation controller</h2></div></div>
         <div class="navigation-layout"><div>
           <label for="navigation-mode">Action selection</label>
-          <select id="navigation-mode" data-write disabled><option value="policy">Raw policy + configured guidance</option><option value="masked_policy">Policy with legal-action mask</option><option value="observed_map">Observed map + policy tie-break</option></select>
+          <select id="navigation-mode" data-write disabled><option value="policy">Raw policy + configured guidance</option><option value="masked_policy">Policy with legal-action mask</option><option value="observed_map">Observed map + policy tie-break</option><option value="cx_steer">Synthetic goal/heading steering + policy</option></select>
           <p id="navigation-status" class="evaluation-status" role="status">Waiting for a session.</p>
-          <p class="evaluation-note">Mask and map modes bypass teacher actions. Mapping uses current position, known goal, adjacent walls and public arena size. Gains here belong to the controller; raw neural performance is measured separately.</p>
+          <p class="evaluation-note">Mask, map and steering modes bypass teacher actions. Mapping uses current position, known goal, adjacent walls and public arena size. Steering adds a hand-selected goal/heading cosine prior with a legal wall mask. Gains here belong to engineered assistance; raw neural performance is measured separately.</p>
           <p id="navigation-map-note" class="evaluation-note"></p>
         </div><div class="navigation-map-wrap"><svg id="observed-map" viewBox="0 0 150 150" role="img" aria-label="Controller map: dark unknown cells, gray observed walls, teal observed free cells, bright visited cells"></svg><p class="evaluation-note">Observed cells only · amber goal · white agent</p></div></div>
       </section>
@@ -88,6 +88,7 @@
           <label>Topology<select id="evaluation-preset" data-evaluation-config><option value="labyrinth">Labyrinth</option><option value="chambers">Chambers</option><option value="corridors">Corridors</option><option value="pillars">Pillars</option><option value="concentric">Concentric</option><option value="hierarchical">Hierarchical</option></select></label>
           <label>Steps per trial<input id="evaluation-steps" type="number" min="1" max="128" value="48" required data-evaluation-config></label>
           <label class="controller-suite-option"><input id="evaluation-controllers" type="checkbox" data-evaluation-config> Include mask, observed-map and map-only controls</label>
+          <label class="controller-suite-option"><input id="evaluation-steering" type="checkbox" data-evaluation-config> Compare synthetic steering with and without learned logits</label>
           <div class="evaluation-actions"><button id="evaluate-btn" class="button primary" type="submit" disabled>Evaluate frozen policy</button><button id="export-evaluation-btn" class="button" type="button" disabled>Export JSON ↓</button></div>
         </form>
         <p id="evaluation-budget-note" class="evaluation-note">Up to 16 seeds and 128 steps each. CPU trials may take a little time.</p>
@@ -102,7 +103,7 @@
 
       <section class="panel" aria-labelledby="scope-heading" id="experiment-scope">
         <div class="panel-heading compact"><div><span class="eyebrow">EXPERIMENT SCOPE</span><h2 id="scope-heading">What drives navigation</h2></div><span class="pill">Synthetic grid task</span></div>
-        <p class="evaluation-intro">Graph encoders, recurrence, synthetic grafts and the action head produce raw policy moves. Live raw-policy mode can supply teacher actions. Optional mask/map controllers alter action selection explicitly; extended trials distinguish their effects from the raw policy.</p>
+        <p class="evaluation-intro">Graph encoders, recurrence, synthetic grafts and the action head produce raw policy moves. Live raw-policy mode can supply teacher actions. Optional mask, map and synthetic steering controllers alter action selection explicitly; extended trials distinguish their effects from the raw policy.</p>
         <p class="evaluation-note">Terrain, odor plume, antennae, optic clearance, gate permeability and circadian lighting are synthetic diagnostic cues. They do not feed the policy or change movement physics. Auxiliary memory, compass, bioelectric and agency panels are observers; their readouts do not establish biological mechanisms or navigation benefit.</p>
       </section>
 

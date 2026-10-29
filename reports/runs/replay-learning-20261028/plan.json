@@ -1,0 +1,31 @@
+{
+  "configuration": {
+    "budgets": [
+      0,
+      4,
+      16,
+      64
+    ],
+    "discount": 0.9,
+    "partial_history_fraction": 0.35,
+    "reference_tolerance": 1e-13,
+    "seeds": [
+      13000,
+      13001,
+      13002,
+      13003,
+      13004,
+      13005,
+      13006,
+      13007
+    ],
+    "strategies": [
+      "prioritized",
+      "uniform",
+      "none"
+    ],
+    "warmup_budget": 4096
+  },
+  "evidence_scope": "Empirical tabular value learning on independent seeded synthetic grid/branch graphs. Schedules share identical experience and backup caps; actual backups may differ. The oracle solves only experienced transition counts, not unseen true geometry. Partial exposure is a shared shuffled history prefix, not an autonomous exploration policy. Goal relocation starts from identical warmed state; the planner should invalidate its old goal values. No neural weights are trained or promoted; these assays establish no biological equivalence or general navigation improvement. Timings are not included in deterministic evidence.",
+  "schema": "empirical-replay-study-v1"
+}

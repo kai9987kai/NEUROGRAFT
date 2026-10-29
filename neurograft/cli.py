@@ -121,6 +121,24 @@ def parser():
     verify_study = commands.add_parser('verify-navigation-study', help='verify archived controller study integrity and optionally replay every condition')
     verify_study.add_argument('run', help='completed study directory')
     verify_study.add_argument('--replay', action='store_true')
+    replay_study = commands.add_parser('study-replay', help='compare empirical replay schedules on matched seeded experience; no live checkpoint required')
+    replay_study.add_argument('--out', required=True, help='new experiment directory')
+    replay_study.add_argument('--seeds', default='13000,13001,13002,13003,13004,13005,13006,13007')
+    replay_study.add_argument('--budgets', default='0,4,16,64')
+    replay_verify = commands.add_parser('verify-replay-study', help='verify replay study hashes and optionally recompute every deterministic result')
+    replay_verify.add_argument('run')
+    replay_verify.add_argument('--replay', action='store_true')
+    workbench = commands.add_parser('workbench', help='launch an isolated interactive replay/model-revision tool without opening a live checkpoint')
+    workbench.add_argument('--port', type=int, default=8770)
+    workbench.add_argument('--seed', type=int, default=0)
+    revision = commands.add_parser('study-revision', help='compare transition memory and replay schedules under controlled dynamics changes')
+    revision.add_argument('--out', required=True)
+    revision.add_argument('--seeds', default='14000,14001,14002,14003,14004,14005,14006,14007')
+    revision.add_argument('--window', type=int, default=8)
+    revision.add_argument('--budget', type=int, default=64)
+    revision_verify = commands.add_parser('verify-revision-study', help='verify and optionally recompute a model-revision experiment')
+    revision_verify.add_argument('run')
+    revision_verify.add_argument('--replay', action='store_true')
     report = commands.add_parser("report", help="create a standalone local HTML experiment report")
     report.add_argument("report")
     report.add_argument("--out", required=True)
@@ -245,6 +263,27 @@ def main(argv=None):
         elif args.command == 'verify-navigation-study':
             from .navigation_study import verify_navigation_study
             _print(verify_navigation_study(args.run, replay=args.replay))
+        elif args.command == 'study-replay':
+            from .replay_study import run_replay_study
+            result = run_replay_study(args.out, seeds=tuple(int(value) for value in args.seeds.split(',')),
+                                      budgets=tuple(int(value) for value in args.budgets.split(',')))
+            _print({'directory': str(Path(args.out).resolve()), 'summary': result.get('summary'),
+                    'promotion_performed': False, 'report': str((Path(args.out) / 'report.html').resolve())})
+        elif args.command == 'verify-replay-study':
+            from .replay_study import verify_replay_study
+            _print(verify_replay_study(args.run, replay=args.replay))
+        elif args.command == 'workbench':
+            from .workbench_service import serve_workbench
+            serve_workbench(port=args.port, seed=args.seed)
+        elif args.command == 'study-revision':
+            from .revision_study import run_revision_study
+            result = run_revision_study(args.out, seeds=tuple(int(s) for s in args.seeds.split(',')),
+                                        window=args.window, budget=args.budget)
+            _print({'directory': str(Path(args.out).resolve()), 'summary': result.get('aggregates'),
+                    'promotion_performed': False})
+        elif args.command == 'verify-revision-study':
+            from .revision_study import verify_revision_study
+            _print(verify_revision_study(args.run, replay=args.replay))
         elif args.command == "report":
             from .report import write_html_report
             result = json.loads(Path(args.report).read_text(encoding="utf-8"))

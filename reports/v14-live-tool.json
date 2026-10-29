@@ -1,0 +1,20 @@
+{
+  "url": "http://127.0.0.1:8770/workbench",
+  "process_id": 19732,
+  "health": {
+    "ok": true,
+    "mode": "fixture_workbench",
+    "live_session_opened": false
+  },
+  "operations": 1,
+  "goal": [
+    5,
+    1
+  ],
+  "provenance": {
+    "kind": "synthetic-fixture",
+    "seed": 17
+  },
+  "checkpoint_sha256": "8a3630eaebd3242ee43bca3e4bd0375c330592645fcd87bbce4413f8d813f5f2",
+  "responsive": true
+}

@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "schema": "transition-revision-study-v1",
+  "deterministic_replay": true,
+  "derived_metrics_verified": true,
+  "seed_count": 8,
+  "report_sha256": "37300fc774c3093c447a4179e8e176d9a2a9959a7d78b3cf755da08eec6899fe",
+  "promotion_performed": false
+}

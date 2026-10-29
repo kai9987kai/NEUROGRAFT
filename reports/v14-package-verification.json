@@ -1,0 +1,17 @@
+{
+  "wheel": "neurograft-0.14.0-py3-none-any.whl",
+  "sha256": "7bb4a07efaf8c13f91f2540e6359ca7d307db71433fcb5ed297f8de33bbddae6",
+  "package_files": 50,
+  "mismatches": [],
+  "missing": [],
+  "isolated_import": {
+    "version": "0.14.0",
+    "module": "isolated extracted wheel/neurograft/__init__.py",
+    "models": [
+      "cumulative",
+      "recent"
+    ],
+    "arm_count": 6
+  },
+  "ok": true
+}

@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "steps": 145988,
+  "updates": 145981,
+  "navigation_mode": "sr_steer",
+  "planner_initially_empty": true,
+  "checkpoint_compatibility": {
+    "loaded_format": 3,
+    "auxiliary_state_restored": true
+  },
+  "graph_hash": "dbf9ad2c38fb6e571a9409b1dbcd845a8bce586e5a423e987325e1b81fcb9c20",
+  "before_sha256": "8a3630eaebd3242ee43bca3e4bd0375c330592645fcd87bbce4413f8d813f5f2",
+  "after_sha256": "8a3630eaebd3242ee43bca3e4bd0375c330592645fcd87bbce4413f8d813f5f2",
+  "operation": "read-only load; no ticks or save"
+}

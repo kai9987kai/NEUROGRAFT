@@ -193,6 +193,44 @@ const assert = require('node:assert/strict');
       'mobile steering controls and evaluation must not overflow horizontally');
     const mobilePanel = await page.locator('.evaluation-panel').boundingBox();
     assert(mobilePanel && mobilePanel.x >= 0 && mobilePanel.x + mobilePanel.width <= 392);
+    log('Checking connected empirical replay controls on mobile');
+    await page.locator('#navigation-mode').selectOption('replay_steer');
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'replay_steer');
+    await page.locator('#step-btn').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).last_action_source === 'replay_steer');
+    const replayBefore = await (await page.request.get(url + '/api/state')).json();
+    assert.equal(replayBefore.navigation.teacher_probability, 0);
+    assert.equal(replayBefore.navigation.replay.decision_budget, 32);
+    const learnedGoal = replayBefore.world.agent;
+    const goalResponse = await page.request.post(url + '/api/control', {
+      data: { action: 'goal', x: learnedGoal.x, z: learnedGoal.z }, headers: { Origin: url }
+    });
+    assert.equal(goalResponse.status(), 200);
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.replay.goal_changed);
+    assert.match(await page.locator('#replay-learning-status').innerText(), /Goal changed/);
+    await page.locator('#replay-btn').click();
+    await page.waitForFunction(() => {
+      const replay = JSON.parse(window.render_game_to_text()).navigation.replay;
+      return !replay.stale && replay.last_summary.goal_known && replay.total_backups > 0;
+    });
+    assert.match(await page.locator('#replay-learning-status').innerText(), /state backups/);
+    const replaySaved = await (await page.request.get(url + '/api/state')).json();
+    assert.equal(replaySaved.steps, replayBefore.steps);
+    assert.equal(replaySaved.updates, replayBefore.updates);
+    assert.equal(replaySaved.model_hash, replayBefore.model_hash);
+    await page.locator('#save-name').fill('replay-check');
+    await page.locator('#save-btn').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).checkpoints.includes('replay-check'));
+    await page.locator('#navigation-mode').selectOption('policy');
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'policy');
+    await page.locator('#load-btn').click();
+    await page.waitForFunction(() => JSON.parse(window.render_game_to_text()).navigation.mode === 'replay_steer');
+    const replayRestored = await (await page.request.get(url + '/api/state')).json();
+    assert.deepEqual(replayRestored.navigation.replay, replaySaved.navigation.replay);
+    await page.locator('.navigation-panel').screenshot({ path: path.join(out, 'replay-learning-mobile.png') });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2), false);
+    await page.setViewportSize({ width: 1440, height: 1100 });
+    await page.locator('.navigation-panel').screenshot({ path: path.join(out, 'replay-learning-desktop.png') });
     const finalState = JSON.parse(await page.evaluate(() => window.render_game_to_text()));
     assert.equal(finalState.running, false);
     assert.equal(finalState.learning, false);
@@ -201,7 +239,10 @@ const assert = require('node:assert/strict');
       'hierarchical preset', 'frozen matched trials', 'JSON export', 'stale weight notice', 'observed-map mode',
       'observed-only SVG', 'exact map save/load', 'eight-way controller comparison', 'mobile startup', 'mobile layout',
       'synthetic steering mode', 'steering teacher bypass and action source', 'exact steering save/load',
-      'ten-way steering comparison', 'desktop steering layout', 'mobile steering layout'],
+      'ten-way steering comparison', 'desktop steering layout', 'mobile steering layout',
+      'empirical replay control', 'replay teacher bypass', 'replay preserves neural weights and steps',
+      'replay continuation save/load', 'mobile and desktop replay diagnostics',
+      'goal change marks replay stale', 'experienced goal receives actual value backups'],
       oracle: report.variants.shortest_path.summary, evaluated_model: report.model_hash,
       protocol_id: report.protocol_id, steering_protocol_id: steeringReport.protocol_id,
       steering_evaluation: { schema_version: steeringReport.schema_version, variants: Object.keys(steeringReport.variants) },

@@ -37,7 +37,8 @@ from .dynamics import DynamicsConfig, GraphCircuit
 from .environment import NavigationWorld
 from .graphs import GraphBundle
 from .memory import TriTierMemory
-from .navigation_controller import ALL_MODES, MODES, ObservedMapNavigator, legal_action, cx_steering_action, sr_steering_action
+from .navigation_controller import ALL_MODES, MODES, ObservedMapNavigator, legal_action, cx_steering_action, sr_steering_action, replay_steering_action
+from .replay import ReplayPlanner
 from . import live_state
 from .phase_plane import PhasePlaneEngine
 from .self_model import ConnectomeForwardSelfModel, SelfModelConfig
@@ -213,6 +214,7 @@ class LiveSession:
         self.world = NavigationWorld(seed=self.config.seed)
         self.navigation_mode = 'policy'
         self.navigator = ObservedMapNavigator(self.world.size)
+        self.replay_planner = ReplayPlanner()
         self.rng = random.Random(self.config.seed ^ 0x4E47524F)
         self.recurrent_state = self.model.initial_state(1)
         self.replay = deque(maxlen=self.config.replay_capacity)
@@ -339,6 +341,16 @@ class LiveSession:
             self._reset_inference()
             return self.snapshot()
 
+    def replay_memory(self, budget=32):
+        """Apply bounded offline value learning to the planner used by replay_steer."""
+        _integer(budget, 0, 4096, 'replay budget')
+        with self.lock:
+            if self.memory.lesion_mode in ('erased', 'memory_free'):
+                return {'strategy': 'prioritized', 'budget': budget, 'backups': 0,
+                        'residual_before': 0.0, 'residual_after': 0.0, 'value_delta': 0.0,
+                        'converged': False, 'goal_known': False, 'blocked_by_lesion': True}
+            return self.replay_planner.replay(self.memory.topological_graph, tuple(self.world._goal), budget=budget)
+
     @property
     def checkpoint_compatibility(self):
         """Legacy v1 artifacts restore policy state but lack observer/anchor history."""
@@ -362,6 +374,7 @@ class LiveSession:
             new_world.last_reward = 0.0
             self.world = new_world
             self.memory.reset_spatial()
+            self.replay_planner = ReplayPlanner()
             self._reset_inference()
             return self.snapshot()
 
@@ -433,6 +446,14 @@ class LiveSession:
                         current_pos=current_pos,
                         goal_pos=goal_pos,
                     )
+                elif self.navigation_mode == 'replay_steer':
+                    if self.memory.lesion_mode in ('erased', 'memory_free'):
+                        controlled_action = legal_action(observation, output.logits[0].tolist())
+                    else:
+                        self.replay_memory(budget=32)
+                        controlled_action = replay_steering_action(
+                            observation, output.logits[0].tolist(), self.replay_planner,
+                            self.memory.topological_graph, tuple(self.world._agent), tuple(self.world._goal))
                 if manual_action is not None:
                     action, source = manual_action, "manual"
                 elif controlled_action is not None:
@@ -626,7 +647,10 @@ class LiveSession:
             mem_context["role"] = "observer_only; retrieval does not drive the navigation policy"
             mem_context["topological"] = {
                 **self.memory.topological_graph.to_dict(),
-                "role": "observer_only; empirical experienced edges do not drive the navigation policy",
+                "role": ('experienced transitions drive the selected empirical controller'
+                         if self.navigation_mode in ('sr_steer', 'replay_steer')
+                         and self.memory.lesion_mode not in ('erased', 'memory_free')
+                         else 'observer_only; empirical experienced edges do not drive the navigation policy'),
             }
             dist_to_goal = math.hypot(goal_pt[0] - agent_pt[0], goal_pt[1] - agent_pt[1])
             max_dist = max(1.0, math.hypot(self.world.size, self.world.size))
@@ -712,6 +736,17 @@ class LiveSession:
             world = self.world.snapshot()
             if self._model_hash is None:
                 self._model_hash = _checkpoint_digest(self.model.state_dict())
+            replay_diagnostics = self.replay_planner.snapshot()
+            goal_changed = (self.replay_planner.goal is not None
+                            and self.replay_planner.goal != tuple(self.world._goal))
+            summary = replay_diagnostics['last_summary']
+            graph = self.memory.topological_graph
+            replay_diagnostics.update({
+                'goal_changed': goal_changed,
+                'stale': goal_changed or (summary is not None and (
+                    summary['model_transitions'] != graph.total_transitions
+                    or summary['model_nodes'] != len(graph.nodes))),
+            })
             return {"version": _VERSION, "running": self._running, "learning": self._learning,
                     "steps": self.steps, "updates": self.updates, "episodes": world["episode"],
                     "goals_reached": world["goals_reached"], "last_loss": self.last_loss,
@@ -726,6 +761,11 @@ class LiveSession:
                                       if self.navigation_mode == 'cx_steer' else {}),
                                    **({'reason': 'Successor Representation (SR) predictive map + policy'}
                                       if self.navigation_mode == 'sr_steer' else {}),
+                                   **({'reason': 'Goal-conditioned empirical value learning + legal walls; policy ties',
+                                       'replay': {**replay_diagnostics,
+                                                  'enabled': self.memory.lesion_mode not in ('erased', 'memory_free'),
+                                                  'decision_budget': 32}}
+                                      if self.navigation_mode == 'replay_steer' else {}),
                                    "teacher_probability": self.config.teacher_probability if self.navigation_mode == 'policy' else 0.0,
                                    "map": self.navigator.snapshot()},
                     "sources": {key: dict(value) for key, value in self._sources.items()},
@@ -784,10 +824,17 @@ class LiveSession:
                 reply = (f"Switched {self.world.size}×{self.world.size} arena to {preset} topology "
                          f"(detour index {env_info['detour_index']:.2f}×, {len(env_info['choke_points'])} path choke points).")
             elif lower in ("replay", "swr", "consolidate", "consolidate memory", "offline replay"):
-                swr_res = self.memory.trigger_swr_replay()
-                reply = (f"Executed hippocampal Sharp-Wave Ripple (SWR) replay: {swr_res['sweeps']} sweeps, "
-                         f"{swr_res['replayed_edges']} transitions replayed, "
-                         f"value convergence delta = {swr_res['value_delta']:.4f}.")
+                if self.navigation_mode == 'replay_steer':
+                    result = self.replay_memory(budget=32)
+                    reply = (f"Applied goal-conditioned empirical replay: {result['backups']}/32 state backups; "
+                             f"Bellman residual {result['residual_after']:.6g}. "
+                             "These values drive replay_steer; neural weights are unchanged.")
+                else:
+                    swr_res = self.memory.trigger_swr_replay()
+                    reply = (f"Executed legacy Sharp-Wave Ripple (SWR) diagnostic replay: {swr_res['sweeps']} sweeps, "
+                             f"{swr_res['replayed_edges']} transitions replayed, "
+                             f"value delta = {swr_res['value_delta']:.4f}. "
+                             "This diagnostic does not drive navigation; select replay_steer for value learning.")
             elif lower in ("neurons", "top neurons", "what neurons are firing", "firing"):
                 info = self.telemetry()
                 parts = []
@@ -1043,7 +1090,8 @@ class LiveSession:
                 "last_logits": self.last_logits, "routes": self.routes, "facts": dict(self.facts),
                 "chat": list(self.chat_history), "last_saved": self.last_saved,
                 "auxiliary": live_state.capture(self),
-                "navigation": {"mode": self.navigation_mode, "navigator": self.navigator.to_dict()}}
+                "navigation": {"mode": self.navigation_mode, "navigator": self.navigator.to_dict(),
+                               "replay_planner": self.replay_planner.to_state()}}
 
     def save(self, path):
         path = Path(path).resolve()
@@ -1157,12 +1205,19 @@ class LiveSession:
                 raise ValueError("world/session step counters disagree")
             navigation_mode = 'policy'
             navigator = ObservedMapNavigator(world.size)
+            replay_planner = ReplayPlanner()
             if version >= 3:
                 navigation = payload['navigation']
-                if (type(navigation) is not dict or set(navigation) != {'mode', 'navigator'}
+                if (type(navigation) is not dict or set(navigation) not in (
+                        {'mode', 'navigator'}, {'mode', 'navigator', 'replay_planner'})
                         or type(navigation['mode']) is not str or navigation['mode'] not in ALL_MODES):
                     raise ValueError('invalid checkpoint navigation fields or mode')
                 navigation_mode = navigation['mode']
+                if 'replay_planner' in navigation:
+                    replay_planner = ReplayPlanner.from_state(navigation['replay_planner'])
+                    graph_nodes = {tuple(pos) for pos in payload['auxiliary'].get('topological_memory', {}).get('nodes', [])}
+                    if not set(replay_planner.values) <= graph_nodes:
+                        raise ValueError('checkpoint replay values reference unexperienced nodes')
                 navigator = ObservedMapNavigator.from_dict(navigation['navigator'])
                 if navigator.size != world.size:
                     raise ValueError('checkpoint navigation map size disagrees with world')
@@ -1232,7 +1287,7 @@ class LiveSession:
                     raise ValueError('checkpoint navigation position disagrees with the executed transition')
             action_sources = (None, "manual", "policy", "teacher")
             if version >= 3:
-                action_sources += ('masked_policy', 'observed_map', 'cx_steer', 'sr_steer')
+                action_sources += ('masked_policy', 'observed_map', 'cx_steer', 'sr_steer', 'replay_steer')
             if payload["last_action_source"] not in action_sources:
                 raise ValueError("invalid action source")
             facts = payload["facts"]
@@ -1261,6 +1316,7 @@ class LiveSession:
             self.optimizer.load_state_dict(payload["optimizer"])
             self.world, self.rng = world, rng
             self.navigation_mode, self.navigator = navigation_mode, navigator
+            self.replay_planner = replay_planner
             self.recurrent_state = tuple(tensor.detach().clone() for tensor in state)
             self.last_logits, self.routes = payload["last_logits"].clone(), routes.clone()
             self.replay.extend(replay)

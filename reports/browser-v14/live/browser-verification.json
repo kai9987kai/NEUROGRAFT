@@ -1,0 +1,66 @@
+{
+  "ok": true,
+  "page_errors": [],
+  "tested": [
+    "startup",
+    "step",
+    "learning toggle",
+    "hierarchical preset",
+    "frozen matched trials",
+    "JSON export",
+    "stale weight notice",
+    "observed-map mode",
+    "observed-only SVG",
+    "exact map save/load",
+    "eight-way controller comparison",
+    "mobile startup",
+    "mobile layout",
+    "synthetic steering mode",
+    "steering teacher bypass and action source",
+    "exact steering save/load",
+    "ten-way steering comparison",
+    "desktop steering layout",
+    "mobile steering layout",
+    "empirical replay control",
+    "replay teacher bypass",
+    "replay preserves neural weights and steps",
+    "replay continuation save/load",
+    "mobile and desktop replay diagnostics",
+    "goal change marks replay stale",
+    "experienced goal receives actual value backups"
+  ],
+  "oracle": {
+    "episodes": 2,
+    "success_rate": 1,
+    "spl": 1,
+    "collision_rate": 0,
+    "mean_steps": 2,
+    "teacher_agreement": 1,
+    "mean_terminal_distance": 0
+  },
+  "evaluated_model": "c042cc921c77cd6e29979af6974fd4052ca6ac8ef2b71e2fb66330e334481496",
+  "protocol_id": "563a4f2b8d1d4a5062df3736447936eaaa394c4403090eb51c8f64413e7fc2e2",
+  "steering_protocol_id": "45d98f38c24643ead27e825e10b427a54ac33d0ee8173aa894f4084028792db7",
+  "steering_evaluation": {
+    "schema_version": 4,
+    "variants": [
+      "policy",
+      "no_graft",
+      "no_recurrence",
+      "random",
+      "shortest_path",
+      "masked_policy",
+      "observed_map",
+      "map_without_policy",
+      "cx_steer",
+      "cx_without_policy"
+    ]
+  },
+  "final_state": {
+    "running": false,
+    "learning": false,
+    "mode": "replay_steer",
+    "last_action_source": "replay_steer"
+  },
+  "renderer": "three-webgl"
+}

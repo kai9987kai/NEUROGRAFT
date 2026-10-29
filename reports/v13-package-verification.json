@@ -1,0 +1,17 @@
+{
+  "wheel": "neurograft-0.13.0-py3-none-any.whl",
+  "sha256": "cf350ead8a4edcf260759aa429fa83c148b19cbebc91d2c8d5b5a5e7eb2e432c",
+  "package_files": 44,
+  "mismatches": [],
+  "missing": [],
+  "isolated_import": {
+    "version": "0.13.0",
+    "module": "isolated extracted wheel/neurograft/__init__.py",
+    "strategies": [
+      "prioritized",
+      "uniform",
+      "none"
+    ]
+  },
+  "ok": true
+}

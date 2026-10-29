@@ -734,12 +734,24 @@ function renderNavigation() {
   const map = nav.map || {};
   const size = map.size || session.world.size;
   const probability = nav.teacher_probability ?? session.teacher_probability;
-  const label = { policy: 'Raw policy', masked_policy: 'Legal-action mask', observed_map: 'Observed-map planner', cx_steer: 'Synthetic goal/heading steering' }[nav.mode] || nav.mode;
+  const label = { policy: 'Raw policy', masked_policy: 'Legal-action mask', observed_map: 'Observed-map planner', cx_steer: 'Synthetic goal/heading steering', sr_steer: 'Successor representation', replay_steer: 'Empirical replay learning' }[nav.mode] || nav.mode;
   const readout = nav.readout === 'context_residual' ? 'all-source residual readout' : 'human-source readout';
   const prediction = nav.predictive_head ? ' · offline transition head enabled' : '';
-  const reason = nav.mode === 'cx_steer' ? 'goal/heading prior + legal walls' : (map.reason || 'no map decision yet').replaceAll('_', ' ');
+  const reason = nav.reason || (map.reason || 'no map decision yet').replaceAll('_', ' ');
   $('navigation-status').textContent = `${label} · ${readout}${prediction} · teacher actions ${probability > 0 ? `${Math.round(probability * 100)}% configured` : 'OFF'} · ${reason}`;
-  $('navigation-map-note').textContent = nav.mode === 'cx_steer'
+  const replay = nav.replay;
+  const replayStatus = $('replay-learning-status');
+  replayStatus.hidden = !replay;
+  if (replay) {
+    const learned = replay.last_summary;
+    replayStatus.textContent = !replay.enabled ? 'Memory lesion active: replay bypassed; using the masked policy.'
+      : replay.goal_changed ? 'Goal changed; cached values await replay.'
+      : learned ? `Last replay: ${learned.goal_known ? 'goal experienced' : 'goal not yet experienced'} · ${learned.backups}/${learned.budget} state backups · residual ${finite(learned.residual_after).toExponential(2)} · ${replay.total_backups} total backups. ${replay.stale ? 'New experience awaits replay; the cached residual describes earlier experience.' : learned.converged ? 'Empirical values converged.' : 'Further experience or replay may be needed.'}`
+      : 'Waiting for experience. Each decision permits 32 state backups. Replay updates values; neural weights use the separate learning toggle.';
+  }
+  $('navigation-map-note').textContent = nav.mode === 'replay_steer'
+    ? 'Goal-conditioned tabular learning uses executed transitions only. Values rank legal actions; neural logits break ties. Unseen goals use the masked policy. The SVG shows the separate observed-map controller history.'
+    : nav.mode === 'cx_steer'
     ? `Supplied heading and goal displacement drive an engineered cosine heuristic. This mode does not use the diagnostic ring attractor or reconstruct PFL cell classes. Last executed action source: ${session.last_action_source || 'none'}.`
     : `${map.known_free || 0} observed free cells · ${map.visited || 0} visited · ${map.frontiers || 0} frontier cells. Last executed action source: ${session.last_action_source || 'none'}. Switching modes starts fresh navigation memory.`;
   const svg = $('observed-map'); svg.replaceChildren(); svg.setAttribute('viewBox', `0 0 ${size * 10} ${size * 10}`);
@@ -853,7 +865,9 @@ function bindControls() {
   if ($('replay-btn')) $('replay-btn').addEventListener('click', async () => {
     const res = await control({ action: 'replay', sweeps: 4 });
     if (res && res.replay) {
-      showToast(`Hippocampal SWR replay: ${res.replay.sweeps} sweeps, ${res.replay.replayed_edges} edges, ΔV=${res.replay.value_delta.toFixed(4)}`);
+      showToast('backups' in res.replay
+        ? `Empirical replay: ${res.replay.backups}/${res.replay.budget} backups · residual ${finite(res.replay.residual_after).toExponential(2)}`
+        : `Legacy SWR diagnostic: ${res.replay.sweeps} sweeps, ${res.replay.replayed_edges} edges. Select replay learning to affect actions.`);
     }
   });
 

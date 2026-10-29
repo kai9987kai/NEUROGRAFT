@@ -27,7 +27,7 @@ class CXRingCompass:
             raise ValueError(f"num_wedges must be between 4 and 64, got {num_wedges}")
         self.num_wedges = int(num_wedges)
         self.angles = [2.0 * math.pi * i / self.num_wedges for i in range(self.num_wedges)]
-        
+
         # Precompute recurrent cosine connectivity: local excitation, global inhibition
         self.w_rec: list[list[float]] = []
         for i in range(self.num_wedges):

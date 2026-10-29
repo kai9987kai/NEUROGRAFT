@@ -12,7 +12,7 @@ import math
 
 
 MODES = ('policy', 'masked_policy', 'observed_map')
-ALL_MODES = ('policy', 'masked_policy', 'observed_map', 'cx_steer', 'sr_steer')
+ALL_MODES = ('policy', 'masked_policy', 'observed_map', 'cx_steer', 'sr_steer', 'replay_steer')
 _ACTIONS = ((0, -1), (1, 0), (0, 1), (-1, 0))
 _REASONS = frozenset({'uninitialized', 'known_goal', 'frontier', 'at_goal', 'explored_fallback'})
 _MAX_VISITS = 2**53 - 1
@@ -108,6 +108,18 @@ def sr_steering_action(
 def _neighbor(cell, action):
     dx, dz = _ACTIONS[action]
     return cell[0] + dx, cell[1] + dz
+
+
+def replay_steering_action(observation, logits, planner, topological_graph, current_pos, goal_pos) -> int:
+    """Consume learned empirical values; policy logits break value ties only.
+
+    This read performs no backups. The caller supplies its explicit replay budget.
+    Unknown goals and zero values fall back to the legal neural proposal. No
+    unexperienced transition is inferred from adjacent coordinates.
+    """
+    legal = _inputs(observation, logits)
+    scores = planner.action_values(topological_graph, current_pos, goal_pos)
+    return max(legal, key=lambda action: (scores[action], logits[action], -action))
 
 
 def _routes(start, free, order):

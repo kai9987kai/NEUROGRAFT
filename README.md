@@ -17,14 +17,47 @@ The working package includes typed sparse graphs, CSV and human-matrix importers
 
 **Current evidence:** the circuit implementation runs and trains locally. The OpenWorm source has been acquired and normalized with explicit filtering receipts. Female fly, male fly, and human inputs in the included demonstration are **synthetic fixtures**. Qwen interface tests use tiny **randomly initialized** models from the actual Transformers implementations. A pretrained Qwen checkpoint has not been loaded or trained. No biological-connectome advantage is established.
 
-## Hippocampal Successor Representation & SWR Replay (v0.12)
+## Live interactive revision workbench (v0.14)
 
-v0.12 introduces computational models of mammalian hippocampal and entorhinal cortex dynamics for zero-shot predictive navigation and memory consolidation:
+Launch an independent experiment tool:
+
+```powershell
+python -m neurograft workbench --port 8770
+# Or .\Run-Workbench.ps1
+```
+
+Open http://127.0.0.1:8770/workbench. Inspect the graph, change the goal, supply collision or move outcomes, step or play bounded replay, and compare cumulative versus recent evidence under three replay schedules. Export and reimport a receipt to verify and reconstruct the exact experiment. On the main live server, the Replay workbench link also offers a frozen copy of live experience; workbench commands do not step, train or save that source session.
+
+Recent evidence replaces an action's aggregate baseline on its first new supplied observation, then retains its last 4, 8 or 16 new outcomes. Captured counts contain no chronological history. A small empirical planning error does not establish that the model matches current dynamics. Run the separate controlled closure/reopening/stationary study:
+
+```powershell
+python -m neurograft study-revision --out reports/runs/revision-study-new
+python -m neurograft verify-revision-study reports/runs/revision-study-new --replay
+```
+
+The eight-seed pilot shows faster adaptation after supplied closure observations and a loss of accuracy under stationary adverse observations; recency is not a universal improvement. [Research, results and validation](docs/v14-build-report.md).
+
+## Empirical replay learning laboratory (v0.13)
+
+`replay_steer` connects experienced transitions, bounded offline value learning and actual legal navigation decisions. Every decision permits 32 Bellman state backups; the Replay memory button applies another bounded batch. Values rank actions and neural logits break ties. Unknown goals fall back to the masked policy. Live diagnostics show the remaining residual and backup count; checkpoints preserve values and replay continuation. The learning toggle still controls the separate neural imitation updates.
+
+Run the matched CPU experiment without opening a live checkpoint:
+
+```powershell
+python -m neurograft study-replay --out reports/runs/replay-learning-new
+python -m neurograft verify-replay-study reports/runs/replay-learning-new --replay
+```
+
+The report compares prioritized, cyclic uniform and disabled replay at common backup caps, with partial/full experience and goal relocation. Its oracle solves the same observed empirical model; generated experience is supplied rather than autonomously explored. Equal backup caps are not equal total compute: scheduling and residual scans also cost time. This is goal-conditioned tabular planning, not a new neural training objective, biological ripple model, or demonstrated connectome advantage. See the [design](docs/superpowers/specs/2026-10-28-replay-learning-design.md) and [v0.13 results and verification](docs/v13-build-report.md).
+
+## Successor representation and legacy replay diagnostics (v0.12)
+
+The earlier mathematical surfaces remain available for comparison:
 - **Hippocampal-Entorhinal Successor Representation (SR)**: Decouples environmental transition topology from instantaneous task goals via $M = (I - \gamma T)^{-1}$. Evaluates zero-shot policy re-planning on experienced transitions without privileged full-map access.
 - **Entorhinal Grid Cell Basis (Normalized Graph Laplacian Harmonics)**: Computes the spectral eigen-decomposition of the normalized graph Laplacian $L = I - D^{-1/2} A D^{-1/2}$ over experienced transitions, extracting multiscale spatial frequency harmonics that serve as a synthetic grid-cell coordinate system across arbitrary arena topologies.
-- **Hippocampal Sharp-Wave Ripple (SWR) Offline Replay Engine**: Executes reverse prioritized Bellman value propagation sweeps ($V(u) \leftarrow \max_a [R + \gamma \sum_v P(v \mid u, a) V(v)]$) during pauses, goal reach events, or explicit user/REST triggers (`/api/control` action `'replay'`, chat command `replay`).
+- **Legacy SWR-inspired diagnostic**: Follows maximum-frequency predecessor chains and writes diagnostic values. These values do not drive `sr_steer`; this routine is not Bellman-residual prioritized replay. Use `replay_steer` for the behaviorally connected experiment.
 - **Active Inference & Epistemic Uncertainty Controller (`sr_steer`)**: Integrates raw circuit logits, SR predictive value gradients, and count-based epistemic novelty bonuses ($\mathcal{U}(u, a) \propto 1 / \sqrt{N(u, a) + 1}$) with deterministic wall collision masking.
-- **Interactive Laboratory Controls & Telemetry**: Exposed `'sr_steer'` in Web UI selector, added interactive `🧠 SWR Replay` button in live session bar, wired `/api/control` action `'replay'`, and added natural language commands (`replay`, `swr`, `consolidate`) to the live chat interface.
+- **Interactive controls**: `/api/control` action `replay` and chat commands `replay`, `swr`, `consolidate` dispatch to the empirical planner in `replay_steer`, and the legacy diagnostic in other modes.
 
 See [v12 Successor Representation Design](docs/v12-successor-representation-design.md) and [v12 Build Report](docs/v12-build-report.md).
 
@@ -337,6 +370,6 @@ python -m pytest -q
 python -m compileall -q neurograft
 ```
 
-`neurograft/` contains the package; `tests/` covers integrity, gradients, masking, controls, deterministic replay and the real tiny Qwen interfaces. `docs/implementation-plan.md` records scope; component reports and independent review record verification evidence. `reports/` holds measured local artifacts. Raw imported data and checkpoints are excluded by `.gitignore`; no remote repository was created or published.
+`neurograft/` contains the package; `tests/` covers integrity, gradients, masking, controls, deterministic replay and the real tiny Qwen interfaces. `docs/implementation-plan.md` records scope; component reports and independent review record verification evidence. `reports/` holds measured local artifacts. This checkout has a configured GitHub origin. Local validation does not establish remote publication or release parity.
 
 Future milestones are authentic female/male fly and authorized human imports, resource-verified pretrained Qwen execution, language-adapter training, physiological calibration where supported, and broader controlled tasks. Each has a separate completion gate.

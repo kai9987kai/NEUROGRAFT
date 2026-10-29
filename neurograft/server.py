@@ -14,6 +14,10 @@ ASSETS = {'/': ('index.html', 'text/html; charset=utf-8'),
           '/index.html': ('index.html', 'text/html; charset=utf-8'),
           '/app.js': ('app.js', 'text/javascript; charset=utf-8'),
           '/style.css': ('style.css', 'text/css; charset=utf-8'),
+          '/workbench': ('workbench.html', 'text/html; charset=utf-8'),
+          '/workbench.html': ('workbench.html', 'text/html; charset=utf-8'),
+          '/workbench.js': ('workbench.js', 'text/javascript; charset=utf-8'),
+          '/workbench.css': ('workbench.css', 'text/css; charset=utf-8'),
           '/vendor/three.module.js': ('vendor/three.module.js', 'text/javascript; charset=utf-8'),
           '/vendor/three.core.js': ('vendor/three.core.js', 'text/javascript; charset=utf-8'),
           '/vendor/three.LICENSE.txt': ('vendor/three.LICENSE.txt', 'text/plain; charset=utf-8')}
@@ -68,7 +72,13 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768, *, ready=None):
             if not self.origin_ok():
                 return
             path = unquote(urlsplit(self.path).path)
-            if path == '/api/state':
+            if path == '/api/workbench':
+                self.send_data(200, app.workbench_state())
+            elif path == '/api/workbench/receipt':
+                self.send_data(200, app.workbench_receipt())
+            elif getattr(app, 'workbench_only', False) and path.startswith('/api/') and path != '/api/health':
+                self.send_data(404, {'error': 'This fixture tool exposes workbench endpoints only.'})
+            elif path == '/api/state':
                 self.send_data(200, app.state())
             elif path == '/api/checkpoints':
                 self.send_data(200, app.checkpoints())
@@ -89,6 +99,8 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768, *, ready=None):
                     self.send_data(404, {'error': 'report file not found'})
             elif path in ASSETS:
                 relative, kind = ASSETS[path]
+                if path in ('/', '/index.html') and getattr(app, 'workbench_only', False):
+                    relative = 'workbench.html'
                 try:
                     self.send_data(200, files('neurograft').joinpath('web', relative).read_bytes(), kind)
                 except FileNotFoundError:
@@ -103,23 +115,32 @@ def create_server(app: LiveApp, host='127.0.0.1', port=8768, *, ready=None):
                 self.send_data(415, {'error': 'application/json required'})
                 return
             try:
+                path = unquote(urlsplit(self.path).path)
                 length = int(self.headers.get('Content-Length', '0'))
-                if not 0 < length <= 65536:
-                    self.send_data(413, {'error': 'JSON body must contain 1-65536 bytes'})
+                maximum = 2 * 1024 * 1024 if path == '/api/workbench' else 65536
+                if not 0 < length <= maximum:
+                    self.send_data(413, {'error': f'JSON body must contain 1-{maximum} bytes'})
                     return
                 def reject_constant(value):
                     raise ValueError('nonfinite JSON numbers are invalid')
                 payload = json.loads(self.rfile.read(length).decode('utf-8'), parse_constant=reject_constant)
                 if not isinstance(payload, dict):
                     raise ValueError('JSON body must be an object')
+                if length > 65536 and not (path == '/api/workbench' and payload.get('action') == 'import'):
+                    self.send_data(413, {'error': 'Only workbench receipt imports may exceed 65536 bytes'})
+                    return
                 # Consume the bounded request before closing on a startup
                 # rejection. Unread body bytes can cause a TCP reset that hides
                 # the 503 response from the client (RFC 9112 section 9.6).
                 if ready is not None and not ready.is_set():
                     self.send_data(503, {'error': 'live session startup is not complete'})
                     return
-                path = unquote(urlsplit(self.path).path)
-                if path == '/api/control':
+                if path == '/api/workbench':
+                    result = app.workbench_control(payload)
+                elif getattr(app, 'workbench_only', False):
+                    self.send_data(404, {'error': 'This fixture tool exposes workbench endpoints only.'})
+                    return
+                elif path == '/api/control':
                     result = app.control(payload)
                 elif path == '/api/chat':
                     result = app.chat(payload.get('message'))

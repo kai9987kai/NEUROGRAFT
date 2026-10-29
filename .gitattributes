@@ -1,0 +1,12 @@
+# Keep verified package files and sealed experiment bytes identical across checkouts.
+* whitespace=trailing-space,space-before-tab,cr-at-eol
+neurograft/** -text
+tools/benchmark_replay.py -text
+reports/runs/replay-learning-20261028/** -text
+reports/runs/revision-learning-20261029-final/** -text
+reports/v13-* -text
+reports/v14-* -text
+reports/browser-v13/** -text
+reports/browser-v14/** -text
+dist/neurograft-0.13.0-py3-none-any.whl binary
+dist/neurograft-0.14.0-py3-none-any.whl binary

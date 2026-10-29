@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "page_errors": [],
+  "expected_rejected_requests": [
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  ],
+  "checked": [
+    "startup",
+    "SVG experience graph",
+    "seeded fixture",
+    "single backup",
+    "disabled replay control",
+    "coordinate inspection",
+    "supplied collision events",
+    "different transition models",
+    "stale values",
+    "bounded replay",
+    "model and schedule toggles",
+    "play/pause without later requests",
+    "receipt download",
+    "tamper rejection without state changes",
+    "reset",
+    "exact receipt restoration",
+    "goal change",
+    "desktop layout",
+    "mobile layout",
+    "frozen live capture",
+    "fixture replacement"
+  ],
+  "final": {
+    "events": 0,
+    "operations": 0
+  },
+  "live_session_unchanged": true
+}

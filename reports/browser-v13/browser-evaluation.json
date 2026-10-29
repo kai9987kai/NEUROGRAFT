@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "protocol_id": "563a4f2b8d1d4a5062df3736447936eaaa394c4403090eb51c8f64413e7fc2e2",
+  "config": {
+    "seeds": [
+      10000,
+      10001
+    ],
+    "size": 5,
+    "preset": "concentric",
+    "max_steps": 16
+  },
+  "inference_unroll": 4,
+  "graph_hash": "e11df95be51a132ca1db6f5f8a104d4fefe98455623e0ca0fc1e89133bf92fd5",
+  "model_hash": "c042cc921c77cd6e29979af6974fd4052ca6ac8ef2b71e2fb66330e334481496",
+  "checkpoint_steps": 9,
+  "checkpoint_updates": 8,
+  "teacher_assistance": 0,
+  "learning": false,
+  "variants": {
+    "policy": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0,
+        "spl": 0,
+        "collision_rate": 0.9375,
+        "mean_steps": 16,
+        "teacher_agreement": 0.03125,
+        "mean_terminal_distance": 1
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0.0625,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    "no_graft": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0,
+        "spl": 0,
+        "collision_rate": 0.9375,
+        "mean_steps": 16,
+        "teacher_agreement": 0.03125,
+        "mean_terminal_distance": 1
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0.0625,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    "no_recurrence": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0,
+        "spl": 0,
+        "collision_rate": 0.9375,
+        "mean_steps": 16,
+        "teacher_agreement": 0.03125,
+        "mean_terminal_distance": 1
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0.0625,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    "random": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0.5,
+        "spl": 0.5,
+        "collision_rate": 0.2631578947368421,
+        "mean_steps": 9.5,
+        "teacher_agreement": 0.2631578947368421,
+        "mean_terminal_distance": 1
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 12,
+          "success": false,
+          "spl": 0,
+          "collisions": 4,
+          "teacher_agreement": 0.1875,
+          "terminal_distance": 2,
+          "total_reward": -0.52,
+          "actions": [
+            3,
+            1,
+            0,
+            0,
+            0,
+            3,
+            2,
+            0,
+            2,
+            3,
+            1,
+            0,
+            3,
+            0,
+            2,
+            1
+          ]
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 3,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 1,
+          "teacher_agreement": 0.6666666666666666,
+          "terminal_distance": 0,
+          "total_reward": 0.89,
+          "actions": [
+            1,
+            0,
+            2
+          ]
+        }
+      ]
+    },
+    "shortest_path": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 1,
+        "spl": 1,
+        "collision_rate": 0,
+        "mean_steps": 2,
+        "teacher_agreement": 1,
+        "mean_terminal_distance": 0
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            2,
+            3
+          ]
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            1,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  "paired_effects": {
+    "no_graft": {
+      "success_rate_delta": 0,
+      "spl_delta": 0
+    },
+    "no_recurrence": {
+      "success_rate_delta": 0,
+      "spl_delta": 0
+    },
+    "random": {
+      "success_rate_delta": -0.5,
+      "spl_delta": -0.5
+    }
+  },
+  "evidence_scope": "Frozen synthetic grid navigation; no teacher assistance or training. No-graft and no-recurrence are inference-time interventions on identical weights, not separately trained baselines. Random is seeded; shortest_path has full-map access. Declared seeds are not proof of unseen training worlds. SPL counts successful cell moves; collisions and attempted steps are separate. Teacher agreement uses one deterministic shortest-path tie-break. No biological advantage or pretrained language capability established.",
+  "metric_reference": "https://arxiv.org/abs/1807.06757"
+}

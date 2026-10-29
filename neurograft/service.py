@@ -60,6 +60,8 @@ class LiveApp:
         self.interval, self.autosave = float(interval), float(autosave)
         self.guard = threading.RLock()
         self.evaluation_guard = threading.Lock()
+        self.workbench_guard = threading.Lock()
+        self._workbench_store = None
         self.latest_evaluation = None
         self.stop_event = threading.Event()
         self.last_error = None
@@ -145,6 +147,30 @@ class LiveApp:
                     'worker': {'enabled': self.worker is not None, 'alive': worker_alive},
                     'last_error': self.last_error, 'closed': self.closed,
                     'evaluation_running': self.evaluation_guard.locked()}
+
+    def _capture_workbench(self):
+        from .live import _checkpoint_digest
+        with self.guard, self.session.lock:
+            return (self.session.memory.topological_graph.to_state(), tuple(self.session.world._goal),
+                    {'kind': 'live_capture', 'source_steps': self.session.steps,
+                     'source_model_sha256': _checkpoint_digest(self.session.model.state_dict()),
+                     'source_bundle_sha256': self.session.bundle.digest()})
+
+    def _workbench(self):
+        from .workbench_service import WorkbenchStore
+        with self.workbench_guard:
+            if self._workbench_store is None:
+                self._workbench_store = WorkbenchStore(capture=self._capture_workbench)
+            return self._workbench_store
+
+    def workbench_state(self):
+        return self._workbench().snapshot()
+
+    def workbench_control(self, payload):
+        return self._workbench().control(payload)
+
+    def workbench_receipt(self):
+        return self._workbench().receipt()
 
     def evaluation(self):
         with self.guard:
@@ -251,7 +277,9 @@ class LiveApp:
             elif action == 'goal':
                 self.session.set_goal(color=values.get('color'), x=values.get('x'), z=values.get('z'))
             elif action == 'replay':
-                replay_summary = self.session.memory.trigger_swr_replay(max_sweeps=sweeps)
+                replay_summary = (self.session.replay_memory(budget=sweeps * 8)
+                                  if self.session.navigation_mode == 'replay_steer'
+                                  else self.session.memory.trigger_swr_replay(max_sweeps=sweeps))
                 return {**self.state(), 'replay': replay_summary}
             return self.state()
 

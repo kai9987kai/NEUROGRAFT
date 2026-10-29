@@ -1,0 +1,1194 @@
+{
+  "directory": "C:\\Users\\kai99\\Desktop\\New folder (5)\\reports\\runs\\revision-learning-20261029-final",
+  "summary": [
+    {
+      "case": "revision",
+      "stage": "baseline",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.775066177599734,
+        "bellman_residual": 0.9650404080551139,
+        "action_agreement": 0.492156862745098
+      },
+      "current_dynamics": {
+        "value_mae": 0.7742013585142551,
+        "action_agreement": 0.492156862745098,
+        "transition_brier": 0.002070221289856981,
+        "target_action_brier": 0.00015380664648063867,
+        "start_policy_value": 0.0,
+        "start_regret": 0.73208004021324
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "baseline",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 96.75,
+      "mean_total_backups": 96.75,
+      "empirical": {
+        "value_mae": 7.592278979369027e-08,
+        "bellman_residual": 5.4337720198360806e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.002812578861502337,
+        "action_agreement": 1.0,
+        "transition_brier": 0.002070221289856981,
+        "target_action_brier": 0.00015380664648063867,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "baseline",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 256.0,
+      "mean_total_backups": 256.0,
+      "empirical": {
+        "value_mae": 1.324754990657761e-07,
+        "bellman_residual": 4.661209128953292e-07,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.002812612201195212,
+        "action_agreement": 1.0,
+        "transition_brier": 0.002070221289856981,
+        "target_action_brier": 0.00015380664648063867,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "baseline",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.775066177599734,
+        "bellman_residual": 0.9650404080551139,
+        "action_agreement": 0.492156862745098
+      },
+      "current_dynamics": {
+        "value_mae": 0.7742013585142551,
+        "action_agreement": 0.492156862745098,
+        "transition_brier": 0.002070221289856981,
+        "target_action_brier": 0.00015380664648063867,
+        "start_policy_value": 0.0,
+        "start_regret": 0.73208004021324
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "baseline",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 96.75,
+      "mean_total_backups": 96.75,
+      "empirical": {
+        "value_mae": 7.592278979369027e-08,
+        "bellman_residual": 5.4337720198360806e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.002812578861502337,
+        "action_agreement": 1.0,
+        "transition_brier": 0.002070221289856981,
+        "target_action_brier": 0.00015380664648063867,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "baseline",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 256.0,
+      "mean_total_backups": 256.0,
+      "empirical": {
+        "value_mae": 1.324754990657761e-07,
+        "bellman_residual": 4.661209128953292e-07,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.002812612201195212,
+        "action_agreement": 1.0,
+        "transition_brier": 0.002070221289856981,
+        "target_action_brier": 0.00015380664648063867,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_observed",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7714436887813078,
+        "bellman_residual": 0.9496557926704985,
+        "action_agreement": 0.44799911990314467
+      },
+      "current_dynamics": {
+        "value_mae": 0.6932084351485616,
+        "action_agreement": 0.3002871483521638,
+        "transition_brier": 0.1244242446229024,
+        "target_action_brier": 1.3973446317278235,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_observed",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 42.75,
+      "mean_total_backups": 139.5,
+      "empirical": {
+        "value_mae": 1.598933734383419e-08,
+        "bellman_residual": 1.1705372490733446e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.07950080900658675,
+        "action_agreement": 0.7076524868320534,
+        "transition_brier": 0.1244242446229024,
+        "target_action_brier": 1.3973446317278235,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_observed",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 320.0,
+      "empirical": {
+        "value_mae": 3.852004253091534e-05,
+        "bellman_residual": 0.0001552846532803659,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.07953934067317604,
+        "action_agreement": 0.7076524868320534,
+        "transition_brier": 0.1244242446229024,
+        "target_action_brier": 1.3973446317278235,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_observed",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.6948492065448133,
+        "bellman_residual": 0.9428629887002752,
+        "action_agreement": 0.3002871483521638
+      },
+      "current_dynamics": {
+        "value_mae": 0.6932084351485616,
+        "action_agreement": 0.3002871483521638,
+        "transition_brier": 0.0020559744120569896,
+        "target_action_brier": 0.0,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_observed",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 33.5,
+      "mean_total_backups": 130.25,
+      "empirical": {
+        "value_mae": 1.1303926176445954e-08,
+        "bellman_residual": 2.2252226394847696e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.0031691028542176532,
+        "action_agreement": 1.0,
+        "transition_brier": 0.0020559744120569896,
+        "target_action_brier": 0.0,
+        "start_policy_value": 0.43603645452765205,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_observed",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 320.0,
+      "empirical": {
+        "value_mae": 0.015928784573985538,
+        "bellman_residual": 0.024050065309896347,
+        "action_agreement": 0.8952723832754792
+      },
+      "current_dynamics": {
+        "value_mae": 0.019031378512882884,
+        "action_agreement": 0.8952723832754792,
+        "transition_brier": 0.0020559744120569896,
+        "target_action_brier": 0.0,
+        "start_policy_value": 0.3259813822438687,
+        "start_regret": 0.11005507228378336
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_unobserved",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.775066177599734,
+        "bellman_residual": 0.9650404080551139,
+        "action_agreement": 0.492156862745098
+      },
+      "current_dynamics": {
+        "value_mae": 0.6932084351485616,
+        "action_agreement": 0.3002871483521638,
+        "transition_brier": 0.1703652457098814,
+        "target_action_brier": 1.9205048444975183,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_unobserved",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 96.75,
+      "empirical": {
+        "value_mae": 7.592278979369027e-08,
+        "bellman_residual": 5.4337720198360806e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.08312327778986996,
+        "action_agreement": 0.6456622840523769,
+        "transition_brier": 0.1703652457098814,
+        "target_action_brier": 1.9205048444975183,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_unobserved",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 256.0,
+      "empirical": {
+        "value_mae": 1.324754990657761e-07,
+        "bellman_residual": 4.661209128953292e-07,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.08312318183485912,
+        "action_agreement": 0.6456622840523769,
+        "transition_brier": 0.1703652457098814,
+        "target_action_brier": 1.9205048444975183,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_unobserved",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.775066177599734,
+        "bellman_residual": 0.9650404080551139,
+        "action_agreement": 0.492156862745098
+      },
+      "current_dynamics": {
+        "value_mae": 0.6932084351485616,
+        "action_agreement": 0.3002871483521638,
+        "transition_brier": 0.1703652457098814,
+        "target_action_brier": 1.9205048444975183,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_unobserved",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 96.75,
+      "empirical": {
+        "value_mae": 7.592278979369027e-08,
+        "bellman_residual": 5.4337720198360806e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.08312327778986996,
+        "action_agreement": 0.6456622840523769,
+        "transition_brier": 0.1703652457098814,
+        "target_action_brier": 1.9205048444975183,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "closed_unobserved",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 256.0,
+      "empirical": {
+        "value_mae": 1.324754990657761e-07,
+        "bellman_residual": 4.661209128953292e-07,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.08312318183485912,
+        "action_agreement": 0.6456622840523769,
+        "transition_brier": 0.1703652457098814,
+        "target_action_brier": 1.9205048444975183,
+        "start_policy_value": 0.0,
+        "start_regret": 0.43603645452765205
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "goal_relocated",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.777608454833581,
+        "bellman_residual": 0.9803630754627433,
+        "action_agreement": 0.19424184346784965
+      },
+      "current_dynamics": {
+        "value_mae": 0.7784529085365999,
+        "action_agreement": 0.20438842203548085,
+        "transition_brier": 0.004618340339114643,
+        "target_action_brier": 0.029067600780550616,
+        "start_policy_value": 0.24862637362637335,
+        "start_regret": 0.60275926157734
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "goal_relocated",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 50.5,
+      "mean_total_backups": 228.875,
+      "empirical": {
+        "value_mae": 0.0004458570346745859,
+        "bellman_residual": 0.0005026211547335055,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.0032073772758223467,
+        "action_agreement": 0.9821428571428571,
+        "transition_brier": 0.004618340339114643,
+        "target_action_brier": 0.029067600780550616,
+        "start_policy_value": 0.8513856352037135,
+        "start_regret": -4.163336342344337e-17
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "goal_relocated",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 448.0,
+      "empirical": {
+        "value_mae": 0.026990896890911963,
+        "bellman_residual": 0.092867864102731,
+        "action_agreement": 0.9802631578947368
+      },
+      "current_dynamics": {
+        "value_mae": 0.029204884511711618,
+        "action_agreement": 0.9682539682539683,
+        "transition_brier": 0.004618340339114643,
+        "target_action_brier": 0.029067600780550616,
+        "start_policy_value": 0.8513856352037135,
+        "start_regret": -4.163336342344337e-17
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "goal_relocated",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7799091590309243,
+        "bellman_residual": 0.9803630754627433,
+        "action_agreement": 0.20438842203548085
+      },
+      "current_dynamics": {
+        "value_mae": 0.7784529085365999,
+        "action_agreement": 0.20438842203548085,
+        "transition_brier": 0.0027504188565014337,
+        "target_action_brier": 0.007499999999999996,
+        "start_policy_value": 0.24862637362637335,
+        "start_regret": 0.60275926157734
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "goal_relocated",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 38.5,
+      "mean_total_backups": 188.25,
+      "empirical": {
+        "value_mae": 0.0002984169854130101,
+        "bellman_residual": 0.000488295520648066,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.0029057181250935226,
+        "action_agreement": 1.0,
+        "transition_brier": 0.0027504188565014337,
+        "target_action_brier": 0.007499999999999996,
+        "start_policy_value": 0.8513856352037135,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "goal_relocated",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 448.0,
+      "empirical": {
+        "value_mae": 0.025610850363570428,
+        "bellman_residual": 0.09258008323706281,
+        "action_agreement": 0.9861111111111112
+      },
+      "current_dynamics": {
+        "value_mae": 0.02687315218475335,
+        "action_agreement": 0.9861111111111112,
+        "transition_brier": 0.0027504188565014337,
+        "target_action_brier": 0.007499999999999996,
+        "start_policy_value": 0.8513856352037135,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_observed",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7719947581979754,
+        "bellman_residual": 0.9513417779181277,
+        "action_agreement": 0.44799911990314467
+      },
+      "current_dynamics": {
+        "value_mae": 0.7742013585142551,
+        "action_agreement": 0.492156862745098,
+        "transition_brier": 0.004618340339114643,
+        "target_action_brier": 0.029067600780550616,
+        "start_policy_value": 0.0,
+        "start_regret": 0.73208004021324
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_observed",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 38.875,
+      "mean_total_backups": 178.375,
+      "empirical": {
+        "value_mae": 5.330097115113121e-09,
+        "bellman_residual": 3.0501120934500747e-09,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.005736808548803979,
+        "action_agreement": 0.9821428571428571,
+        "transition_brier": 0.004618340339114643,
+        "target_action_brier": 0.029067600780550616,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_observed",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 384.0,
+      "empirical": {
+        "value_mae": 4.673701821320969e-06,
+        "bellman_residual": 1.8699708507145807e-05,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.005741479989327376,
+        "action_agreement": 0.9821428571428571,
+        "transition_brier": 0.004618340339114643,
+        "target_action_brier": 0.029067600780550616,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_observed",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7755791385722643,
+        "bellman_residual": 0.9650404080551139,
+        "action_agreement": 0.5060457516339869
+      },
+      "current_dynamics": {
+        "value_mae": 0.7742013585142551,
+        "action_agreement": 0.492156862745098,
+        "transition_brier": 0.0027504188565014337,
+        "target_action_brier": 0.007499999999999996,
+        "start_policy_value": 0.0,
+        "start_regret": 0.73208004021324
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_observed",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 19.5,
+      "mean_total_backups": 149.75,
+      "empirical": {
+        "value_mae": 1.385713742139234e-09,
+        "bellman_residual": 9.767812531036313e-10,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.0027163966645992734,
+        "action_agreement": 0.9861111111111112,
+        "transition_brier": 0.0027504188565014337,
+        "target_action_brier": 0.007499999999999996,
+        "start_policy_value": 0.7320800402132409,
+        "start_regret": -8.604228440844963e-16
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_observed",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 384.0,
+      "empirical": {
+        "value_mae": 7.99201907730779e-06,
+        "bellman_residual": 4.892739832124127e-05,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.002724388605393268,
+        "action_agreement": 0.9861111111111112,
+        "transition_brier": 0.0027504188565014337,
+        "target_action_brier": 0.007499999999999996,
+        "start_policy_value": 0.7320800402132409,
+        "start_regret": -8.604228440844963e-16
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_unobserved",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7714436887813078,
+        "bellman_residual": 0.9496557926704985,
+        "action_agreement": 0.44799911990314467
+      },
+      "current_dynamics": {
+        "value_mae": 0.7742013585142551,
+        "action_agreement": 0.492156862745098,
+        "transition_brier": 0.00560722107114574,
+        "target_action_brier": 0.040337977110833985,
+        "start_policy_value": 0.0,
+        "start_regret": 0.73208004021324
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_unobserved",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 139.5,
+      "empirical": {
+        "value_mae": 1.598933734383419e-08,
+        "bellman_residual": 1.1705372490733446e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.006287873265263582,
+        "action_agreement": 0.9821428571428571,
+        "transition_brier": 0.00560722107114574,
+        "target_action_brier": 0.040337977110833985,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_unobserved",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 320.0,
+      "empirical": {
+        "value_mae": 3.852004253091534e-05,
+        "bellman_residual": 0.0001552846532803659,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.006249355679842545,
+        "action_agreement": 0.9821428571428571,
+        "transition_brier": 0.00560722107114574,
+        "target_action_brier": 0.040337977110833985,
+        "start_policy_value": 0.73208004021324,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_unobserved",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.6948492065448133,
+        "bellman_residual": 0.9428629887002752,
+        "action_agreement": 0.3002871483521638
+      },
+      "current_dynamics": {
+        "value_mae": 0.7742013585142551,
+        "action_agreement": 0.4782679738562091,
+        "transition_brier": 0.16920875218983478,
+        "target_action_brier": 1.9075,
+        "start_policy_value": 0.0,
+        "start_regret": 0.73208004021324
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_unobserved",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 130.25,
+      "empirical": {
+        "value_mae": 1.1303926176445954e-08,
+        "bellman_residual": 2.2252226394847696e-08,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.0828823551494977,
+        "action_agreement": 0.675548552754435,
+        "transition_brier": 0.16920875218983478,
+        "target_action_brier": 1.9075,
+        "start_policy_value": 0.43603645452765205,
+        "start_regret": 0.296043585685588
+      }
+    },
+    {
+      "case": "revision",
+      "stage": "reopened_unobserved",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 320.0,
+      "empirical": {
+        "value_mae": 0.015928784573985538,
+        "bellman_residual": 0.024050065309896347,
+        "action_agreement": 0.8952723832754792
+      },
+      "current_dynamics": {
+        "value_mae": 0.06695357389457436,
+        "action_agreement": 0.7851073762838469,
+        "transition_brier": 0.16920875218983478,
+        "target_action_brier": 1.9075,
+        "start_policy_value": 0.5878080573123693,
+        "start_regret": 0.14427198290087073
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "baseline",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7317257498127794,
+        "bellman_residual": 0.8648714826839827,
+        "action_agreement": 0.4984617291892834
+      },
+      "current_dynamics": {
+        "value_mae": 0.7360653674515449,
+        "action_agreement": 0.487098092825647,
+        "transition_brier": 0.006617649679929076,
+        "target_action_brier": 0.0054065094674276126,
+        "start_policy_value": 0.0,
+        "start_regret": 0.6894510662480083
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "baseline",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 235.5,
+      "mean_total_backups": 235.5,
+      "empirical": {
+        "value_mae": 5.4738317438211185e-06,
+        "bellman_residual": 3.7039728978047193e-06,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.007893458483247804,
+        "action_agreement": 0.9886363636363636,
+        "transition_brier": 0.006617649679929076,
+        "target_action_brier": 0.0054065094674276126,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "baseline",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 256.0,
+      "mean_total_backups": 256.0,
+      "empirical": {
+        "value_mae": 3.069552851394126e-05,
+        "bellman_residual": 9.369823840682523e-05,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.007918289344613132,
+        "action_agreement": 0.9886363636363636,
+        "transition_brier": 0.006617649679929076,
+        "target_action_brier": 0.0054065094674276126,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "baseline",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7317257498127794,
+        "bellman_residual": 0.8648714826839827,
+        "action_agreement": 0.4984617291892834
+      },
+      "current_dynamics": {
+        "value_mae": 0.7360653674515449,
+        "action_agreement": 0.487098092825647,
+        "transition_brier": 0.006617649679929076,
+        "target_action_brier": 0.0054065094674276126,
+        "start_policy_value": 0.0,
+        "start_regret": 0.6894510662480083
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "baseline",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 235.5,
+      "mean_total_backups": 235.5,
+      "empirical": {
+        "value_mae": 5.4738317438211185e-06,
+        "bellman_residual": 3.7039728978047193e-06,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.007893458483247804,
+        "action_agreement": 0.9886363636363636,
+        "transition_brier": 0.006617649679929076,
+        "target_action_brier": 0.0054065094674276126,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "baseline",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 256.0,
+      "mean_total_backups": 256.0,
+      "empirical": {
+        "value_mae": 3.069552851394126e-05,
+        "bellman_residual": 9.369823840682523e-05,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.007918289344613132,
+        "action_agreement": 0.9886363636363636,
+        "transition_brier": 0.006617649679929076,
+        "target_action_brier": 0.0054065094674276126,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_adverse_run",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7284318712245885,
+        "bellman_residual": 0.8540832203134419,
+        "action_agreement": 0.47320920393675814
+      },
+      "current_dynamics": {
+        "value_mae": 0.7360653674515449,
+        "action_agreement": 0.487098092825647,
+        "transition_brier": 0.007945116252283689,
+        "target_action_brier": 0.02065193846414115,
+        "start_policy_value": 0.0,
+        "start_regret": 0.6894510662480083
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_adverse_run",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 55.875,
+      "mean_total_backups": 346.875,
+      "empirical": {
+        "value_mae": 7.066993206874746e-07,
+        "bellman_residual": 8.636354158278459e-07,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.009815797985941618,
+        "action_agreement": 0.9861111111111112,
+        "transition_brier": 0.007945116252283689,
+        "target_action_brier": 0.02065193846414115,
+        "start_policy_value": 0.6894510662480086,
+        "start_regret": -1.8041124150158794e-16
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_adverse_run",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 384.0,
+      "empirical": {
+        "value_mae": 0.00013008984172191274,
+        "bellman_residual": 0.0002892898078264289,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.00968611813861536,
+        "action_agreement": 0.9861111111111112,
+        "transition_brier": 0.007945116252283689,
+        "target_action_brier": 0.02065193846414115,
+        "start_policy_value": 0.6894510662480086,
+        "start_regret": -1.8041124150158794e-16
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_adverse_run",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.6494550562586139,
+        "bellman_residual": 0.8434970238095238,
+        "action_agreement": 0.3002871483521638
+      },
+      "current_dynamics": {
+        "value_mae": 0.7360653674515449,
+        "action_agreement": 0.47320920393675814,
+        "transition_brier": 0.12659301943321652,
+        "target_action_brier": 1.3803125,
+        "start_policy_value": 0.0,
+        "start_regret": 0.6894510662480083
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_adverse_run",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 54.625,
+      "mean_total_backups": 345.625,
+      "empirical": {
+        "value_mae": 0.0002471787172468355,
+        "bellman_residual": 0.0008139180581765888,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.08854633339723395,
+        "action_agreement": 0.6685535139095511,
+        "transition_brier": 0.12659301943321652,
+        "target_action_brier": 1.3803125,
+        "start_policy_value": 0.3815185977391791,
+        "start_regret": 0.3079324685088292
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_adverse_run",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 384.0,
+      "empirical": {
+        "value_mae": 0.020746928040301357,
+        "bellman_residual": 0.02446737379077943,
+        "action_agreement": 0.870019858022954
+      },
+      "current_dynamics": {
+        "value_mae": 0.06804609490600995,
+        "action_agreement": 0.7985336558865971,
+        "transition_brier": 0.12659301943321652,
+        "target_action_brier": 1.3803125,
+        "start_policy_value": 0.5376284400948578,
+        "start_regret": 0.15182262615315056
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_sample",
+      "model": "cumulative",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7314338007512348,
+        "bellman_residual": 0.865671738765929,
+        "action_agreement": 0.4984617291892834
+      },
+      "current_dynamics": {
+        "value_mae": 0.7360653674515449,
+        "action_agreement": 0.487098092825647,
+        "transition_brier": 0.006401229430576213,
+        "target_action_brier": 0.0029460503541369303,
+        "start_policy_value": 0.0,
+        "start_regret": 0.6894510662480083
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_sample",
+      "model": "cumulative",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 55.5,
+      "mean_total_backups": 291.0,
+      "empirical": {
+        "value_mae": 8.675174601234868e-07,
+        "bellman_residual": 6.481330530258567e-07,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.0076719777808731465,
+        "action_agreement": 0.9886363636363636,
+        "transition_brier": 0.006401229430576213,
+        "target_action_brier": 0.0029460503541369303,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_sample",
+      "model": "cumulative",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 320.0,
+      "empirical": {
+        "value_mae": 8.008024475049525e-06,
+        "bellman_residual": 2.346500247959321e-05,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.007674614179621726,
+        "action_agreement": 0.9886363636363636,
+        "transition_brier": 0.006401229430576213,
+        "target_action_brier": 0.0029460503541369303,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_sample",
+      "model": "recent",
+      "strategy": "none",
+      "seed_count": 8,
+      "mean_backups": 0.0,
+      "mean_total_backups": 0.0,
+      "empirical": {
+        "value_mae": 0.7306715066178485,
+        "bellman_residual": 0.8762351190476191,
+        "action_agreement": 0.487098092825647
+      },
+      "current_dynamics": {
+        "value_mae": 0.7360653674515449,
+        "action_agreement": 0.487098092825647,
+        "transition_brier": 0.008829347558216493,
+        "target_action_brier": 0.031484374999999995,
+        "start_policy_value": 0.0,
+        "start_regret": 0.6894510662480083
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_sample",
+      "model": "recent",
+      "strategy": "prioritized",
+      "seed_count": 8,
+      "mean_backups": 55.5,
+      "mean_total_backups": 291.0,
+      "empirical": {
+        "value_mae": 1.5584703169839515e-06,
+        "bellman_residual": 8.73976369802909e-07,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.009028542365939904,
+        "action_agreement": 1.0,
+        "transition_brier": 0.008829347558216493,
+        "target_action_brier": 0.031484374999999995,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    },
+    {
+      "case": "stationary",
+      "stage": "stationary_sample",
+      "model": "recent",
+      "strategy": "uniform",
+      "seed_count": 8,
+      "mean_backups": 64.0,
+      "mean_total_backups": 320.0,
+      "empirical": {
+        "value_mae": 0.00012906619324582272,
+        "bellman_residual": 0.0003259493970929894,
+        "action_agreement": 1.0
+      },
+      "current_dynamics": {
+        "value_mae": 0.009106078194249669,
+        "action_agreement": 1.0,
+        "transition_brier": 0.008829347558216493,
+        "target_action_brier": 0.031484374999999995,
+        "start_policy_value": 0.6894510662480083,
+        "start_regret": 0.0
+      }
+    }
+  ],
+  "promotion_performed": false
+}

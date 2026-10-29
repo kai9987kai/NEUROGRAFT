@@ -1,0 +1,60 @@
+{
+  "analysis": "All declared cases and arms are retained. Means weight seeds equally; there are no significance tests, tuning, selection or promotion gates. The fixed default eight seeds are a local descriptive pilot.",
+  "config": {
+    "budget": 64,
+    "discount": 0.9,
+    "models": [
+      "cumulative",
+      "recent"
+    ],
+    "policy_tie_break": "smallest action index N,E,S,W",
+    "reference_tolerance": 1e-13,
+    "seeds": [
+      14000,
+      14001,
+      14002,
+      14003,
+      14004,
+      14005,
+      14006,
+      14007
+    ],
+    "stationary_sample_per_action": 16,
+    "strategies": [
+      "prioritized",
+      "uniform",
+      "none"
+    ],
+    "warmup_budget": 256,
+    "window": 8
+  },
+  "evidence": "Barrier closure/reopening first changes held-out truth with no commands. Only later explicit observe commands change empirical models. All arms receive the same stream; replay follows the observation batch. Goal relocation supplies a public already observed goal and no outcomes.",
+  "hypotheses": [
+    "Recent evidence can reduce stale-model prediction and decision error after closure.",
+    "The same recency rule can increase prediction error in stationary stochastic dynamics.",
+    "Replay schedule changes empirical planning error without adding outcome information."
+  ],
+  "metrics": "Empirical values are compared to an independent synchronous value-iteration oracle on each arm model. Current-dynamics values and deterministic action choices are compared to a distinct oracle on held-out true probabilities. Brier scores compare predicted outcome probabilities to the true distribution (excess Brier risk, excluding irreducible outcome noise). Frozen policy start value is evaluated analytically with no feedback, rather than counted as a sampled success rate.",
+  "model_rule": "Cumulative retains baseline counts plus every new outcome. Recent retains baseline counts for untouched state/actions; the first new outcome replaces that pair with its last W explicitly supplied new outcomes. Baseline aggregate counts have no reconstructed chronology.",
+  "sampling": "Each seed independently draws rectangle width 3..7, height 2..5, closure edge, transition probabilities and acquisition counts. Graphs have a direct corridor and a longer perimeter detour. Acquisition supplies independent state/action outcome samples, not autonomous trajectories. Even seeds use deterministic revision dynamics; odd seeds use stochastic revision dynamics. The separate stationary case is always stochastic.",
+  "schema": "transition-revision-study-v1",
+  "scope": "Exploratory finite synthetic two-route assays with supplied state/action outcomes. The six arms share each ordered evidence stream and requested backup cap. Current dynamics are independently specified and withheld from the workbench; empirical-model planning error and current-dynamics error are separate measures. No neural policy, autonomous exploration, biological equivalence or checkpoint promotion is tested. Equal backup caps do not imply equal computation. Seeds draw geometry, dynamics and counts; cases and phases within a seed are correlated, not additional independent replicates.",
+  "sources": [
+    {
+      "role": "Separate environment change from value-learning prioritization; not DEER replication.",
+      "status": "2025 preprint",
+      "url": "https://arxiv.org/abs/2509.15032"
+    },
+    {
+      "role": "Updateable episodic spatial models; no learned ESWM implementation.",
+      "status": "ICLR 2026",
+      "url": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/23c2c77c921111ec8902ac482d92b289-Abstract-Conference.html"
+    },
+    {
+      "role": "Replay and uncertainty motivation; no Bayesian or biological equivalence.",
+      "status": "2025 journal article",
+      "url": "https://www.nature.com/articles/s41467-025-56731-y"
+    }
+  ],
+  "stationary_adverse_control": "Conditional adverse-run stress test: after the declared unbiased stationary sample, supply W collisions at each target action without changing true dynamics. This conditions on an adverse run and is not an estimate of its frequency or unconditional expected performance."
+}

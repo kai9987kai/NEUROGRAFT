@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neurograft"
-version = "0.12.0"
+version = "0.14.0"
 description = "Sparse provenance-preserving multi-source neural graft research instrument"
 readme = "README.md"
 requires-python = ">=3.11"

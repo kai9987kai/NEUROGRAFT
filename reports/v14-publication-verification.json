@@ -1,0 +1,43 @@
+{
+  "repository": "https://github.com/kai9987kai/NEUROGRAFT",
+  "branch": "codex/replay-learning-lab",
+  "staged_source_files_verified": 50,
+  "wheel_source_parity": true,
+  "isolated_workbench_roundtrip": "ok",
+  "staged_strict_studies": [
+    {
+      "ok": true,
+      "schema": "empirical-replay-study-v1",
+      "instances": 8,
+      "deterministic_replay": true,
+      "derived_metrics_verified": true,
+      "report_sha256": "33b1de2f9c0fe9cb48958edd178570ac31e3592b715e8ad01c1ff60840a97aa5",
+      "evidence_scope": "Empirical tabular value learning on independent seeded synthetic grid/branch graphs. Schedules share identical experience and backup caps; actual backups may differ. The oracle solves only experienced transition counts, not unseen true geometry. Partial exposure is a shared shuffled history prefix, not an autonomous exploration policy. Goal relocation starts from identical warmed state; the planner should invalidate its old goal values. No neural weights are trained or promoted; these assays establish no biological equivalence or general navigation improvement. Timings are not included in deterministic evidence."
+    },
+    {
+      "ok": true,
+      "schema": "transition-revision-study-v1",
+      "deterministic_replay": true,
+      "derived_metrics_verified": true,
+      "seed_count": 8,
+      "report_sha256": "37300fc774c3093c447a4179e8e176d9a2a9959a7d78b3cf755da08eec6899fe",
+      "promotion_performed": false
+    }
+  ],
+  "checkpoint_excluded": true,
+  "research_notes_excluded": true,
+  "line_endings_preserved": true,
+  "source_only_adjustment": {
+    "file": "neurograft/compass.py",
+    "change": "Remove spaces from an existing blank line; no executable code changed.",
+    "before_sha256": "5ed4fb798ab7047125d5092407647bc2183bc3303d46ed9e7a52a71a9da4ac6c",
+    "after_sha256": "ad9a3e842f3c35c6b1ea690190f45f998da01b581d9afd8b5e0b508b61e8ad96",
+    "previous_wheel_sha256": "13cdfb17fdaa04d61f51cc500a4cac56e7259282187f1cd87d74474734eca82c",
+    "note": "The 919-test validation predates this whitespace-only cleanup; focused publication checks are recorded separately."
+  },
+  "focused_tests": {
+    "passed": 79,
+    "seconds": 49.03,
+    "output": "reports/v14-publication-tests.txt"
+  }
+}

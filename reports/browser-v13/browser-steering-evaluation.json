@@ -1,0 +1,3148 @@
+{
+  "schema_version": 4,
+  "protocol_id": "45d98f38c24643ead27e825e10b427a54ac33d0ee8173aa894f4084028792db7",
+  "config": {
+    "seeds": [
+      10000,
+      10001
+    ],
+    "size": 5,
+    "preset": "concentric",
+    "max_steps": 16,
+    "include_controllers": true,
+    "include_steering_controls": true
+  },
+  "inference_unroll": 4,
+  "graph_hash": "e11df95be51a132ca1db6f5f8a104d4fefe98455623e0ca0fc1e89133bf92fd5",
+  "model_hash": "cc6461fdfd24972d811c954abe5155b9603e059f7c514e96eae8195e6bed7763",
+  "checkpoint_steps": 15,
+  "checkpoint_updates": 9,
+  "teacher_assistance": 0,
+  "learning": false,
+  "variants": {
+    "policy": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0,
+        "spl": 0,
+        "collision_rate": 0.9375,
+        "mean_steps": 16,
+        "teacher_agreement": 0.03125,
+        "mean_terminal_distance": 1,
+        "proposed_wall_rate": 0.9375,
+        "policy_override_rate": 0
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0.0625,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 15,
+          "policy_overrides": 0,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 15,
+          "policy_overrides": 0,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        }
+      ]
+    },
+    "no_graft": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0,
+        "spl": 0,
+        "collision_rate": 0.9375,
+        "mean_steps": 16,
+        "teacher_agreement": 0.03125,
+        "mean_terminal_distance": 1,
+        "proposed_wall_rate": 0.9375,
+        "policy_override_rate": 0
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0.0625,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 15,
+          "policy_overrides": 0,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_graft",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 15,
+          "policy_overrides": 0,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        }
+      ]
+    },
+    "no_recurrence": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0,
+        "spl": 0,
+        "collision_rate": 0.9375,
+        "mean_steps": 16,
+        "teacher_agreement": 0.03125,
+        "mean_terminal_distance": 1,
+        "proposed_wall_rate": 0.9375,
+        "policy_override_rate": 0
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0.0625,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 15,
+          "policy_overrides": 0,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 1,
+          "success": false,
+          "spl": 0,
+          "collisions": 15,
+          "teacher_agreement": 0,
+          "terminal_distance": 1,
+          "total_reward": -1.5100000000000005,
+          "actions": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "no_recurrence",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 15,
+          "policy_overrides": 0,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        }
+      ]
+    },
+    "random": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0.5,
+        "spl": 0.5,
+        "collision_rate": 0.2631578947368421,
+        "mean_steps": 9.5,
+        "teacher_agreement": 0.2631578947368421,
+        "mean_terminal_distance": 1,
+        "proposed_wall_rate": null,
+        "policy_override_rate": null
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 12,
+          "success": false,
+          "spl": 0,
+          "collisions": 4,
+          "teacher_agreement": 0.1875,
+          "terminal_distance": 2,
+          "total_reward": -0.52,
+          "actions": [
+            3,
+            1,
+            0,
+            0,
+            0,
+            3,
+            2,
+            0,
+            2,
+            3,
+            1,
+            0,
+            3,
+            0,
+            2,
+            1
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 3,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 2,
+                "direction": 3
+              },
+              "action": 1,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 1
+              },
+              "action": 0,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 1,
+                "direction": 0
+              },
+              "action": 0,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 1,
+                "direction": 0
+              },
+              "action": 0,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 1,
+                "direction": 0
+              },
+              "action": 3,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 1,
+                "direction": 3
+              },
+              "action": 2,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 2,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 1,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 2,
+                "direction": 2
+              },
+              "action": 3,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 2,
+                "direction": 3
+              },
+              "action": 1,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 1
+              },
+              "action": 0,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 1,
+                "direction": 0
+              },
+              "action": 3,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 1,
+                "direction": 3
+              },
+              "action": 0,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 1,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 2,
+                "direction": 2
+              },
+              "action": 1,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 0,
+          "policy_proposals": 0,
+          "policy_prior_used": false
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 3,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 1,
+          "teacher_agreement": 0.6666666666666666,
+          "terminal_distance": 0,
+          "total_reward": 0.89,
+          "actions": [
+            1,
+            0,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 1,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 3,
+                "z": 2,
+                "direction": 1
+              },
+              "action": 0,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 3,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": null,
+              "reason": "random",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 0,
+          "policy_proposals": 0,
+          "policy_prior_used": false
+        }
+      ]
+    },
+    "shortest_path": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 1,
+        "spl": 1,
+        "collision_rate": 0,
+        "mean_steps": 2,
+        "teacher_agreement": 1,
+        "mean_terminal_distance": 0,
+        "proposed_wall_rate": null,
+        "policy_override_rate": null
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            2,
+            3
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": null,
+              "reason": "shortest_path",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 3,
+              "policy_action": null,
+              "reason": "shortest_path",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 0,
+          "policy_proposals": 0,
+          "policy_prior_used": false
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            1,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 1,
+              "policy_action": null,
+              "reason": "shortest_path",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 3,
+                "z": 2,
+                "direction": 1
+              },
+              "action": 2,
+              "policy_action": null,
+              "reason": "shortest_path",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 0,
+          "policy_proposals": 0,
+          "policy_prior_used": false
+        }
+      ]
+    },
+    "masked_policy": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 0,
+        "spl": 0,
+        "collision_rate": 0,
+        "mean_steps": 16,
+        "teacher_agreement": 0.25,
+        "mean_terminal_distance": 2,
+        "proposed_wall_rate": 0.5,
+        "policy_override_rate": 0.5
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 16,
+          "success": false,
+          "spl": 0,
+          "collisions": 0,
+          "teacher_agreement": 0.5,
+          "terminal_distance": 2,
+          "total_reward": -0.16,
+          "actions": [
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 8,
+          "policy_overrides": 8,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 16,
+          "path_length": 16,
+          "success": false,
+          "spl": 0,
+          "collisions": 0,
+          "teacher_agreement": 0,
+          "terminal_distance": 2,
+          "total_reward": -0.16,
+          "actions": [
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0,
+            2,
+            0
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 0,
+              "policy_action": 2,
+              "reason": "legal_action_mask",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 8,
+          "policy_overrides": 8,
+          "policy_proposals": 16,
+          "policy_prior_used": true
+        }
+      ]
+    },
+    "observed_map": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 1,
+        "spl": 1,
+        "collision_rate": 0,
+        "mean_steps": 2,
+        "teacher_agreement": 0.75,
+        "mean_terminal_distance": 0,
+        "proposed_wall_rate": 0.5,
+        "policy_override_rate": 0.5
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            2,
+            3
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "frontier",
+              "known_free": 4,
+              "visited": 1,
+              "frontiers": 3
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 3,
+              "policy_action": 2,
+              "reason": "known_goal",
+              "known_free": 6,
+              "visited": 2,
+              "frontiers": 4
+            }
+          ],
+          "proposed_wall_actions": 1,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": true
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 0.5,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            2,
+            1
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "frontier",
+              "known_free": 5,
+              "visited": 1,
+              "frontiers": 4
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 1,
+              "policy_action": 2,
+              "reason": "known_goal",
+              "known_free": 7,
+              "visited": 2,
+              "frontiers": 5
+            }
+          ],
+          "proposed_wall_actions": 1,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": true
+        }
+      ]
+    },
+    "map_without_policy": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 1,
+        "spl": 1,
+        "collision_rate": 0,
+        "mean_steps": 2,
+        "teacher_agreement": 1,
+        "mean_terminal_distance": 0,
+        "proposed_wall_rate": 0.25,
+        "policy_override_rate": 0.5
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            2,
+            3
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "frontier",
+              "known_free": 4,
+              "visited": 1,
+              "frontiers": 3
+            },
+            {
+              "position": {
+                "x": 2,
+                "z": 3,
+                "direction": 2
+              },
+              "action": 3,
+              "policy_action": 2,
+              "reason": "known_goal",
+              "known_free": 6,
+              "visited": 2,
+              "frontiers": 4
+            }
+          ],
+          "proposed_wall_actions": 1,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": false
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            1,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 1,
+              "policy_action": 2,
+              "reason": "frontier",
+              "known_free": 5,
+              "visited": 1,
+              "frontiers": 4
+            },
+            {
+              "position": {
+                "x": 3,
+                "z": 2,
+                "direction": 1
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "known_goal",
+              "known_free": 6,
+              "visited": 2,
+              "frontiers": 4
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": false
+        }
+      ]
+    },
+    "cx_steer": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 1,
+        "spl": 1,
+        "collision_rate": 0,
+        "mean_steps": 2,
+        "teacher_agreement": 0.75,
+        "mean_terminal_distance": 0,
+        "proposed_wall_rate": 0,
+        "policy_override_rate": 0.5
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 0.5,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            3,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 3,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_prior",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 2,
+                "direction": 3
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_prior",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": true
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            1,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 1,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_prior",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 3,
+                "z": 2,
+                "direction": 1
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_prior",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": true
+        }
+      ]
+    },
+    "cx_without_policy": {
+      "summary": {
+        "episodes": 2,
+        "success_rate": 1,
+        "spl": 1,
+        "collision_rate": 0,
+        "mean_steps": 2,
+        "teacher_agreement": 0.75,
+        "mean_terminal_distance": 0,
+        "proposed_wall_rate": 0,
+        "policy_override_rate": 0.5
+      },
+      "episodes": [
+        {
+          "seed": 10000,
+          "initial_world_hash": "b7f59a2b11a135d82eb2e31b94ba8b9403e786168459723431fb73073a4b6601",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 1,
+            "z": 3,
+            "color": "blue"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 0.5,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            3,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 3,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_without_policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 1,
+                "z": 2,
+                "direction": 3
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_without_policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": false
+        },
+        {
+          "seed": 10001,
+          "initial_world_hash": "4f230ec28a4bbb80225eb0f961d0be416f1f5a35d11073e8902f6b17e69969a5",
+          "start": {
+            "x": 2,
+            "z": 2,
+            "direction": 0
+          },
+          "goal": {
+            "x": 3,
+            "z": 3,
+            "color": "rose"
+          },
+          "shortest_distance": 2,
+          "steps": 2,
+          "path_length": 2,
+          "success": true,
+          "spl": 1,
+          "collisions": 0,
+          "teacher_agreement": 1,
+          "terminal_distance": 0,
+          "total_reward": 0.99,
+          "actions": [
+            1,
+            2
+          ],
+          "controller_trace": [
+            {
+              "position": {
+                "x": 2,
+                "z": 2,
+                "direction": 0
+              },
+              "action": 1,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_without_policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            },
+            {
+              "position": {
+                "x": 3,
+                "z": 2,
+                "direction": 1
+              },
+              "action": 2,
+              "policy_action": 2,
+              "reason": "cx_goal_heading_without_policy",
+              "known_free": 0,
+              "visited": 0,
+              "frontiers": 0
+            }
+          ],
+          "proposed_wall_actions": 0,
+          "policy_overrides": 1,
+          "policy_proposals": 2,
+          "policy_prior_used": false
+        }
+      ]
+    }
+  },
+  "paired_effects": {
+    "no_graft": {
+      "success_rate_delta": 0,
+      "spl_delta": 0
+    },
+    "no_recurrence": {
+      "success_rate_delta": 0,
+      "spl_delta": 0
+    },
+    "random": {
+      "success_rate_delta": -0.5,
+      "spl_delta": -0.5
+    }
+  },
+  "evidence_scope": "Extended controller comparison: masked_policy filters adjacent walls; observed_map adds symbolic episodic mapping/planning from the same local sensors and known grid size. map_without_policy removes the learned tie-break prior. These are engineered assistance, not raw neural gains. Zero collisions follow legal filtering. No controller receives the full obstacle map or teacher action. Frozen synthetic grid navigation; no teacher assistance or training. No-graft and no-recurrence are inference-time interventions on identical weights, not separately trained baselines. Random is seeded; shortest_path has full-map access. Declared seeds are not proof of unseen training worlds. SPL counts successful cell moves; collisions and attempted steps are separate. Teacher agreement uses one deterministic shortest-path tie-break. No biological advantage or pretrained language capability established. Steering controls add engineered assistance: cx_steer adds a hand-selected goal/heading cosine prior and legal wall mask to learned logits; cx_without_policy uses zero learned logits for action selection. Heading is read directly from observations, not the diagnostic ring attractor. These are inference-time interventions, not a cell-specific PFL circuit reconstruction, learned biological mechanism or separately trained comparison.",
+  "metric_reference": "https://arxiv.org/abs/1807.06757"
+}

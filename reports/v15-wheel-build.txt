@@ -1,0 +1,213 @@
+* Getting build dependencies for wheel...
+running egg_info
+writing neurograft.egg-info\PKG-INFO
+writing dependency_links to neurograft.egg-info\dependency_links.txt
+writing entry points to neurograft.egg-info\entry_points.txt
+writing requirements to neurograft.egg-info\requires.txt
+writing top-level names to neurograft.egg-info\top_level.txt
+reading manifest file 'neurograft.egg-info\SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+adding license file 'LICENSE_MATRIX.md'
+writing manifest file 'neurograft.egg-info\SOURCES.txt'
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+copying neurograft\acquire.py -> build\lib\neurograft
+copying neurograft\active_inference.py -> build\lib\neurograft
+copying neurograft\adaptation_study.py -> build\lib\neurograft
+copying neurograft\adaptive_memory.py -> build\lib\neurograft
+copying neurograft\adaptive_workbench.py -> build\lib\neurograft
+copying neurograft\archaeology.py -> build\lib\neurograft
+copying neurograft\bioelectric.py -> build\lib\neurograft
+copying neurograft\byte_bridge.py -> build\lib\neurograft
+copying neurograft\cli.py -> build\lib\neurograft
+copying neurograft\compass.py -> build\lib\neurograft
+copying neurograft\consolidation.py -> build\lib\neurograft
+copying neurograft\dales_law.py -> build\lib\neurograft
+copying neurograft\dynamics.py -> build\lib\neurograft
+copying neurograft\environment.py -> build\lib\neurograft
+copying neurograft\evaluation.py -> build\lib\neurograft
+copying neurograft\fixtures.py -> build\lib\neurograft
+copying neurograft\graphs.py -> build\lib\neurograft
+copying neurograft\ingest.py -> build\lib\neurograft
+copying neurograft\live.py -> build\lib\neurograft
+copying neurograft\live_state.py -> build\lib\neurograft
+copying neurograft\llm.py -> build\lib\neurograft
+copying neurograft\memory.py -> build\lib\neurograft
+copying neurograft\navigation_artifacts.py -> build\lib\neurograft
+copying neurograft\navigation_controller.py -> build\lib\neurograft
+copying neurograft\navigation_diagnostics.py -> build\lib\neurograft
+copying neurograft\navigation_evaluation.py -> build\lib\neurograft
+copying neurograft\navigation_report.py -> build\lib\neurograft
+copying neurograft\navigation_study.py -> build\lib\neurograft
+copying neurograft\navigation_training.py -> build\lib\neurograft
+copying neurograft\phase_plane.py -> build\lib\neurograft
+copying neurograft\replay.py -> build\lib\neurograft
+copying neurograft\replay_study.py -> build\lib\neurograft
+copying neurograft\report.py -> build\lib\neurograft
+copying neurograft\revision_study.py -> build\lib\neurograft
+copying neurograft\runtime.py -> build\lib\neurograft
+copying neurograft\self_model.py -> build\lib\neurograft
+copying neurograft\server.py -> build\lib\neurograft
+copying neurograft\service.py -> build\lib\neurograft
+copying neurograft\spectral_diffusion.py -> build\lib\neurograft
+copying neurograft\stp.py -> build\lib\neurograft
+copying neurograft\workbench.py -> build\lib\neurograft
+copying neurograft\workbench_service.py -> build\lib\neurograft
+copying neurograft\__init__.py -> build\lib\neurograft
+copying neurograft\__main__.py -> build\lib\neurograft
+running egg_info
+writing neurograft.egg-info\PKG-INFO
+writing dependency_links to neurograft.egg-info\dependency_links.txt
+writing entry points to neurograft.egg-info\entry_points.txt
+writing requirements to neurograft.egg-info\requires.txt
+writing top-level names to neurograft.egg-info\top_level.txt
+reading manifest file 'neurograft.egg-info\SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+adding license file 'LICENSE_MATRIX.md'
+writing manifest file 'neurograft.egg-info\SOURCES.txt'
+copying neurograft\web\app.js -> build\lib\neurograft\web
+copying neurograft\web\index.html -> build\lib\neurograft\web
+copying neurograft\web\style.css -> build\lib\neurograft\web
+copying neurograft\web\workbench.css -> build\lib\neurograft\web
+copying neurograft\web\workbench.html -> build\lib\neurograft\web
+copying neurograft\web\workbench.js -> build\lib\neurograft\web
+copying neurograft\web\vendor\three.core.js -> build\lib\neurograft\web\vendor
+copying neurograft\web\vendor\three.LICENSE.txt -> build\lib\neurograft\web\vendor
+copying neurograft\web\vendor\three.module.js -> build\lib\neurograft\web\vendor
+copying neurograft\web\app.js -> build\lib\neurograft\web
+copying neurograft\web\index.html -> build\lib\neurograft\web
+copying neurograft\web\style.css -> build\lib\neurograft\web
+copying neurograft\web\workbench.css -> build\lib\neurograft\web
+copying neurograft\web\workbench.html -> build\lib\neurograft\web
+copying neurograft\web\workbench.js -> build\lib\neurograft\web
+copying neurograft\web\vendor\three.LICENSE.txt -> build\lib\neurograft\web\vendor
+copying neurograft\web\vendor\three.core.js -> build\lib\neurograft\web\vendor
+copying neurograft\web\vendor\three.module.js -> build\lib\neurograft\web\vendor
+installing to build\bdist.win-amd64\wheel
+running install
+running install_lib
+creating build\bdist.win-amd64\wheel
+creating build\bdist.win-amd64\wheel\neurograft
+copying build\lib\neurograft\acquire.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\active_inference.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\adaptation_study.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\adaptive_memory.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\adaptive_workbench.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\archaeology.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\bioelectric.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\byte_bridge.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\cli.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\compass.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\consolidation.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\dales_law.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\dynamics.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\environment.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\evaluation.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\fixtures.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\graphs.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\ingest.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\live.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\live_state.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\llm.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\memory.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\navigation_artifacts.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\navigation_controller.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\navigation_diagnostics.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\navigation_evaluation.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\navigation_report.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\navigation_study.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\navigation_training.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\phase_plane.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\replay.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\replay_study.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\report.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\revision_study.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\runtime.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\self_model.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\server.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\service.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\spectral_diffusion.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\stp.py -> build\bdist.win-amd64\wheel\.\neurograft
+creating build\bdist.win-amd64\wheel\neurograft\web
+copying build\lib\neurograft\web\app.js -> build\bdist.win-amd64\wheel\.\neurograft\web
+copying build\lib\neurograft\web\index.html -> build\bdist.win-amd64\wheel\.\neurograft\web
+copying build\lib\neurograft\web\style.css -> build\bdist.win-amd64\wheel\.\neurograft\web
+creating build\bdist.win-amd64\wheel\neurograft\web\vendor
+copying build\lib\neurograft\web\vendor\three.core.js -> build\bdist.win-amd64\wheel\.\neurograft\web\vendor
+copying build\lib\neurograft\web\vendor\three.LICENSE.txt -> build\bdist.win-amd64\wheel\.\neurograft\web\vendor
+copying build\lib\neurograft\web\vendor\three.module.js -> build\bdist.win-amd64\wheel\.\neurograft\web\vendor
+copying build\lib\neurograft\web\workbench.css -> build\bdist.win-amd64\wheel\.\neurograft\web
+copying build\lib\neurograft\web\workbench.html -> build\bdist.win-amd64\wheel\.\neurograft\web
+copying build\lib\neurograft\web\workbench.js -> build\bdist.win-amd64\wheel\.\neurograft\web
+copying build\lib\neurograft\workbench.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\workbench_service.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\__init__.py -> build\bdist.win-amd64\wheel\.\neurograft
+copying build\lib\neurograft\__main__.py -> build\bdist.win-amd64\wheel\.\neurograft
+running install_egg_info
+Copying neurograft.egg-info to build\bdist.win-amd64\wheel\.\neurograft-0.15.0-py3.12.egg-info
+running install_scripts
+creating build\bdist.win-amd64\wheel\neurograft-0.15.0.dist-info\WHEEL
+creating 'C:\\Users\\kai99\\Desktop\\New folder (5)\\dist\\.tmp-0o5ub_8u\\neurograft-0.15.0-py3-none-any.whl' and adding 'build\\bdist.win-amd64\\wheel' to it
+adding 'neurograft/__init__.py'
+adding 'neurograft/__main__.py'
+adding 'neurograft/acquire.py'
+adding 'neurograft/active_inference.py'
+adding 'neurograft/adaptation_study.py'
+adding 'neurograft/adaptive_memory.py'
+adding 'neurograft/adaptive_workbench.py'
+adding 'neurograft/archaeology.py'
+adding 'neurograft/bioelectric.py'
+adding 'neurograft/byte_bridge.py'
+adding 'neurograft/cli.py'
+adding 'neurograft/compass.py'
+adding 'neurograft/consolidation.py'
+adding 'neurograft/dales_law.py'
+adding 'neurograft/dynamics.py'
+adding 'neurograft/environment.py'
+adding 'neurograft/evaluation.py'
+adding 'neurograft/fixtures.py'
+adding 'neurograft/graphs.py'
+adding 'neurograft/ingest.py'
+adding 'neurograft/live.py'
+adding 'neurograft/live_state.py'
+adding 'neurograft/llm.py'
+adding 'neurograft/memory.py'
+adding 'neurograft/navigation_artifacts.py'
+adding 'neurograft/navigation_controller.py'
+adding 'neurograft/navigation_diagnostics.py'
+adding 'neurograft/navigation_evaluation.py'
+adding 'neurograft/navigation_report.py'
+adding 'neurograft/navigation_study.py'
+adding 'neurograft/navigation_training.py'
+adding 'neurograft/phase_plane.py'
+adding 'neurograft/replay.py'
+adding 'neurograft/replay_study.py'
+adding 'neurograft/report.py'
+adding 'neurograft/revision_study.py'
+adding 'neurograft/runtime.py'
+adding 'neurograft/self_model.py'
+adding 'neurograft/server.py'
+adding 'neurograft/service.py'
+adding 'neurograft/spectral_diffusion.py'
+adding 'neurograft/stp.py'
+adding 'neurograft/workbench.py'
+adding 'neurograft/workbench_service.py'
+adding 'neurograft/web/app.js'
+adding 'neurograft/web/index.html'
+adding 'neurograft/web/style.css'
+adding 'neurograft/web/workbench.css'
+adding 'neurograft/web/workbench.html'
+adding 'neurograft/web/workbench.js'
+adding 'neurograft/web/vendor/three.LICENSE.txt'
+adding 'neurograft/web/vendor/three.core.js'
+adding 'neurograft/web/vendor/three.module.js'
+adding 'neurograft-0.15.0.dist-info/licenses/LICENSE_MATRIX.md'
+adding 'neurograft-0.15.0.dist-info/METADATA'
+adding 'neurograft-0.15.0.dist-info/WHEEL'
+adding 'neurograft-0.15.0.dist-info/entry_points.txt'
+adding 'neurograft-0.15.0.dist-info/top_level.txt'
+adding 'neurograft-0.15.0.dist-info/RECORD'
+removing build\bdist.win-amd64\wheel
+Successfully built neurograft-0.15.0-py3-none-any.whl

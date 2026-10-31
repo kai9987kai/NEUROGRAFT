@@ -1,0 +1,18 @@
+2026-10-31T13:29:47.240Z Launching Chromium
+2026-10-31T13:29:47.749Z Chromium launched; creating desktop page
+2026-10-31T13:29:48.308Z Navigating to isolated session
+2026-10-31T13:29:48.889Z Waiting for initialized live snapshot
+2026-10-31T13:29:49.962Z Startup passed; stepping once
+2026-10-31T13:29:52.139Z Step and learning toggle passed; changing preset
+2026-10-31T13:29:53.181Z Preset changed; starting bounded evaluation
+2026-10-31T13:29:57.030Z Evaluation rows rendered; checking session and exporting JSON
+2026-10-31T13:29:57.681Z Evaluation and JSON export passed; checking stale weight notice
+2026-10-31T13:30:01.267Z Legacy checks passed; verifying observed-map controls and persistence
+2026-10-31T13:30:12.562Z Map mode, observed-only SVG, checkpoint restoration and eight-way comparison passed; checking mobile layout
+2026-10-31T13:30:12.840Z REQUEST FAILED http://127.0.0.1:49211/api/state net::ERR_ABORTED
+2026-10-31T13:30:14.379Z Original thirteen checks passed; verifying synthetic steering and continuation
+2026-10-31T13:30:19.657Z Steering action/source and named checkpoint continuation passed; starting ten-way comparison
+2026-10-31T13:30:25.552Z Checking connected empirical replay controls on mobile
+2026-10-31T13:30:31.604Z Desktop and mobile verification passed
+2026-10-31T13:30:31.604Z Closing isolated browser
+2026-10-31T13:30:36.680Z Browser closed

@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "wheel": "dist/neurograft-0.15.0-py3-none-any.whl",
+  "sha256": "5bb4f73c94ace7f34671959561a9e46012db9c23edb8f4ba63da3384fb4de373",
+  "package_files": 53,
+  "missing": [],
+  "extra": [],
+  "mismatches": [],
+  "metadata_readme_matches_source": true,
+  "isolated_import": {
+    "version": "0.15.0",
+    "module": "C:\\Users\\kai99\\AppData\\Local\\Temp\\neurograft-v15-wheel-1gql9_8k\\neurograft\\__init__.py",
+    "models": [
+      "cumulative",
+      "recent",
+      "adaptive"
+    ],
+    "arm_count": 9,
+    "legacy_import": true,
+    "study_config": {
+      "seeds": [
+        15000
+      ],
+      "window": 8,
+      "budget": 64,
+      "warmup_budget": 256,
+      "discount": 0.9,
+      "parameters": {
+        "decay": 0.95,
+        "threshold": 1.3862943611198906,
+        "minimum_fresh": 4,
+        "prior": 0.5
+      },
+      "forecast_models": [
+        "cumulative",
+        "recent",
+        "guarded_recent",
+        "adaptive"
+      ],
+      "models": [
+        "cumulative",
+        "recent",
+        "adaptive"
+      ],
+      "strategies": [
+        "prioritized",
+        "uniform",
+        "none"
+      ],
+      "cases": [
+        "stationary",
+        "reversals",
+        "gradual",
+        "conditional_adverse",
+        "sparse"
+      ]
+    }
+  }
+}

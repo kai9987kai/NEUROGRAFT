@@ -5,8 +5,10 @@
   const NS = "http://www.w3.org/2000/svg";
   const schedules = ["prioritized", "uniform", "none"];
   const scheduleNames = { prioritized: "Prioritized", uniform: "Cyclic uniform", none: "No replay" };
+  const modelNames = { cumulative: "Cumulative", recent: "Recent window", adaptive: "Adaptive" };
+  const forecastNames = { cumulative: "Cumulative", recent: "Recent window", guarded_recent: "Guarded recent", adaptive: "Adaptive" };
   const directions = [{ name: "North", short: "N", delta: [0, -1] }, { name: "East", short: "E", delta: [1, 0] }, { name: "South", short: "S", delta: [0, 1] }, { name: "West", short: "W", delta: [-1, 0] }];
-  const state = { snapshot: null, model: "recent", schedule: "prioritized", inspected: null, busy: false, playing: false, batchesRemaining: 0, playTimer: null, ready: false };
+  const state = { snapshot: null, model: "adaptive", schedule: "prioritized", inspected: null, busy: false, playing: false, batchesRemaining: 0, playTimer: null, ready: false };
   const key = position => position.join(",");
   const positionText = position => `(${position[0]}, ${position[1]})`;
   const number = value => typeof value === "number" && Number.isFinite(value) ? value : null;
@@ -15,6 +17,7 @@
   const percentage = value => number(value) === null ? "N/A" : `${(value * 100).toFixed(1)}%`;
   const setText = (id, text) => { $(id).textContent = text; };
   const announce = message => setText("workbench-status", message);
+  const plannerCount = () => Object.values(state.snapshot?.arms || {}).reduce((total, arms) => total + Object.keys(arms).length, 0);
   const svgElement = (tag, attributes = {}, text = null) => {
     const element = document.createElementNS(NS, tag);
     for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, String(value));
@@ -41,7 +44,7 @@
     if (state.playing) {
       setText("play-state", `Playing · ${state.batchesRemaining} of 8 batches remaining${state.busy ? " · current request in flight" : ""}`);
     } else {
-      setText("play-state", state.busy ? "Paused · current request is finishing; no next batch is scheduled" : "Paused · each command applies to all six planners");
+      setText("play-state", state.busy ? "Paused · current request is finishing; no next batch is scheduled" : `Paused · each command applies to all ${plannerCount() || 9} planners`);
     }
   }
 
@@ -71,6 +74,7 @@
     const snapshot = candidate.snapshot || candidate.workbench || candidate;
     if (!snapshot.models || !snapshot.arms || !Array.isArray(snapshot.goal)) throw new Error("The server returned an unsupported workbench snapshot.");
     state.snapshot = snapshot;
+    if (!snapshot.models[state.model]) state.model = snapshot.models.adaptive ? "adaptive" : "recent";
     if (!state.ready) $("window-select").value = String(snapshot.window);
     state.ready = true;
     if (!state.inspected) {
@@ -107,7 +111,7 @@
   async function playBatch() {
     state.playTimer = null;
     if (!state.playing || state.busy || state.batchesRemaining <= 0) return;
-    const ok = await command({ action: "replay", budget: integerInput("replay-budget", 0, 256) }, "Replay batch applied to all six planners.");
+    const ok = await command({ action: "replay", budget: integerInput("replay-budget", 0, 256) }, `Replay batch applied to all ${plannerCount()} planners.`);
     if (!ok || !state.playing) return;
     state.batchesRemaining -= 1;
     if (state.batchesRemaining <= 0) {
@@ -147,9 +151,18 @@
     setText("operation-count", `${count(snapshot.operations)} / 128 operations`);
     setText("goal-badge", `Goal ${positionText(snapshot.goal)}${snapshot.models[state.model].nodes.some(position => key(position) === key(snapshot.goal)) ? "" : " · unknown"}`);
     setText("event-count", `${count(snapshot.events)} supplied events`);
-    setText("selected-model-label", state.model === "recent" ? "Recent model" : "Cumulative model");
-    setText("model-note", state.model === "recent" ? `First fresh outcome replaces that action’s frozen baseline. Thereafter, only its last ${snapshot.window} new outcomes count; untouched actions retain the aggregate.` : "All frozen baseline counts and all supplied outcomes accumulate together. Earlier outcomes remain in the model after an action changes.");
-    for (const model of ["cumulative", "recent"]) {
+    setText("selected-model-label", `${modelNames[state.model]} model`);
+    const notes = {
+      cumulative: "All frozen baseline counts and all supplied outcomes accumulate together. Earlier outcomes remain in the model after an action changes.",
+      recent: `First fresh outcome replaces that action’s frozen baseline. Thereafter, only its last ${snapshot.window} new outcomes count; untouched actions retain the aggregate.`,
+      adaptive: `Each action selects cumulative or last-${snapshot.window} recent counts using discounted pre-update forecast scores. Choices may reverse; the graph keeps actual observed counts.`
+    };
+    setText("model-note", notes[state.model]);
+    setText("intro-models", snapshot.models.adaptive ? "Supply an outcome. Compare cumulative, recent and adaptive evidence, then watch replay repair retained values." : "Legacy receipt: compare cumulative and recent evidence, then watch replay repair retained values. Create a new fixture for adaptive evidence.");
+    setText("observation-sharing", `These are supplied events, not measurements collected by the live agent. Every event is shared across all ${plannerCount()} arms.`);
+    for (const model of Object.keys(modelNames)) {
+      $("model-" + model).disabled = !snapshot.models[model];
+      $("model-" + model).title = snapshot.models[model] ? `${modelNames[model]} evidence` : "Unavailable in a legacy v1 receipt. Create a new fixture or capture for adaptive evidence.";
       $("model-" + model).setAttribute("aria-pressed", String(state.model === model));
       $("model-" + model).classList.toggle("active", state.model === model);
     }
@@ -170,10 +183,38 @@
     if (typeof scope === "string") setText("evidence-scope", scope);
     else if (Array.isArray(scope)) setText("evidence-scope", scope.join(" "));
     else if (scope) setText("evidence-scope", Object.values(scope).map(value => typeof value === "string" ? value : JSON.stringify(value)).join(" "));
-    setText("provenance-detail", JSON.stringify({ provenance: snapshot.provenance, cumulative_sha256: snapshot.models.cumulative.sha256, recent_sha256: snapshot.models.recent.sha256 }, null, 2));
+    setText("provenance-detail", JSON.stringify({ provenance: snapshot.provenance, model_sha256: Object.fromEntries(Object.entries(snapshot.models).map(([name, model]) => [name, model.sha256])) }, null, 2));
+    renderPredictiveScores();
     renderGraph();
     renderInspector();
     renderHistory();
+  }
+
+  function renderPredictiveScores() {
+    const diagnostics = state.snapshot.adaptive_evidence, target = $("adaptive-score-table");
+    target.replaceChildren();
+    if (!diagnostics) {
+      setText("evidence-score-count", "Legacy v1 · no scores");
+      setText("adaptive-score-note", "This imported legacy receipt contains two evidence models and no adaptive forecast scores. Its original experiment remains usable; create a new fixture or capture for the nine-arm experiment.");
+      return;
+    }
+    const events = diagnostics.events;
+    setText("evidence-score-count", events ? `${count(events)} scored events` : "No scored events");
+    setText("adaptive-score-note", events ? "Average binary move/collision losses across the supplied stream. Every prediction was scored before its outcome updated the counts. Lower is better; replay and goal changes add no scores." : "No scored events yet. Supply an observation to score the prior forecast before updating any counts. No average is shown until then.");
+    const table = document.createElement("table"), caption = document.createElement("caption");
+    caption.textContent = "Pre-update average forecast loss";
+    const head = document.createElement("thead"), heading = document.createElement("tr");
+    for (const text of ["Forecast", "Brier", "Log loss"]) { const cell = document.createElement("th"); cell.scope = "col"; cell.textContent = text; heading.append(cell); }
+    head.append(heading);
+    const body = document.createElement("tbody");
+    for (const [name, label] of Object.entries(forecastNames)) {
+      const score = diagnostics.losses[name];
+      if (!score) continue;
+      const row = document.createElement("tr"), title = document.createElement("th"); title.scope = "row"; title.textContent = label; row.append(title);
+      for (const field of ["brier", "log_loss"]) { const cell = document.createElement("td"); cell.textContent = events ? metric(score[field] / events) : "—"; row.append(cell); }
+      body.append(row);
+    }
+    table.append(caption, head, body); target.append(table);
   }
 
   function heatColor(value, maximum) {
@@ -286,7 +327,25 @@
       const detail = document.createElement("span"); detail.textContent = edges.map(edge => `${positionText(edge.destination)} ×${edge.count}${key(edge.destination) === key(position) ? " collision" : ""}`).join(" · ");
       row.append(name, detail); list.append(row);
     }
+    renderAdaptiveInspector(position);
     updateObservationPreview();
+  }
+
+  function renderAdaptiveInspector(position) {
+    const diagnostics = state.snapshot.adaptive_evidence, list = $("adaptive-pairs");
+    list.replaceChildren();
+    if (!diagnostics) { setText("adaptive-rule", "Legacy v1 receipt: adaptive evidence was not part of this experiment."); return; }
+    const parameters = diagnostics.parameters;
+    setText("adaptive-rule", `Recent counts require at least ${parameters.minimum_fresh} fresh outcomes and evidence > ${metric(parameters.threshold)}; otherwise cumulative counts apply. Evidence decays by ${parameters.decay} per local outcome.`);
+    for (const [action, direction] of directions.entries()) {
+      const pair = diagnostics.pairs.find(item => key(item.source) === key(position) && item.action === action);
+      const row = document.createElement("div"); row.className = "adaptive-pair";
+      const heading = document.createElement("strong"), choice = document.createElement("span"), detail = document.createElement("span");
+      heading.textContent = direction.name;
+      choice.className = "adaptive-choice"; choice.textContent = pair?.selected === "recent" ? "Recent" : "Cumulative";
+      detail.className = "adaptive-pair-detail"; detail.textContent = `${count(pair?.fresh_count || 0)} fresh · evidence ${metric(pair?.evidence || 0)} · ${count(pair?.switches || 0)} switches`;
+      row.append(heading, choice, detail); list.append(row);
+    }
   }
 
   function updateObservationPreview() {
@@ -324,7 +383,7 @@
     });
   }
 
-  for (const model of ["cumulative", "recent"]) $("model-" + model).addEventListener("click", () => { state.model = model; render(); });
+  for (const model of Object.keys(modelNames)) $("model-" + model).addEventListener("click", () => { if (state.snapshot?.models[model]) { state.model = model; render(); } });
   for (const schedule of schedules) $("schedule-" + schedule).addEventListener("click", () => { state.schedule = schedule; render(); });
   $("inspect-btn").addEventListener("click", withInput(() => inspect([integerInput("inspect-x", 0, 30), integerInput("inspect-z", 0, 30)])));
   for (const id of ["inspect-x", "inspect-z"]) $(id).addEventListener("keydown", event => { if (event.key === "Enter") $("inspect-btn").click(); });
@@ -338,7 +397,7 @@
   $("observation-action").addEventListener("change", updateObservationPreview);
   $("observation-outcome").addEventListener("change", updateObservationPreview);
   $("observation-count").addEventListener("input", updateObservationPreview);
-  $("observe-btn").addEventListener("click", withInput(() => command({ action: "observe", ...updateObservationPreview() }, "Supplied outcomes applied to both empirical models and all six arms. Retained values may now be stale.")));
+  $("observe-btn").addEventListener("click", withInput(() => command({ action: "observe", ...updateObservationPreview() }, `Supplied outcomes applied sequentially to all ${plannerCount()} arms. Retained values may now be stale.`)));
   $("step-btn").addEventListener("click", () => command({ action: "replay", budget: 1 }, "One backup requested for each planner; disabled replay performs no backups."));
   $("replay-btn").addEventListener("click", withInput(() => command({ action: "replay", budget: integerInput("replay-budget", 0, 256) }, "Replay batch applied. Compare actual backups and empirical errors across all schedules.")));
   $("play-btn").addEventListener("click", () => { if (state.busy || !state.ready) return; state.playing = true; state.batchesRemaining = 8; clearError(); updateControls(); playBatch(); });

@@ -1,0 +1,67 @@
+{
+  "acquisition": "Seeded two-route geometries and independent per-action baseline samples from stationary move probabilities .75/.8/.9, with 32..64 samples per action. Captured aggregate counts are unordered; no history is reconstructed.",
+  "analysis": "Retain every case, stage and seed. Equal-weight seed means and paired seed differences are descriptive; stages/cases within a seed are correlated, not independent replicates. No significance test, tuning, dominance gate or promotion.",
+  "config": {
+    "budget": 64,
+    "cases": [
+      "stationary",
+      "reversals",
+      "gradual",
+      "conditional_adverse",
+      "sparse"
+    ],
+    "discount": 0.9,
+    "forecast_models": [
+      "cumulative",
+      "recent",
+      "guarded_recent",
+      "adaptive"
+    ],
+    "models": [
+      "cumulative",
+      "recent",
+      "adaptive"
+    ],
+    "parameters": {
+      "decay": 0.95,
+      "minimum_fresh": 4,
+      "prior": 0.5,
+      "threshold": 1.3862943611198906
+    },
+    "seeds": [
+      15000,
+      15001,
+      15002,
+      15003,
+      15004,
+      15005,
+      15006,
+      15007
+    ],
+    "strategies": [
+      "prioritized",
+      "uniform",
+      "none"
+    ],
+    "warmup_budget": 256,
+    "window": 8
+  },
+  "limits": {
+    "json_bytes": 268435456,
+    "max_events_per_case": 2048,
+    "max_nodes": 256,
+    "max_seeds": 32
+  },
+  "metrics": "Record per-event pre-update binary Brier and natural log loss, absolute probability error against held-out truth, local selections, switches and evidence. First recent-selection delay counts target visits and stream events, not calibrated detection delay. Stage selection summaries use stage-relative visits and event offsets; first_recent_event is the global stream index, first_recent_event_relative subtracts the stage offset, and recent_at_entry distinguishes already-active recency. Whole-case summaries span that case lifetime. Stationary recent selections/switches are descriptive false-switch proxies with no statistical error-rate guarantee. Independent synchronous contraction iteration evaluates empirical residual/MAE and current-dynamics frozen-policy discounted start-value regret; evaluation never updates a model.",
+  "rule": "Score Beta(.5,.5) binary move predictions before updates; local evidence = .95 * evidence + log(p_recent(outcome)/p_cumulative(outcome)). Select recent iff fresh_count >= 4 and evidence > log(4), otherwise cumulative. Guarded recent forecasts cumulative until four previous fresh events, then recent. Planning uses unsmoothed positive integer counts; no edges are fabricated.",
+  "schema": "adaptive-evidence-study-v1",
+  "scope": "Exploratory finite synthetic supplied-outcome streams, not autonomous exploration, neural learning, biological equivalence or checkpoint promotion. Parameters are fixed before the eight-seed pilot and are not tuned on its outcomes. Truth is withheld from memory and planners. Smoothed forecasts and integer-count planning are distinct. A discounted predictive score is a heuristic, not a posterior or calibrated detector. Equal backup caps do not imply equal computation. SHA256 checks consistency, not authenticity.",
+  "streams": {
+    "ambiguity": "Identical baselines and W collisions per target are presented to two memories with different evaluation-only truths. Their forecasts, selected graphs and diagnostic state must be identical.",
+    "conditional_adverse": "W forced collisions per target under unchanged truth, followed by 48 unconditional recovery samples. Conditional stress, not its frequency.",
+    "gradual": "96 outcomes alternating targets; each pair probability decreases linearly to .1 over 48 events then returns over 48; checkpoints every 24.",
+    "reversals": "Four 32-outcome blocks: closure, reopening, closure, reopening. Each truth change has a zero-observation/zero-backup checkpoint before sampling.",
+    "sparse": "Close the first target without observations; sample the second target 24 times, revisit closed target twice, sample second 24 more times, revisit closed target 16 times. A third baseline action is never observed.",
+    "stationary": "96 unconditional independent outcomes, alternating target actions; checkpoints every 32."
+  }
+}

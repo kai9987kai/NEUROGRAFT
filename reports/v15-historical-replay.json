@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "v13": {
+    "deterministic_replay": true,
+    "report_sha256": "33b1de2f9c0fe9cb48958edd178570ac31e3592b715e8ad01c1ff60840a97aa5"
+  },
+  "v14": {
+    "deterministic_replay": true,
+    "report_sha256": "37300fc774c3093c447a4179e8e176d9a2a9959a7d78b3cf755da08eec6899fe"
+  },
+  "v11": {
+    "verified": false,
+    "known_preserved_issue": "report.html artifact hash mismatch, independently reproduced; not resealed"
+  }
+}

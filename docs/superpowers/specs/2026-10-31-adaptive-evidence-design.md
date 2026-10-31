@@ -1,0 +1,34 @@
+# Adaptive transition evidence (v0.15)
+
+31 October 2026. User authorized selecting and implementing the strongest research-led direction, without a design approval round. These implementation choices are the builder's decisions.
+
+## Intent and alternatives
+
+v0.14 demonstrates a stability/adaptation tradeoff: cumulative counts retain obsolete transitions; resetting to recent outcomes discards useful stationary evidence. Build a causal, inspectable adaptive baseline and measure its tradeoffs. Alternatives considered: autonomous exploration requires a separate physical-changing-world interaction protocol; stronger neural episodic memory changes learning architecture and needs matched training. Adaptive evidence provides a bounded next experiment on the existing validated planner. It does not establish neural or biological improvement.
+
+## Fixed rule and interfaces
+
+`AdaptiveTransitionMemory(graph, window=8)` retains independent cumulative counts, a last-W fresh-outcome window for each observed state/action, and an adaptive integer-count graph. Captured counts remain unordered. Before every new event, forecast binary move/collision from cumulative and recent experts using Beta(0.5,0.5) smoothed probabilities. For an untouched pair both experts use the baseline. Record predictions and proper losses before updating either expert. Update local evidence as `0.95 * old_evidence + log(p_recent(outcome) / p_cumulative(outcome))`. Select recent evidence only after at least four fresh pair outcomes and evidence strictly greater than `log(4)`; otherwise select cumulative. Selection may reverse. This is a discounted predictive-score heuristic, not a calibrated posterior or a statistically certified change detector. Smoothing is used only for prediction/scoring; planning retains actual positive integer counts and invents no edges. Parameters are fixed before the pilot, not tuned on its seeds. The binary Brier score is `(p_move - outcome_move)^2`; log loss uses the probability of the realized binary event.
+
+Expose `predict(source, action)` (move probabilities for cumulative, recent, guarded_recent and adaptive), `observe(source, action, destination)` (pre-update predictions, losses, choice before/after, local evidence), `.graph` (selected integer evidence), and `diagnostics()` (detached sorted per-pair counts, evidence, expert, switches, cumulative proper losses). Guarded recent uses cumulative for fewer than four previous fresh observations and recent thereafter, isolating the warmup guard in the study. Unknown action scoring uses 0.5, never a fabricated planning transition. Validate inputs and bound events to 2048, nodes to 256, windows to 4/8/16. Invalid input must leave state unchanged.
+
+## Workbench and compatibility
+
+Preserve `ReplayWorkbench` v1 and both historical study implementations unchanged. Add `AdaptiveReplayWorkbench` v2 as a subclass with three evidence policies crossed with three schedules. Its snapshot adds `adaptive_evidence`; its receipts deterministically reconstruct all scores and exact continuation. Each batched command processes events sequentially. All nine planners share evidence and requested budgets; observations retain old values and mark summaries stale until replay. Goal/replay/read operations do not update predictive scores. Default new fixtures/captures use v2. Receipt imports dispatch explicitly to v1 or v2, rejecting unsupported types/versions atomically. UI renders three policies and predictive diagnostics, and handles imported v1 receipts with the adaptive control disabled. No session/checkpoint behavior is changed.
+
+## Causal streaming study
+
+New `study-adaptation` and `verify-adaptation-study --replay` commands create a fresh sealed standalone JSON/HTML archive. Use 8 fixed seeds 15000..15007; separate protocol from evidence. Every arm receives the same seed's ordered stream. Include unconditional stationary outcomes, abrupt closure/reopening, gradual drift, repeated reversals, conditional adverse stress, sparse revisits/untouched pairs, and an explicit matched-prefix ambiguity control. Record pre-update Brier/log losses for cumulative, recent, guarded_recent and adaptive, local selections and switches, first recent-selection delay (descriptive, not a calibrated detection claim), and stage-level planning metrics under the existing three schedules. Keep current truth out of the memory interface and distinguish empirical residual from independently evaluated current-dynamics value/policy regret. Report all seeds and negative results; no universal dominance gate, parameter tuning, or automatic promotion. Equal backups are not equal compute. Forecasts and planning use different smoothing conventions and must be labeled.
+
+Verification must check declared configuration, all artifact hashes, derived aggregates and HTML rendering; strict replay regenerates every stream and score. Coordinated resealing of altered evidence must fail strict replay. Preserve both v13 and v14 strict replay exactly. SHA256 detects consistency failures, not authenticity.
+
+## Research checked on 31 October 2026
+
+- Tao, Wen and Han, ICML 2026, *Prioritized Model Experience Replay*: https://proceedings.mlr.press/v306/tao26c.html. Distinguishes policy-relevant model error from a global prediction proxy; this project does not implement their neural replay method.
+- Gerogiannis, Huang and Veeravalli, DARLING, 17 April / revised 11 May 2026 preprint: https://arxiv.org/abs/2604.16684v2. Motivates explicit change and stationary controls. Its guarantees depend on separability/reachability assumptions and do not transfer to this heuristic.
+- Duan et al., DEER, 18 September 2025 preprint: https://arxiv.org/abs/2509.15032. Motivates separating changes in dynamics from value replay; no classifier or DEER replication is claimed.
+- Bifet and Gavalda, SDM 2007: https://www.cs.upc.edu/~gavalda/papers/adwin06.pdf. A principled adaptive-window alternative, requiring additional detector/multiple-testing choices. The selected rule is intentionally an inspectable predictive expert baseline, not ADWIN.
+
+## Validation and preservation
+
+Meaningful tests cover prequential ordering, batched equivalence, stationary adverse ambiguity, local independence, reversals, boundary validation, read purity, v1/v2 receipts, exact next-event continuation and tamper rejection. Run fresh full Python regression, browser controls/layout/import checks, new study strict replay, historical strict replays, wheel/source parity, and original checkpoint hash comparison. Preserve initial dirty artifacts and existing live checkpoint (SHA256 `8a3630eaebd3242ee43bca3e4bd0375c330592645fcd87bbce4413f8d813f5f2`). The known v11 HTML seal mismatch remains documented; do not reseal it. Correct the narrative comparison against the existing kinematic predictor without altering archived study bytes. No remote publication is requested.

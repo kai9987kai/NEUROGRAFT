@@ -1,0 +1,188 @@
+{
+  "version": "0.15.0",
+  "date": "2026-10-31",
+  "branch": "codex/replay-learning-lab",
+  "tests": {
+    "passed": 969,
+    "seconds": 589.04,
+    "command": "python -m pytest -q",
+    "output": "reports/v15-tests.txt"
+  },
+  "browser": {
+    "workbench_checks": 26,
+    "existing_live_checks": 26,
+    "page_errors": [],
+    "live_capture_session_unchanged": true,
+    "workbench_receipt": "reports/browser-v15/workbench/workbench-browser.json",
+    "live_receipt": "reports/browser-v15/live/browser-verification.json",
+    "expected_rejected_requests": 1
+  },
+  "package": {
+    "ok": true,
+    "wheel": "dist/neurograft-0.15.0-py3-none-any.whl",
+    "sha256": "5bb4f73c94ace7f34671959561a9e46012db9c23edb8f4ba63da3384fb4de373",
+    "package_files": 53,
+    "missing": [],
+    "extra": [],
+    "mismatches": [],
+    "metadata_readme_matches_source": true,
+    "isolated_import": {
+      "version": "0.15.0",
+      "module": "C:\\Users\\kai99\\AppData\\Local\\Temp\\neurograft-v15-wheel-1gql9_8k\\neurograft\\__init__.py",
+      "models": [
+        "cumulative",
+        "recent",
+        "adaptive"
+      ],
+      "arm_count": 9,
+      "legacy_import": true,
+      "study_config": {
+        "seeds": [
+          15000
+        ],
+        "window": 8,
+        "budget": 64,
+        "warmup_budget": 256,
+        "discount": 0.9,
+        "parameters": {
+          "decay": 0.95,
+          "threshold": 1.3862943611198906,
+          "minimum_fresh": 4,
+          "prior": 0.5
+        },
+        "forecast_models": [
+          "cumulative",
+          "recent",
+          "guarded_recent",
+          "adaptive"
+        ],
+        "models": [
+          "cumulative",
+          "recent",
+          "adaptive"
+        ],
+        "strategies": [
+          "prioritized",
+          "uniform",
+          "none"
+        ],
+        "cases": [
+          "stationary",
+          "reversals",
+          "gradual",
+          "conditional_adverse",
+          "sparse"
+        ]
+      }
+    }
+  },
+  "study": {
+    "ok": true,
+    "schema": "adaptive-evidence-study-v1",
+    "deterministic_replay": true,
+    "derived_metrics_verified": true,
+    "seed_count": 8,
+    "report_sha256": "19ce05976ce4abaeeac4bcf8ffc408284db638f88cb411b020e43fd66820a06f",
+    "promotion_performed": false
+  },
+  "historical_replay": {
+    "ok": true,
+    "v13": {
+      "deterministic_replay": true,
+      "report_sha256": "33b1de2f9c0fe9cb48958edd178570ac31e3592b715e8ad01c1ff60840a97aa5"
+    },
+    "v14": {
+      "deterministic_replay": true,
+      "report_sha256": "37300fc774c3093c447a4179e8e176d9a2a9959a7d78b3cf755da08eec6899fe"
+    },
+    "v11": {
+      "verified": false,
+      "known_preserved_issue": "report.html artifact hash mismatch, independently reproduced; not resealed"
+    }
+  },
+  "checkpoint": {
+    "path": "data/live/session.pt",
+    "sha256": "8a3630eaebd3242ee43bca3e4bd0375c330592645fcd87bbce4413f8d813f5f2",
+    "preserved": true
+  },
+  "source_sha256": {
+    "neurograft/__init__.py": "82b36c3d3ed7be3f468a4fe382dc521ae7021cb3fdc28bb2089e5a057ae49656",
+    "neurograft/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "neurograft/acquire.py": "ff5143013de1cc09705e8af2d4753de4162c26dd0f67f2a1ed02b932780027b7",
+    "neurograft/active_inference.py": "0bd0c94551fa892c2b84e1b095391786691f3409de13e3c098ccb4f82b56005e",
+    "neurograft/adaptation_study.py": "12383813c613442915caee418bf4059f3c8a2e810600cb72e032cf94123d19cb",
+    "neurograft/adaptive_memory.py": "f892df8d81e89df05b46760767c097fd8ff7fef99f5279408d9d8b668f64cd13",
+    "neurograft/adaptive_workbench.py": "99a385c6a8bb4f41955073ad869000d2920494ff727c2b6791f5662441e952cd",
+    "neurograft/archaeology.py": "bd87bbe2c9c19a02dd15238824b5aa0a78b2b346ca81c95a55442edb768ac7b5",
+    "neurograft/bioelectric.py": "0b0e598227be2ee088601055d165d0bfa51997f272a3fd93812b11f192d5bc36",
+    "neurograft/byte_bridge.py": "f2ac7cb6b9a421706f748edfb98b284fbeb74e85788f65f4a4bc1060cda65ab1",
+    "neurograft/cli.py": "b9b3d2b991bb8d94aeed318a61ce7d61df6c1da74f9edc758483374071fe861b",
+    "neurograft/compass.py": "ad9a3e842f3c35c6b1ea690190f45f998da01b581d9afd8b5e0b508b61e8ad96",
+    "neurograft/consolidation.py": "c0b6085653b348cf8cc9dbd5e134a44770ef4df4bb641df989d173a87b5b3891",
+    "neurograft/dales_law.py": "60e7f00512cc84c21579de5628385fe0ea4318c2d838f20ecf86014b3dff8875",
+    "neurograft/dynamics.py": "89a980893ba260a145a65a2e96edf60b98a4bc4576abbae96378b52752f53ad0",
+    "neurograft/environment.py": "1bf855712dc9b01dc9f5c84241f3105393c5abb033a49c4ddc30e2ddb00b1c68",
+    "neurograft/evaluation.py": "32e523fcd61d04ef6979dbb600d2d67940b16e082ac2aeda2aece7c49c614576",
+    "neurograft/fixtures.py": "5cebf23f5a0d0d99ed299c2d12d902347ae46735dfcc25f6aab906c2706e60ef",
+    "neurograft/graphs.py": "15768d657c7080d8f1b18f14e914ccf2a90ca039ad60991651a3fe03d1808e08",
+    "neurograft/ingest.py": "329cdd40e46f8ca434a910c2f570151f962391b73e95f7b4274f98c2cc2ce829",
+    "neurograft/live.py": "08aed5597d1171423c33bda5fa83a2c77a815923c690aff42df8c05549525465",
+    "neurograft/live_state.py": "eec57bf00b62da347a9e0ae20f14577895fbde5e02cbd680580eda9a0d0e5d71",
+    "neurograft/llm.py": "33f9861783a7fe6832f38de08b1c3ae097edd2917f118770049df46ccdfe54f0",
+    "neurograft/memory.py": "a84f52176110e14b69a041c9807e756086bb843af8b62bbda266936467888b97",
+    "neurograft/navigation_artifacts.py": "02a6e176bbbd509e471eac17593df8ae9c15ce3d8d7363c7d26e7c5fe729b700",
+    "neurograft/navigation_controller.py": "a22c4311c6c1cb1ebc75016965f76c9b236d5dad35cfe72fdc5544bb81cb909b",
+    "neurograft/navigation_diagnostics.py": "ec1808407eed09b098d177143a0497e100c379567fedbf5a1b7edd4a4ef15c26",
+    "neurograft/navigation_evaluation.py": "0a0002a42124e215b72b52955e4dc6735215e757046d5ba7a4b8db109199983a",
+    "neurograft/navigation_report.py": "355056b6e8d6410f9261c2e4c4514a1848d6abee63980b9035f8377a8c0f6e50",
+    "neurograft/navigation_study.py": "5b6dd0fc9d7b6a9d3c730547fa402363eb7ca8f5f40c915be698f19eb24c2b9e",
+    "neurograft/navigation_training.py": "8a10655909ec9dd63f60d32348dc933d44a890bf6fb7597dc93cd878d6fc3da5",
+    "neurograft/phase_plane.py": "e6ad3d51cf85cf8dc28f788f89c41165368178798fb585fbad2393ccbae0f2ca",
+    "neurograft/replay.py": "8209669cb693910c7f02f7b6b9a88ad85d01629d1ce1b74cb25ceaafe2b719e6",
+    "neurograft/replay_study.py": "3332f7ad6d6f8cb584e097c1955bcb76df00b1146795e68f2691d8e32f252a2c",
+    "neurograft/report.py": "fd8beaf44c8208b700d4a99f21c011519355d0c161c00f92f1ba531174500aef",
+    "neurograft/revision_study.py": "45c3c7199858649005a7b59cb63b9073e95fb4d9b92ad2f7c5f4bb6d7b662a4b",
+    "neurograft/runtime.py": "c0765bb16e1f014258fbbc1ae25e065702c6bff6ab60c3c24071a0e0dbba7acd",
+    "neurograft/self_model.py": "62a245e00c333aa5bee21f2066594fb5a3b804996e47e91d00bafb20db941962",
+    "neurograft/server.py": "5f713f3311697230b17d60d91a66e3dea367b3eab6e45b8bf4b6ad5153037022",
+    "neurograft/service.py": "9167a4b2ac3daa8271cd4b755c1ca22736a8fb07cc7631cb6eef5f2a3e6ece93",
+    "neurograft/spectral_diffusion.py": "28d4612622d5c62a14f554ede83745c8a689819d85ada9abd350aee5fe371e88",
+    "neurograft/stp.py": "c50001da88625323ffcc6ab46cf77a1a29b303b5592e6494fa80d7c6f39d919a",
+    "neurograft/web/app.js": "faf1c3c7a9b39d5e68ade25810e7d25b377f2bcda10ce0217c5c43c2cd773c47",
+    "neurograft/web/index.html": "428ab133ac0e31130a4d7b9017497cc63101a6cafb465383ef5ed35349db43cf",
+    "neurograft/web/style.css": "a3ab8569c11635d4df0b445ce91076494986d827c8643779bbe8166ad2bad9d5",
+    "neurograft/web/vendor/three.core.js": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6",
+    "neurograft/web/vendor/three.LICENSE.txt": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc",
+    "neurograft/web/vendor/three.module.js": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea",
+    "neurograft/web/workbench.css": "734608f2116a5c682a29bcb7cb2cab0daa2665f2c5fa644dc5795718b52a88b7",
+    "neurograft/web/workbench.html": "eaa498752209006f1467653e668130a63a20aadd0a46fa058c3d070d2e80ed08",
+    "neurograft/web/workbench.js": "7611336ff6569944d8fa43ebfc12b5259c5fd8310521a3ec18500d7e40680ee4",
+    "neurograft/workbench.py": "50798d1ae87d36b49bf5e4e5a04681149a8d53f92350bb1373b69f75e2afd2bf",
+    "neurograft/workbench_service.py": "65436b3878dc5905ee03da1de2953e33c0146b375ae1df44b7e89aaf959442e6"
+  },
+  "runtime": {
+    "url": "http://127.0.0.1:8770/workbench",
+    "pid": 8400,
+    "health": {
+      "ok": true,
+      "mode": "fixture_workbench",
+      "live_session_opened": false
+    },
+    "receipt_version": 2,
+    "models": [
+      "cumulative",
+      "recent",
+      "adaptive"
+    ],
+    "source": "isolated fixture",
+    "live_checkpoint_opened": false
+  },
+  "review": {
+    "material_open_findings": [],
+    "count_visibility_resolved": true,
+    "maximum_counter_finite_score_regression": true,
+    "proper_loss_vs_heuristic_wording_corrected": true
+  },
+  "promotion_performed": false,
+  "remote_publication_performed": false
+}

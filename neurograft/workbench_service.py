@@ -5,12 +5,13 @@ import threading
 
 from .memory import TopologicalMemoryGraph
 from .workbench import ReplayWorkbench
+from .adaptive_workbench import AdaptiveReplayWorkbench
 
 
 class WorkbenchStore:
     def __init__(self, seed=0, capture=None):
         self.lock = threading.RLock()
-        self.current = ReplayWorkbench(seed=seed)
+        self.current = AdaptiveReplayWorkbench(seed=seed)
         self.capture = capture
 
     def snapshot(self):
@@ -32,18 +33,25 @@ class WorkbenchStore:
         action = payload.get('action')
         if action == 'fixture':
             self._fields(payload, ('action', 'seed', 'window'))
-            candidate = ReplayWorkbench(seed=payload.get('seed', 0), window=payload.get('window', 8))
+            candidate = AdaptiveReplayWorkbench(seed=payload.get('seed', 0), window=payload.get('window', 8))
         elif action == 'capture':
             self._fields(payload, ('action', 'window'))
             if self.capture is None:
                 raise ValueError('Live capture requires the main live server; this tool uses an isolated fixture.')
             # Copy live data first; release the session lock before model/oracle work.
             graph, goal, provenance = self.capture()
-            candidate = ReplayWorkbench(TopologicalMemoryGraph.from_state(graph), tuple(goal),
-                                        provenance=provenance, window=payload.get('window', 8))
+            candidate = AdaptiveReplayWorkbench(TopologicalMemoryGraph.from_state(graph), tuple(goal),
+                                                provenance=provenance, window=payload.get('window', 8))
         elif action == 'import':
             self._fields(payload, ('action', 'receipt'))
-            candidate = ReplayWorkbench.from_receipt(payload.get('receipt'))
+            receipt = payload.get('receipt')
+            if type(receipt) is not dict or type(receipt.get('version')) is not int:
+                raise ValueError('invalid workbench receipt version')
+            engines = {1: ReplayWorkbench, 2: AdaptiveReplayWorkbench}
+            engine = engines.get(receipt['version'])
+            if engine is None:
+                raise ValueError('unsupported workbench receipt version')
+            candidate = engine.from_receipt(receipt)
         else:
             with self.lock:
                 return self.current.apply(payload)

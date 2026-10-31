@@ -1,0 +1,427 @@
+{
+  "version": 2,
+  "initial": {
+    "graph": {
+      "version": 1,
+      "nodes": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ]
+      ],
+      "transitions": [
+        {
+          "source": [
+            1,
+            1
+          ],
+          "action": 1,
+          "destination": [
+            2,
+            1
+          ],
+          "count": 11
+        },
+        {
+          "source": [
+            1,
+            1
+          ],
+          "action": 2,
+          "destination": [
+            1,
+            2
+          ],
+          "count": 8
+        },
+        {
+          "source": [
+            1,
+            2
+          ],
+          "action": 2,
+          "destination": [
+            1,
+            3
+          ],
+          "count": 7
+        },
+        {
+          "source": [
+            1,
+            3
+          ],
+          "action": 1,
+          "destination": [
+            2,
+            3
+          ],
+          "count": 7
+        },
+        {
+          "source": [
+            2,
+            1
+          ],
+          "action": 1,
+          "destination": [
+            2,
+            1
+          ],
+          "count": 3
+        },
+        {
+          "source": [
+            2,
+            1
+          ],
+          "action": 1,
+          "destination": [
+            3,
+            1
+          ],
+          "count": 6
+        },
+        {
+          "source": [
+            2,
+            3
+          ],
+          "action": 1,
+          "destination": [
+            3,
+            3
+          ],
+          "count": 7
+        },
+        {
+          "source": [
+            3,
+            1
+          ],
+          "action": 1,
+          "destination": [
+            4,
+            1
+          ],
+          "count": 6
+        },
+        {
+          "source": [
+            3,
+            3
+          ],
+          "action": 1,
+          "destination": [
+            4,
+            3
+          ],
+          "count": 11
+        },
+        {
+          "source": [
+            4,
+            1
+          ],
+          "action": 1,
+          "destination": [
+            5,
+            1
+          ],
+          "count": 11
+        },
+        {
+          "source": [
+            4,
+            3
+          ],
+          "action": 1,
+          "destination": [
+            5,
+            3
+          ],
+          "count": 6
+        },
+        {
+          "source": [
+            5,
+            2
+          ],
+          "action": 0,
+          "destination": [
+            5,
+            1
+          ],
+          "count": 11
+        },
+        {
+          "source": [
+            5,
+            3
+          ],
+          "action": 0,
+          "destination": [
+            5,
+            2
+          ],
+          "count": 11
+        }
+      ],
+      "reward_totals": [
+        {
+          "position": [
+            1,
+            1
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            1,
+            2
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            1,
+            3
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            2,
+            1
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            2,
+            3
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            3,
+            1
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            3,
+            3
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            4,
+            1
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            4,
+            3
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            5,
+            1
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            5,
+            2
+          ],
+          "total_reward": 0
+        },
+        {
+          "position": [
+            5,
+            3
+          ],
+          "total_reward": 0
+        }
+      ],
+      "total_transitions": 105
+    },
+    "goal": [
+      5,
+      1
+    ],
+    "window": 8,
+    "provenance": {
+      "kind": "synthetic-fixture",
+      "seed": 42
+    }
+  },
+  "operations": [
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "observe",
+      "action_index": 1,
+      "count": 1,
+      "destination": [
+        3,
+        1
+      ],
+      "source": [
+        3,
+        1
+      ]
+    },
+    {
+      "action": "replay",
+      "budget": 8
+    },
+    {
+      "action": "replay",
+      "budget": 8
+    }
+  ],
+  "final_sha256": "2420141c00d39e4938c7892df7695a65e3c6de96ab78eec5ccf1649878379e37"
+}

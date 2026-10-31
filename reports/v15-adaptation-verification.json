@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "schema": "adaptive-evidence-study-v1",
+  "deterministic_replay": true,
+  "derived_metrics_verified": true,
+  "seed_count": 8,
+  "report_sha256": "19ce05976ce4abaeeac4bcf8ffc408284db638f88cb411b020e43fd66820a06f",
+  "promotion_performed": false
+}

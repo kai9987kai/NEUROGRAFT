@@ -2,6 +2,17 @@
 
 The data-source list is not a statement that every dataset has been acquired.
 
+## Adaptive evidence research reviewed on 31 October 2026 (v0.15)
+
+| Primary source | What it informs here | Boundary |
+|---|---|---|
+| Tao, Wen and Han, [Prioritized Model Experience Replay](https://proceedings.mlr.press/v306/tao26c.html), ICML 2026 | Separate model-prediction proxies from policy-relevant error | No neural PMER implementation or replication is claimed |
+| Gerogiannis, Huang and Veeravalli, [DARLING](https://arxiv.org/abs/2604.16684v2), April 2026 preprint revised 11 May 2026 | Explicit stationary/change controls and limits of detecting an unobserved change | Its separability/reachability assumptions and regret bounds do not apply to our predictive-score heuristic |
+| Duan et al., [Sample Efficient Experience Replay in Non-stationary Environments](https://arxiv.org/abs/2509.15032), September 2025 preprint | Distinguish dynamics revision from value replay | No DEER classifier or replication is implemented |
+| Bifet and Gavalda, [Learning from Time-Changing Data with Adaptive Windowing](https://www.cs.upc.edu/~gavalda/papers/adwin06.pdf), SDM 2007 | Principled adaptive-window alternative considered in the design | The implemented fixed discounted expert-score selector is not ADWIN and inherits none of its bounds |
+
+The v0.15 selector is an explicitly specified engineering baseline. Its score is neither a posterior nor a calibrated confidence level. Forecast smoothing is distinct from the actual integer-count evidence supplied to planning. See the [design](docs/superpowers/specs/2026-10-31-adaptive-evidence-design.md).
+
 | Source | Pinned or proposed scope | Primary reference |
 |---|---|---|
 | Worm | Acquired CElegansNeuroML commit `1ca08b14f4e795a973ce447565e0c97b897ee4dc`; original edge CSV and CellsOnly population network retained | [OpenWorm CElegansNeuroML](https://github.com/openworm/CElegansNeuroML), [c302](https://github.com/openworm/c302) |

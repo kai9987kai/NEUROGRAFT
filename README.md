@@ -17,6 +17,20 @@ The working package includes typed sparse graphs, CSV and human-matrix importers
 
 **Current evidence:** the circuit implementation runs and trains locally. The OpenWorm source has been acquired and normalized with explicit filtering receipts. Female fly, male fly, and human inputs in the included demonstration are **synthetic fixtures**. Qwen interface tests use tiny **randomly initialized** models from the actual Transformers implementations. A pretrained Qwen checkpoint has not been loaded or trained. No biological-connectome advantage is established.
 
+## Adaptive evidence and causal forecasts (v0.15)
+
+The replay workbench now compares **cumulative, recent and adaptive evidence**, each under prioritized, cyclic uniform and disabled replay. The adaptive model retains cumulative counts until its recent expert has sufficient discounted predictive-score advantage on that action, then can select the recent window. It scores every new outcome **before incorporating it**, including repeated events in one command. Inspect per-action evidence, selection, counts and switches alongside running Brier and log losses. The adaptive selection score is a heuristic, not a confidence level or guaranteed change detection. Smoothed forecasts and unsmoothed count-based planning are labeled separately.
+
+```powershell
+python -m neurograft workbench --port 8770
+python -m neurograft study-adaptation --out reports/runs/adaptation-study-new
+python -m neurograft verify-adaptation-study reports/runs/adaptation-study-new --replay
+```
+
+The controlled streaming study includes stationary outcomes, repeated closure/reopening, gradual drift, sparse revisits and a conditional adverse-run stress case. A guarded-recent comparison isolates the four-event warmup. Matched-prefix controls show why a real closure and an unlucky stationary run cannot be distinguished from identical observations. All nine planning arms share requested backup caps; current-dynamics policy regret is evaluated separately from empirical planning residual. No neural weights are updated and no live checkpoint is opened or promoted. Existing v1 receipts and v13/v14 study protocols remain supported. [Research, measured results and validation](docs/v15-build-report.md).
+
+In the fixed eight-seed pilot, adaptive reversal Brier loss is 0.210845 versus cumulative 0.316120; recent remains better at 0.182036. Adaptive stays closer to cumulative under stationarity but follows the misleading adverse prefix and delays sparse revision. This is a measured tradeoff, not a universal gain. The [evidence-led roadmap](docs/research-roadmap.md) identifies the next separate neural-learning and active-reacquisition experiments.
+
 ## Live interactive revision workbench (v0.14)
 
 Launch an independent experiment tool:

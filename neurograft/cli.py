@@ -139,6 +139,14 @@ def parser():
     revision_verify = commands.add_parser('verify-revision-study', help='verify and optionally recompute a model-revision experiment')
     revision_verify.add_argument('run')
     revision_verify.add_argument('--replay', action='store_true')
+    adaptation = commands.add_parser('study-adaptation', help='score causal adaptive evidence on matched stationary and changing outcome streams')
+    adaptation.add_argument('--out', required=True, help='new experiment directory')
+    adaptation.add_argument('--seeds', default='15000,15001,15002,15003,15004,15005,15006,15007')
+    adaptation.add_argument('--window', type=int, default=8)
+    adaptation.add_argument('--budget', type=int, default=64)
+    adaptation_verify = commands.add_parser('verify-adaptation-study', help='verify adaptive evidence archives and optionally regenerate every stream and result')
+    adaptation_verify.add_argument('run')
+    adaptation_verify.add_argument('--replay', action='store_true')
     report = commands.add_parser("report", help="create a standalone local HTML experiment report")
     report.add_argument("report")
     report.add_argument("--out", required=True)
@@ -284,6 +292,15 @@ def main(argv=None):
         elif args.command == 'verify-revision-study':
             from .revision_study import verify_revision_study
             _print(verify_revision_study(args.run, replay=args.replay))
+        elif args.command == 'study-adaptation':
+            from .adaptation_study import run_adaptation_study
+            result = run_adaptation_study(args.out, seeds=tuple(int(s) for s in args.seeds.split(',')),
+                                         window=args.window, budget=args.budget)
+            _print({'directory': str(Path(args.out).resolve()), 'summary': result['aggregates'],
+                    'promotion_performed': False, 'report': str((Path(args.out) / 'report.html').resolve())})
+        elif args.command == 'verify-adaptation-study':
+            from .adaptation_study import verify_adaptation_study
+            _print(verify_adaptation_study(args.run, replay=args.replay))
         elif args.command == "report":
             from .report import write_html_report
             result = json.loads(Path(args.report).read_text(encoding="utf-8"))

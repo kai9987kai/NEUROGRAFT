@@ -7,7 +7,7 @@ from .self_model import ConnectomeForwardSelfModel, SelfModelConfig
 from .spectral_diffusion import ChebyshevSpectralDiffusion
 from .stp import STPConfig, TsodyksMarkramSubstrate
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
 
 __all__ = [
     "ArchaeologyReport",

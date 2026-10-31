@@ -1,0 +1,17 @@
+{
+  "url": "http://127.0.0.1:8770/workbench",
+  "pid": 8400,
+  "health": {
+    "ok": true,
+    "mode": "fixture_workbench",
+    "live_session_opened": false
+  },
+  "receipt_version": 2,
+  "models": [
+    "cumulative",
+    "recent",
+    "adaptive"
+  ],
+  "source": "isolated fixture",
+  "live_checkpoint_opened": false
+}
